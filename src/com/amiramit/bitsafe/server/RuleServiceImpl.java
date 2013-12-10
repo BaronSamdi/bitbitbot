@@ -90,7 +90,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
     public AbstractUITradeRule[] getRules() throws NotLoggedInException {
 		final User user = ServerCommServiceImpl.checkLoggedIn();
-		LOG.info("getRules called");
+		LOG.info("getRules called for user: " + user);
 		final PersistenceManager pm = getPersistenceManager();
 
 		List<TradeRule> dbRules = new ArrayList<TradeRule>();

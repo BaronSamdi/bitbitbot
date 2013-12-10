@@ -1,29 +1,24 @@
 # AMIR .gitignore
-reports/*
-*.gwt.rpc
-*.cache.html
-*.nocache.js
+reports/
+war/bitsafe/
+#*.gwt.rpc
+#*.cache.html
+#*.nocache.js
 war/WEB-INF/appengine-generated/*
-test-classes
-clear.cache.gif
-war/bitsafe/gwt/*
-war/bitsafe/hosted.html
+test-classes/
 
 #GitHub Java .gitignore
-
 *.class
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
 
 #GitHub GWT .gitignore
-
 *.class
 
 # Package Files #
-*.jar
 *.war
 
 # gwt caches and compiled units #

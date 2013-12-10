@@ -77,12 +77,12 @@
 	</servlet>
 	<servlet-mapping>
 	  <servlet-name>xsrf</servlet-name>
-	  <url-pattern>/gwt/xsrf</url-pattern>
+	  <url-pattern>/bitsafe/gwt/xsrf</url-pattern>
 	</servlet-mapping>
 	
 	<context-param>
 	  <param-name>gwt.xsrf.session_cookie_name</param-name>
-	  <param-value>JSESSIONID</param-value>
+	  <param-value>session_id</param-value>
 	</context-param>
 
 	<!-- Default page to serve -->
