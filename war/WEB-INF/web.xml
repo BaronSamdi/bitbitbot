@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>cron</web-resource-name>
+			<url-pattern>/cron/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>tasks</web-resource-name>
+			<url-pattern>/tasks/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>loginService</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.LoginServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>loginService</servlet-name>
+		<url-pattern>/bitsafe/login</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>serverCommServiceServlet</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.ServerCommServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>serverCommServiceServlet</servlet-name>
+		<url-pattern>/bitsafe/srv</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>serverMainServlet</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.ServerMain</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>serverMainServlet</servlet-name>
+		<url-pattern>/_ah/start</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>serverMainServlet</servlet-name>
+		<url-pattern>/get_last_ticker</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ruleService</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.RuleServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ruleService</servlet-name>
+		<url-pattern>/bitsafe/rule</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+	  <servlet-name>xsrf</servlet-name>
+	  <servlet-class>
+	    com.google.gwt.user.server.rpc.XsrfTokenServiceServlet
+	  </servlet-class>
+	</servlet>
+	<servlet-mapping>
+	  <servlet-name>xsrf</servlet-name>
+	  <url-pattern>/gwt/xsrf</url-pattern>
+	</servlet-mapping>
+	
+	<context-param>
+	  <param-name>gwt.xsrf.session_cookie_name</param-name>
+	  <param-value>JSESSIONID</param-value>
+	</context-param>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>Bitsafe.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>

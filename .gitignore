@@ -1,3 +1,10 @@
+# AMIR .gitignore
+reports/*
+*.gwt.rpc
+*.cache.html
+*.nocache.js
+war/WEB-INF/appengine-generated/*
+
 #GitHub Java .gitignore
 
 *.class
