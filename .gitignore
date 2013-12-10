@@ -4,6 +4,7 @@ reports/*
 *.cache.html
 *.nocache.js
 war/WEB-INF/appengine-generated/*
+test-classes
 
 #GitHub Java .gitignore
 
