@@ -5,6 +5,9 @@ reports/*
 *.nocache.js
 war/WEB-INF/appengine-generated/*
 test-classes
+clear.cache.gif
+war/bitsafe/gwt/*
+war/bitsafe/hosted.html
 
 #GitHub Java .gitignore
 
