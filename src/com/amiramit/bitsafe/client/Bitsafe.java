@@ -72,30 +72,6 @@ public class Bitsafe implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		Cookies.setCookie("session_id", Long.toString(Random.nextInt()));
-
-		XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
-				.create(XsrfTokenService.class);
-		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
-				+ "xsrf");
-		xsrf.getNewXsrfToken(new AsyncCallback<XsrfToken>() {
-
-			public void onSuccess(XsrfToken token) {
-				((HasRpcToken) ruleService).setRpcToken(token);
-				((HasRpcToken) serverComm).setRpcToken(token);
-			}
-
-			public void onFailure(Throwable caught) {
-				try {
-					throw caught;
-				} catch (RpcTokenException e) {
-					handleError("xsrf.getNewXsrfToken RpcTokenException", e);
-				} catch (Throwable e) {
-					handleError("xsrf.getNewXsrfToken Throwable", e);
-				}
-			}
-		});
-
 		// Check login status using login service.
 		final LoginServiceAsync loginService = GWT.create(LoginService.class);
 		try {
@@ -119,7 +95,43 @@ public class Bitsafe implements EntryPoint {
 		}
 	}
 
+	private void getXSRFToken() {
+		Cookies.setCookie("session_id", Long.toString(Random.nextInt()));
+
+		final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
+				.create(XsrfTokenService.class);
+		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
+				+ "xsrf");
+		AsyncCallback<XsrfToken> asyncCallback = new AsyncCallback<XsrfToken>() {
+
+			public void onSuccess(XsrfToken token) {
+				((HasRpcToken) ruleService).setRpcToken(token);
+				((HasRpcToken) serverComm).setRpcToken(token);
+				xsrf.notify();
+			}
+
+			public void onFailure(Throwable caught) {
+				try {
+					throw caught;
+				} catch (RpcTokenException e) {
+					handleError("xsrf.getNewXsrfToken RpcTokenException", e);
+				} catch (Throwable e) {
+					handleError("xsrf.getNewXsrfToken Throwable", e);
+				}
+			}
+		};
+		xsrf.getNewXsrfToken(asyncCallback);
+		try {
+			xsrf.wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void loadWelcomePage() {
+		
+		getXSRFToken();
 
 		// Create table for stock data.
 		rulesFlexTable.setText(0, 0, "Active?");
