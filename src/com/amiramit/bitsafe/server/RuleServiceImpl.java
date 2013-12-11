@@ -87,7 +87,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		}
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
     public AbstractUITradeRule[] getRules() throws NotLoggedInException {
 		final User user = ServerCommServiceImpl.checkLoggedIn();
 		LOG.info("getRules called for user: " + user);
@@ -95,7 +96,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 		List<TradeRule> dbRules = new ArrayList<TradeRule>();
 		try {
-			final Query q = pm.newQuery(TradeRule.class, "user == u");
+			final Query q = pm.newQuery(StopLossRule.class, "user == u");
 			q.declareParameters("com.google.appengine.api.users.User u");
 			q.setOrdering("createDate");
 			dbRules = (List<TradeRule>) q.execute(user);
@@ -116,7 +117,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 				final UIBigMoney uiPrice = new UIBigMoney(
 						UICurrencyUnit.valueOf(price.getCurrencyUnit()
 								.getSymbol()), price.getAmount());
-				ret [i] = new UIStopLossRule(curRule.getCreateDate(),
+				ret [i] = new UIStopLossRule(curRule.getKey(), curRule.getCreateDate(),
 						curRule.getName(), curRule.getActive(), uiPrice);
 			}
 			++i;

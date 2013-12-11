@@ -9,22 +9,18 @@ public abstract class AbstractUITradeRule implements UIElement, Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private static final Long INVALID_DB_ID = null;
-	private Long dbID;
+    public static final Long INVALID_DB_ID = null;
+	private Long dbKey;
 	private Date createDate;
 	private String name;
 	private Boolean active;
 
-	public AbstractUITradeRule(final Long dbID, final Date createDate, final String name, final Boolean active) {
+	public AbstractUITradeRule(final Long dbKey, final Date createDate, final String name, final Boolean active) {
 		super();
-		this.dbID = dbID;
+		this.dbKey = dbKey;
 		this.createDate = createDate;
 		this.name = name;
 		this.active = active;
-	}
-
-	public AbstractUITradeRule(final Date createDate, final String name, final Boolean active) {
-		this(INVALID_DB_ID, createDate, name, active);
 	}
 
 	public Date getCreateDate() {
@@ -39,13 +35,13 @@ public abstract class AbstractUITradeRule implements UIElement, Serializable {
 		return active;
 	}
 
-	public Long getDbID() {
-		return dbID;
+	public Long getDbKey() {
+		return dbKey;
 	}
 
 	@Override
 	public void verify() throws UIVerifyException {
-		FieldVerifier.verifyNotNull(dbID);
+		FieldVerifier.verifyNotNull(dbKey);
 		FieldVerifier.verifyNotNull(createDate);
 		FieldVerifier.verifyString(name);
 		FieldVerifier.verifyNotNull(active);

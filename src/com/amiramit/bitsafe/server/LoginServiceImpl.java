@@ -9,10 +9,10 @@ import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 @SuppressWarnings("serial")
-public class LoginServiceImpl extends XsrfProtectedServiceServlet  implements
+public class LoginServiceImpl extends RemoteServiceServlet implements
 		LoginService {
 
 	private static final Logger LOG = Logger.getLogger(LoginServiceImpl.class

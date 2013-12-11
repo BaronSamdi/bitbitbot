@@ -11,14 +11,14 @@ public class UIStopLossRule extends AbstractUITradeRule implements UIElement, Se
 	
 	private UIBigMoney price;
 	
-	public UIStopLossRule(final Date createDate, final String name, final Boolean active,
+	public UIStopLossRule(final Long dbKey, final Date createDate, final String name, final Boolean active,
 			final UIBigMoney price) {
-		super(createDate, name, active);
+		super(dbKey, createDate, name, active);
 		this.price = price;
 	}
 	
 	public UIStopLossRule() {
-		super(null, null, null);
+		super(INVALID_DB_ID, null, null, null);
 	}
 
 	public UIBigMoney getPrice() {

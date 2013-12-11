@@ -1,7 +1,6 @@
 package com.amiramit.bitsafe.client;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -36,8 +35,7 @@ public class Bitsafe implements EntryPoint {
 	 * returns an error.
 	 */
 	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network "
-			+ "connection and try again.";
+			+ "attempting to contact the server.";
 
 	private static final int REFRESH_INTERVAL = 10000; // ms
 
@@ -75,13 +73,11 @@ public class Bitsafe implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		Cookies.setCookie("session_id", Long.toString(Random.nextInt()));
-		// Cookies.setCookie("session_id", "session_id", null, null, "/",
-		// false);
 
 		XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
 				.create(XsrfTokenService.class);
 		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
-				+ "gwt/xsrf");
+				+ "xsrf");
 		xsrf.getNewXsrfToken(new AsyncCallback<XsrfToken>() {
 
 			public void onSuccess(XsrfToken token) {
@@ -93,13 +89,9 @@ public class Bitsafe implements EntryPoint {
 				try {
 					throw caught;
 				} catch (RpcTokenException e) {
-					// Can be thrown for several reasons:
-					// - duplicate session cookie, which may be a sign of a
-					// cookie overwrite attack
-					// - XSRF token cannot be generated because session cookie
-					// isn't present
+					handleError("xsrf.getNewXsrfToken RpcTokenException", e);
 				} catch (Throwable e) {
-					handleError(e);
+					handleError("xsrf.getNewXsrfToken Throwable", e);
 				}
 			}
 		});
@@ -110,6 +102,7 @@ public class Bitsafe implements EntryPoint {
 			loginService.login(GWT.getHostPageBaseURL(),
 					new AsyncCallback<LoginInfo>() {
 						public void onFailure(Throwable error) {
+							handleError("loginService.login", error);
 						}
 
 						public void onSuccess(LoginInfo result) {
@@ -122,7 +115,7 @@ public class Bitsafe implements EntryPoint {
 						}
 					});
 		} catch (UIVerifyException error) {
-			handleError(error);
+			handleError("loginService.login UIVerifyException", error);
 		}
 	}
 
@@ -165,11 +158,14 @@ public class Bitsafe implements EntryPoint {
 				// We send the request to the server.
 				serverComm.getTicker("BTCUSD", new AsyncCallback<UITicker>() {
 					public void onFailure(Throwable caught) {
-						// Show the RPC error message to the user
-						errorLabel.setText(SERVER_ERROR);
+						handleError("serverComm.getTicker", caught);
 					}
 
 					public void onSuccess(UITicker result) {
+						if (result == null) {
+							handleError("At serverComm.getTicker: Got null from server");
+							return;
+						}
 						priceLabel.setText(result.getLast().toString());
 						lastUpdatedLabel.setText(DateTimeFormat.getFormat(
 								PredefinedFormat.DATE_TIME_SHORT).format(
@@ -179,7 +175,7 @@ public class Bitsafe implements EntryPoint {
 				});
 			}
 		};
-		
+
 		refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
 		loadRules();
 	}
@@ -197,8 +193,12 @@ public class Bitsafe implements EntryPoint {
 				"rulesListRemoveColumn");
 	}
 
-	private void handleError(Throwable error) {
-		errorLabel.setText(SERVER_ERROR);
+	private void handleError(String error) {
+		errorLabel.setText(SERVER_ERROR + ": " + error);
+	}
+
+	private void handleError(String location, Throwable error) {
+		handleError("at: " + location + " error: " + error.toString());
 		if (error instanceof NotLoggedInException) {
 			Window.Location.replace(loginInfo.getLogoutUrl());
 		}
@@ -207,6 +207,7 @@ public class Bitsafe implements EntryPoint {
 	private void loadRules() {
 		ruleService.getRules(new AsyncCallback<AbstractUITradeRule[]>() {
 			public void onFailure(Throwable error) {
+				handleError("ruleService.getRules", error);
 			}
 
 			public void onSuccess(AbstractUITradeRule[] rules) {

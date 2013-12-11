@@ -18,7 +18,7 @@ public class TradeRule {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	private Long id;
+	private Long key;
 	@Persistent
 	private User user;
 	@Persistent
@@ -40,8 +40,8 @@ public class TradeRule {
 		this.active = active;
 	}
 
-	public Long getId() {
-		return id;
+	public Long getKey() {
+		return key;
 	}
 
 	public String getName() {

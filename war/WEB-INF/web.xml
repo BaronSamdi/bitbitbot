@@ -28,7 +28,6 @@
 		<servlet-name>loginService</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.LoginServiceImpl</servlet-class>
 	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>loginService</servlet-name>
 		<url-pattern>/bitsafe/login</url-pattern>
@@ -38,7 +37,6 @@
 		<servlet-name>serverCommServiceServlet</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.ServerCommServiceImpl</servlet-class>
 	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>serverCommServiceServlet</servlet-name>
 		<url-pattern>/bitsafe/srv</url-pattern>
@@ -48,12 +46,10 @@
 		<servlet-name>serverMainServlet</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.ServerMain</servlet-class>
 	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>serverMainServlet</servlet-name>
 		<url-pattern>/_ah/start</url-pattern>
 	</servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>serverMainServlet</servlet-name>
 		<url-pattern>/get_last_ticker</url-pattern>
@@ -63,26 +59,22 @@
 		<servlet-name>ruleService</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.RuleServiceImpl</servlet-class>
 	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>ruleService</servlet-name>
 		<url-pattern>/bitsafe/rule</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet>
-	  <servlet-name>xsrf</servlet-name>
-	  <servlet-class>
-	    com.google.gwt.user.server.rpc.XsrfTokenServiceServlet
-	  </servlet-class>
+		<servlet-name>xsrf</servlet-name>
+		<servlet-class>com.google.gwt.user.server.rpc.XsrfTokenServiceServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-	  <servlet-name>xsrf</servlet-name>
-	  <url-pattern>/bitsafe/gwt/xsrf</url-pattern>
+		<servlet-name>xsrf</servlet-name>
+		<url-pattern>/bitsafe/xsrf</url-pattern>
 	</servlet-mapping>
-	
 	<context-param>
-	  <param-name>gwt.xsrf.session_cookie_name</param-name>
-	  <param-value>session_id</param-value>
+		<param-name>gwt.xsrf.session_cookie_name</param-name>
+		<param-value>session_id</param-value>
 	</context-param>
 
 	<!-- Default page to serve -->
