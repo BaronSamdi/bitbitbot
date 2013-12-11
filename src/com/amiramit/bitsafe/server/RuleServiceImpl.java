@@ -34,8 +34,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			.getPersistenceManagerFactory("transactions-optional");
 
 	@Override
-    public void addRule(final AbstractUITradeRule uiRule) throws NotLoggedInException,
-			UIVerifyException {
+	public AbstractUITradeRule addRule(final AbstractUITradeRule uiRule)
+			throws NotLoggedInException, UIVerifyException {
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		final User user = ServerCommServiceImpl.checkLoggedIn();
 		FieldVerifier.verifyNotNull(uiRule);
@@ -63,10 +63,12 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		} finally {
 			pm.close();
 		}
+		
+		return tradeRuleToUIRule(srvRule);
 	}
 
 	@Override
-    public void removeRule(final Long id) throws NotLoggedInException,
+	public void removeRule(final Long id) throws NotLoggedInException,
 			UIVerifyException {
 		ServerCommServiceImpl.checkLoggedIn();
 		FieldVerifier.verifyNotNull(id);
@@ -88,8 +90,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	}
 
 	@SuppressWarnings("unchecked")
-    @Override
-    public AbstractUITradeRule[] getRules() throws NotLoggedInException {
+	@Override
+	public AbstractUITradeRule[] getRules() throws NotLoggedInException {
 		final User user = ServerCommServiceImpl.checkLoggedIn();
 		LOG.info("getRules called for user: " + user);
 		final PersistenceManager pm = getPersistenceManager();
@@ -108,22 +110,32 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 		final Iterator<TradeRule> it = dbRules.iterator();
 		int i = 0;
-		final AbstractUITradeRule[] ret = new AbstractUITradeRule[dbRules.size()];
+		final AbstractUITradeRule[] ret = new AbstractUITradeRule[dbRules
+				.size()];
 		while (it.hasNext()) {
 			final TradeRule curRule = it.next();
-			if (curRule instanceof StopLossRule) {
-				final StopLossRule slRule = (StopLossRule) curRule;
-				final BigMoney price = slRule.getPrice();
-				final UIBigMoney uiPrice = new UIBigMoney(
-						UICurrencyUnit.valueOf(price.getCurrencyUnit()
-								.getSymbol()), price.getAmount());
-				ret [i] = new UIStopLossRule(curRule.getKey(), curRule.getCreateDate(),
-						curRule.getName(), curRule.getActive(), uiPrice);
-			}
+			ret[i] = tradeRuleToUIRule(curRule);
 			++i;
 		}
 
 		return ret;
+	}
+
+	private AbstractUITradeRule tradeRuleToUIRule(final TradeRule curRule) {
+		if (curRule instanceof StopLossRule) {
+			final StopLossRule slRule = (StopLossRule) curRule;
+			final BigMoney price = slRule.getPrice();
+			final UIBigMoney uiPrice = new UIBigMoney(
+					UICurrencyUnit.valueOf(price.getCurrencyUnit().getSymbol()),
+					price.getAmount());
+			return new UIStopLossRule(curRule.getKey(),
+					curRule.getCreateDate(), curRule.getName(),
+					curRule.getActive(), uiPrice);
+		}
+
+		LOG.severe("Unknow rule class: " + curRule.getClass()
+				+ " in tradeRuleToUIRule");
+		return null;
 	}
 
 	private PersistenceManager getPersistenceManager() {

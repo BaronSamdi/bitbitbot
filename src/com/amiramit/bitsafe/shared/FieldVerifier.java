@@ -24,8 +24,9 @@ import com.google.gwt.safehtml.shared.UriUtils;
  * </p>
  */
 public class FieldVerifier {
-    
-    private FieldVerifier() {};
+
+	private FieldVerifier() {
+	};
 
 	public static void verifyNotNull(Object obj) throws UIVerifyException {
 		if (obj == null) {
@@ -39,7 +40,7 @@ public class FieldVerifier {
 
 		if (!symbol.equals("BTCUSD")) {
 			throw new UIVerifyException("Invalid symbol: "
-					+ symbol.substring(0, 10));
+					+ truncateStr(symbol, 10));
 		}
 	}
 
@@ -49,7 +50,8 @@ public class FieldVerifier {
 		}
 		int sz = str.length();
 		for (int i = 0; i < sz; i++) {
-			if (Character.isLetterOrDigit(str.charAt(i)) == false) {
+			char charAt = str.charAt(i);
+			if (charAt != ' ' && Character.isLetterOrDigit(charAt) == false) {
 				return false;
 			}
 		}
@@ -59,9 +61,13 @@ public class FieldVerifier {
 	public static void verifyString(String str) throws UIVerifyException {
 		verifyNotNull(str);
 		if (!isAlphanumeric(str)) {
-			throw new UIVerifyException("String: '" + str.substring(0, 10)
+			throw new UIVerifyException("String: '" + truncateStr(str, 30)
 					+ "' is not alpha numeric");
 		}
+	}
+
+	private static String truncateStr(String str, int len) {
+		return str.substring(0, Math.min(str.length(), len));
 	}
 
 	public static void verifyUri(String requestUri) throws UIVerifyException {
@@ -69,13 +75,13 @@ public class FieldVerifier {
 		if (requestUri.length() > 50) {
 			throw new UIVerifyException(
 					"Unsafe URI requested at login (length > 50!): "
-							+ requestUri.substring(0, 50));
+							+ truncateStr(requestUri, 50));
 		}
 
 		if (!UriUtils.isSafeUri(requestUri)) {
 			// This message is logged in UIVerifyException
 			throw new UIVerifyException("Unsafe URI requested at login: "
-					+ requestUri.substring(0, 50));
+					+ truncateStr(requestUri, 50));
 		}
 	}
 }

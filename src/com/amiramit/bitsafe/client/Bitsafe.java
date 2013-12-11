@@ -1,6 +1,10 @@
 package com.amiramit.bitsafe.client;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
+
+import sun.swing.UIAction;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -21,15 +25,20 @@ import com.google.gwt.user.client.rpc.XsrfTokenService;
 import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Bitsafe implements EntryPoint {
+	private static final String STOP_LOSS = "Stop Loss";
+
 	/**
 	 * The message displayed to the user when the server cannot be reached or
 	 * returns an error.
@@ -72,6 +81,9 @@ public class Bitsafe implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+
+		getXSRFToken();
+
 		// Check login status using login service.
 		final LoginServiceAsync loginService = GWT.create(LoginService.class);
 		try {
@@ -96,6 +108,7 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void getXSRFToken() {
+		// TODO: GET SESSION COOKIE FROM SERVER!
 		Cookies.setCookie("session_id", Long.toString(Random.nextInt()));
 
 		final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
@@ -107,7 +120,6 @@ public class Bitsafe implements EntryPoint {
 			public void onSuccess(XsrfToken token) {
 				((HasRpcToken) ruleService).setRpcToken(token);
 				((HasRpcToken) serverComm).setRpcToken(token);
-				xsrf.notify();
 			}
 
 			public void onFailure(Throwable caught) {
@@ -121,29 +133,50 @@ public class Bitsafe implements EntryPoint {
 			}
 		};
 		xsrf.getNewXsrfToken(asyncCallback);
-		try {
-			xsrf.wait();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private void loadWelcomePage() {
-		
-		getXSRFToken();
-
 		// Create table for stock data.
-		rulesFlexTable.setText(0, 0, "Active?");
+		CheckBox activeCheckBox = new CheckBox("Active");
+		activeCheckBox.setEnabled(false);
+		rulesFlexTable.setWidget(0, 0, activeCheckBox);
 		rulesFlexTable.setText(0, 1, "Rule Name");
 		rulesFlexTable.setText(0, 2, "Rule Type");
 		rulesFlexTable.setText(0, 3, "Trigger Price");
-		rulesFlexTable.setText(0, 3, "Remove");
+		rulesFlexTable.setText(0, 4, "Remove");
+
+		TextBox nameBox = new TextBox();
+		nameBox.setText("Name your rule");
+		ListBox ruleBox = new ListBox();
+		ruleBox.addItem(STOP_LOSS);
+		TextBox priceBox = new TextBox();
+		priceBox.setText("Trigger Price");
+		Button addButton = new Button("Add");
+		addButton.addStyleDependentName("add");
+		addButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				// TODO: Do not allow another click until rule is added as later
+				// we relay on the index of this rule in the
+				// array
+				int addIndex = rulesFlexTable.getCellForEvent(event)
+						.getRowIndex();
+				addRule(addIndex);
+			}
+		});
+		rulesFlexTable.setWidget(1, 0, activeCheckBox);
+		rulesFlexTable.setWidget(1, 1, nameBox);
+		rulesFlexTable.setWidget(1, 2, ruleBox);
+		rulesFlexTable.setWidget(1, 3, priceBox);
+		rulesFlexTable.setWidget(1, 4, addButton);
+		displayRule(new UIStopLossRule(UIStopLossRule.INVALID_DB_ID,
+				new Date(), "Name your rule", true, new UIBigMoney(
+						UICurrencyUnit.USD, new BigDecimal(0))));
 
 		// Add styles to elements in the stock list table.
 		rulesFlexTable.setCellPadding(6);
 		rulesFlexTable.addStyleName("rulesList");
 		rulesFlexTable.getRowFormatter().addStyleName(0, "rulesListHeader");
+
 		setRulesTableRowStyle(0);
 
 		RootPanel.get("welcomeMsgContainer").add(
@@ -241,11 +274,12 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setText(row, 0, rule.getActive() ? "V" : "X");
 		rulesFlexTable.setText(row, 1, rule.getName());
 		if (rule instanceof UIStopLossRule) {
-			rulesFlexTable.setText(row, 2, "Stop Loss");
+			rulesFlexTable.setText(row, 2, STOP_LOSS);
 			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getPrice()
-					.toString());
+					.getAmount().toString());
 		} else {
-			errorLabel.setText(SERVER_ERROR);
+			handleError("Display rule got unknown rule!");
+			return;
 		}
 		setRulesTableRowStyle(row);
 
@@ -254,12 +288,82 @@ public class Bitsafe implements EntryPoint {
 		removeStockButton.addStyleDependentName("remove");
 		removeStockButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
+				// TODO: Do not allow another click until rule is removed from
+				// server as later we relay on the index of this rule in the
+				// array
 				int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				rulesList.remove(removedIndex);
-				rulesFlexTable.removeRow(removedIndex + 1);
+				removeRule(removedIndex);
 			}
 		});
 		rulesFlexTable.setWidget(row, 4, removeStockButton);
+	}
+
+	private void removeRule(final int removedIndex) {
+		AbstractUITradeRule ruleToRemove = rulesList.get(removedIndex - 1);
+		if (ruleToRemove.getDbKey() == AbstractUITradeRule.INVALID_DB_ID) {
+			handleError("Rule to remove has invalid ID!");
+			return;
+		}
+
+		ruleService.removeRule(ruleToRemove.getDbKey(),
+				new AsyncCallback<Void>() {
+					public void onFailure(Throwable error) {
+						handleError("ruleService.removeRule", error);
+					}
+
+					public void onSuccess(Void ignore) {
+						undisplayRule(removedIndex);
+					}
+				});
+	}
+
+	private void undisplayRule(int removedIndex) {
+		rulesFlexTable.removeRow(removedIndex);
+		rulesList.remove(removedIndex - 1);
+	}
+
+	protected void addRule(int addIndex) {
+		AbstractUITradeRule ruleToAdd = null;
+
+		boolean isActive = ((CheckBox) rulesFlexTable.getWidget(addIndex, 0))
+				.getValue();
+		String name = ((TextBox) rulesFlexTable.getWidget(addIndex, 1))
+				.getText();
+
+		ListBox lstboxRuleType = (ListBox) rulesFlexTable
+				.getWidget(addIndex, 2);
+		String type = lstboxRuleType.getItemText(lstboxRuleType
+				.getSelectedIndex());
+		if (type.equals(STOP_LOSS)) {
+			String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
+					.getText();
+			BigDecimal price = null;
+			try {
+				price = new BigDecimal(Long.valueOf(sPrice));
+			} catch (NumberFormatException error) {
+				handleError("Long.valueOf(sPrice)", error);
+				return;
+			}
+			ruleToAdd = new UIStopLossRule(name, isActive, new UIBigMoney(
+					UICurrencyUnit.USD, price));
+			try {
+				ruleToAdd.verify();
+			} catch (UIVerifyException e) {
+				handleError("ruleToAdd.verify()", e);
+				return;
+			}
+		}
+
+		ruleService.addRule(ruleToAdd,
+				new AsyncCallback<AbstractUITradeRule>() {
+					public void onFailure(Throwable error) {
+						handleError("ruleService.addRule", error);
+					}
+
+					public void onSuccess(AbstractUITradeRule ret) {
+						displayRule(ret);
+					}
+				});
 	}
 }

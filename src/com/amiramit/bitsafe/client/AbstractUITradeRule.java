@@ -41,8 +41,10 @@ public abstract class AbstractUITradeRule implements UIElement, Serializable {
 
 	@Override
 	public void verify() throws UIVerifyException {
-		FieldVerifier.verifyNotNull(dbKey);
-		FieldVerifier.verifyNotNull(createDate);
+		// dbKey can be null when sending from ui to server
+		// createDate can be null when sending from ui to server
+		//FieldVerifier.verifyNotNull(dbKey);
+		//FieldVerifier.verifyNotNull(createDate);
 		FieldVerifier.verifyString(name);
 		FieldVerifier.verifyNotNull(active);
 	}

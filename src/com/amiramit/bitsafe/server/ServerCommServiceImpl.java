@@ -46,7 +46,7 @@ public class ServerCommServiceImpl extends XsrfProtectedServiceServlet implement
 			ObjectInputStream is = new ObjectInputStream(conn.getInputStream());
 			lastTicker = (UITicker) is.readObject();
 		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			LOG.severe("Error getting last ticker from backend: " + e);
 			e.printStackTrace();
 		}
 

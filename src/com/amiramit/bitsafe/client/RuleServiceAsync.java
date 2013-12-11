@@ -4,8 +4,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RuleServiceAsync {
 
-	void addRule(AbstractUITradeRule rule, AsyncCallback<Void> callback) throws NotLoggedInException,
-	UIVerifyException;
+	void addRule(AbstractUITradeRule rule,
+			AsyncCallback<AbstractUITradeRule> callback);
 
 	void getRules(AsyncCallback<AbstractUITradeRule[]> callback);
 

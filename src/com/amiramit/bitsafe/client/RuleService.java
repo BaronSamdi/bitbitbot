@@ -5,7 +5,7 @@ import com.google.gwt.user.client.rpc.XsrfProtectedService;
 
 @RemoteServiceRelativePath("rule")
 public interface RuleService extends XsrfProtectedService {
-	public void addRule(AbstractUITradeRule rule) throws NotLoggedInException,
+	public AbstractUITradeRule addRule(AbstractUITradeRule rule) throws NotLoggedInException,
 			UIVerifyException;
 
 	public void removeRule(Long id) throws NotLoggedInException, UIVerifyException;
