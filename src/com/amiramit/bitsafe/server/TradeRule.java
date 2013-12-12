@@ -29,7 +29,7 @@ public class TradeRule {
 	private Boolean active;
 
 
-	private TradeRule() {
+	public TradeRule() {
 		this.createDate = new Date();
 	}
 

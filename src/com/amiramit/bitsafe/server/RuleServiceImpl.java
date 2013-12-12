@@ -126,7 +126,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			final StopLossRule slRule = (StopLossRule) curRule;
 			final BigMoney price = slRule.getPrice();
 			final UIBigMoney uiPrice = new UIBigMoney(
-					UICurrencyUnit.valueOf(price.getCurrencyUnit().getSymbol()),
+					UICurrencyUnit.valueOf(price.getCurrencyUnit().getCode()),
 					price.getAmount());
 			return new UIStopLossRule(curRule.getKey(),
 					curRule.getCreateDate(), curRule.getName(),

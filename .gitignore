@@ -1,10 +1,14 @@
 # AMIR .gitignore
 reports/
 war/bitsafe/
-#*.gwt.rpc
-#*.cache.html
-#*.nocache.js
 war/WEB-INF/appengine-generated/*
+war/WEB-INF/lib/appengine*jar
+war/WEB-INF/lib/datanucleus*jar
+war/WEB-INF/lib/asm-*jar
+war/WEB-INF/lib/jdo-api-*jar
+war/WEB-INF/lib/jta-*jar
+war/WEB-INF/lib/jsr107cache-*jar
+war/WEB-INF/lib/geronimo-jpa_*jar
 test-classes/
 
 #GitHub Java .gitignore

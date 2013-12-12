@@ -137,9 +137,7 @@ public class Bitsafe implements EntryPoint {
 
 	private void loadWelcomePage() {
 		// Create table for stock data.
-		CheckBox activeCheckBox = new CheckBox("Active");
-		activeCheckBox.setEnabled(false);
-		rulesFlexTable.setWidget(0, 0, activeCheckBox);
+		rulesFlexTable.setText(0, 0, "Active");
 		rulesFlexTable.setText(0, 1, "Rule Name");
 		rulesFlexTable.setText(0, 2, "Rule Type");
 		rulesFlexTable.setText(0, 3, "Trigger Price");
@@ -155,23 +153,21 @@ public class Bitsafe implements EntryPoint {
 		addButton.addStyleDependentName("add");
 		addButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				// TODO: Do not allow another click until rule is added as later
-				// we relay on the index of this rule in the
-				// array
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+				// index we look for in the list and what happens if user add /
+				// remove another rule in between?
 				int addIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
 				addRule(addIndex);
 			}
 		});
-		rulesFlexTable.setWidget(1, 0, activeCheckBox);
+		
+		rulesFlexTable.setWidget(1, 0, new CheckBox());
 		rulesFlexTable.setWidget(1, 1, nameBox);
 		rulesFlexTable.setWidget(1, 2, ruleBox);
 		rulesFlexTable.setWidget(1, 3, priceBox);
 		rulesFlexTable.setWidget(1, 4, addButton);
-		displayRule(new UIStopLossRule(UIStopLossRule.INVALID_DB_ID,
-				new Date(), "Name your rule", true, new UIBigMoney(
-						UICurrencyUnit.USD, new BigDecimal(0))));
-
+		
 		// Add styles to elements in the stock list table.
 		rulesFlexTable.setCellPadding(6);
 		rulesFlexTable.addStyleName("rulesList");
@@ -239,7 +235,7 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void handleError(String error) {
-		errorLabel.setText(SERVER_ERROR + ": " + error);
+		errorLabel.setText(error);
 	}
 
 	private void handleError(String location, Throwable error) {
@@ -256,6 +252,9 @@ public class Bitsafe implements EntryPoint {
 			}
 
 			public void onSuccess(AbstractUITradeRule[] rules) {
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+				// index we look for in the list and what happens if user add /
+				// remove another rule in between?
 				displayRules(rules);
 			}
 		});
@@ -271,7 +270,9 @@ public class Bitsafe implements EntryPoint {
 		// Add the rule to the table.
 		int row = rulesFlexTable.getRowCount();
 		rulesList.add(rule);
-		rulesFlexTable.setText(row, 0, rule.getActive() ? "V" : "X");
+		CheckBox ruleDisplayCheckBox = new CheckBox();
+		ruleDisplayCheckBox.setValue(rule.getActive());
+		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getName());
 		if (rule instanceof UIStopLossRule) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
@@ -288,24 +289,24 @@ public class Bitsafe implements EntryPoint {
 		removeStockButton.addStyleDependentName("remove");
 		removeStockButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				// TODO: Do not allow another click until rule is removed from
-				// server as later we relay on the index of this rule in the
-				// array
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+				// index we look for in the list and what happens if user add /
+				// remove another rule in between?
 				int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				removeRule(removedIndex);
+				AbstractUITradeRule ruleToRemove = rulesList
+						.get(removedIndex - 2);
+				if (ruleToRemove.getDbKey() == AbstractUITradeRule.INVALID_DB_ID) {
+					handleError("removeStockButton ClickHandler: Rule to remove has invalid ID!");
+					return;
+				}
+				removeRule(ruleToRemove);
 			}
 		});
 		rulesFlexTable.setWidget(row, 4, removeStockButton);
 	}
 
-	private void removeRule(final int removedIndex) {
-		AbstractUITradeRule ruleToRemove = rulesList.get(removedIndex - 1);
-		if (ruleToRemove.getDbKey() == AbstractUITradeRule.INVALID_DB_ID) {
-			handleError("Rule to remove has invalid ID!");
-			return;
-		}
-
+	private void removeRule(final AbstractUITradeRule ruleToRemove) {
 		ruleService.removeRule(ruleToRemove.getDbKey(),
 				new AsyncCallback<Void>() {
 					public void onFailure(Throwable error) {
@@ -313,14 +314,23 @@ public class Bitsafe implements EntryPoint {
 					}
 
 					public void onSuccess(Void ignore) {
-						undisplayRule(removedIndex);
+						undisplayRule(ruleToRemove);
 					}
 				});
 	}
 
-	private void undisplayRule(int removedIndex) {
-		rulesFlexTable.removeRow(removedIndex);
-		rulesList.remove(removedIndex - 1);
+	private void undisplayRule(AbstractUITradeRule ruleToRemove) {
+		// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+		// index we look for in the list and what happens if user add /
+		// remove another rule in between?
+		int removeIndex = rulesList.indexOf(ruleToRemove);
+		if (removeIndex == -1) {
+			handleError("undisplayRule got rule which has been removed already!");
+			return;
+		}
+
+		rulesList.remove(removeIndex);
+		rulesFlexTable.removeRow(removeIndex + 2);
 	}
 
 	protected void addRule(int addIndex) {
@@ -340,11 +350,11 @@ public class Bitsafe implements EntryPoint {
 					.getText();
 			BigDecimal price = null;
 			try {
-				price = new BigDecimal(Long.valueOf(sPrice));
+				price = new BigDecimal(sPrice);
 			} catch (NumberFormatException error) {
-				handleError("Long.valueOf(sPrice)", error);
+				handleError("BigDecimal.valueOf(sPrice)", error);
 				return;
-			}
+			}		
 			ruleToAdd = new UIStopLossRule(name, isActive, new UIBigMoney(
 					UICurrencyUnit.USD, price));
 			try {
@@ -362,6 +372,9 @@ public class Bitsafe implements EntryPoint {
 					}
 
 					public void onSuccess(AbstractUITradeRule ret) {
+						// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+						// index we look for in the list and what happens if user add /
+						// remove another rule in between?
 						displayRule(ret);
 					}
 				});

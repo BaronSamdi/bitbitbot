@@ -1,6 +1,7 @@
 package com.amiramit.bitsafe.client;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.amiramit.bitsafe.shared.FieldVerifier;
@@ -35,6 +36,11 @@ public class UIStopLossRule extends AbstractUITradeRule implements UIElement, Se
 	public void verify() throws UIVerifyException {
 		FieldVerifier.verifyNotNull(price);
 		price.verify();
+		
+		if (price.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new UIVerifyException("UIStopLossRule price <= 0");
+		}
+		
 		super.verify();
 	}
 }
