@@ -1,19 +1,22 @@
 package com.amiramit.bitsafe.server;
 
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-
 import org.joda.money.BigMoney;
 
 import com.google.appengine.api.users.User;
+import com.googlecode.objectify.annotation.Cache;
+import com.googlecode.objectify.annotation.EntitySubclass;
+import com.googlecode.objectify.annotation.Serialize;
 
-@PersistenceCapable(identityType = IdentityType.APPLICATION)
+@EntitySubclass(index=true)
 public class StopLossRule extends TradeRule {
 
-	@Persistent
-	private final BigMoney price;
+	// TODO: Use BigDecimal here instead of @Serialize?
+	@Serialize
+	private BigMoney price;
 
+	protected StopLossRule() {
+	}
+			
 	public StopLossRule(final User user, final String name, final Boolean active, final BigMoney price) {
 		super(user, name, active);
 		this.price = price;

@@ -1,6 +1,6 @@
 package com.amiramit.bitsafe.shared;
 
-import com.amiramit.bitsafe.client.UIVerifyException;
+import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.google.gwt.safehtml.shared.UriUtils;
 
 /**
@@ -32,6 +32,13 @@ public class FieldVerifier {
 		if (obj == null) {
 			throw new UIVerifyException("Got null");
 		}
+	}
+	
+
+	public static void verifyIsNull(Object obj) throws UIVerifyException {
+		if (obj != null) {
+			throw new UIVerifyException("Got non-null");
+		}		
 	}
 
 	public static void verifyValidSymbol(String symbol)
@@ -84,4 +91,5 @@ public class FieldVerifier {
 					+ truncateStr(requestUri, 50));
 		}
 	}
+
 }

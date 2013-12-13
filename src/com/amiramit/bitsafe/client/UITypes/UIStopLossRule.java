@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client;
+package com.amiramit.bitsafe.client.UITypes;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -6,7 +6,7 @@ import java.util.Date;
 
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
-public class UIStopLossRule extends AbstractUITradeRule implements UIElement, Serializable {
+public class UIStopLossRule extends UITradeRule implements UIElement, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	

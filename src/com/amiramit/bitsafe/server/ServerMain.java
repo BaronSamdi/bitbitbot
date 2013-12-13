@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amiramit.bitsafe.client.UITicker;
+import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.google.appengine.api.LifecycleManager;
 import com.google.appengine.api.LifecycleManager.ShutdownHook;
 import com.google.appengine.api.ThreadManager;

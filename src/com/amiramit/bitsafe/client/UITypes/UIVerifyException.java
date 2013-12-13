@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client;
+package com.amiramit.bitsafe.client.UITypes;
 
 import java.io.Serializable;
 import java.util.logging.Logger;

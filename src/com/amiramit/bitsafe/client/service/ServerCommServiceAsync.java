@@ -1,5 +1,6 @@
-package com.amiramit.bitsafe.client;
+package com.amiramit.bitsafe.client.service;
 
+import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**

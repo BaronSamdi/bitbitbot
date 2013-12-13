@@ -7,9 +7,9 @@ import java.net.URLConnection;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.amiramit.bitsafe.client.ServerCommService;
-import com.amiramit.bitsafe.client.UITicker;
-import com.amiramit.bitsafe.client.UIVerifyException;
+import com.amiramit.bitsafe.client.UITypes.UITicker;
+import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.client.service.ServerCommService;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.appengine.api.backends.BackendServiceFactory;
 import com.google.appengine.api.users.User;

@@ -2,10 +2,19 @@ package com.amiramit.bitsafe.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 
-import sun.swing.UIAction;
-
+import com.amiramit.bitsafe.client.UITypes.UITradeRule;
+import com.amiramit.bitsafe.client.UITypes.UIBigMoney;
+import com.amiramit.bitsafe.client.UITypes.UICurrencyUnit;
+import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
+import com.amiramit.bitsafe.client.UITypes.UITicker;
+import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.client.service.LoginService;
+import com.amiramit.bitsafe.client.service.LoginServiceAsync;
+import com.amiramit.bitsafe.client.service.RuleService;
+import com.amiramit.bitsafe.client.service.RuleServiceAsync;
+import com.amiramit.bitsafe.client.service.ServerCommService;
+import com.amiramit.bitsafe.client.service.ServerCommServiceAsync;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,14 +48,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class Bitsafe implements EntryPoint {
 	private static final String STOP_LOSS = "Stop Loss";
 
-	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
-	 */
-	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server.";
-
-	private static final int REFRESH_INTERVAL = 10000; // ms
+	private static final int REFRESH_INTERVAL = 30000; // ms
 
 	/**
 	 * Create a remote service proxy to talk to the server-side
@@ -66,7 +68,7 @@ public class Bitsafe implements EntryPoint {
 	private Anchor signInLink = new Anchor("Sign In");
 	private Anchor signOutLink = new Anchor("Sign Out");
 
-	private ArrayList<AbstractUITradeRule> rulesList = new ArrayList<AbstractUITradeRule>();
+	private ArrayList<UITradeRule> rulesList = new ArrayList<UITradeRule>();
 	private FlexTable rulesFlexTable = new FlexTable();
 
 	private void loadLogin() {
@@ -161,13 +163,13 @@ public class Bitsafe implements EntryPoint {
 				addRule(addIndex);
 			}
 		});
-		
+
 		rulesFlexTable.setWidget(1, 0, new CheckBox());
 		rulesFlexTable.setWidget(1, 1, nameBox);
 		rulesFlexTable.setWidget(1, 2, ruleBox);
 		rulesFlexTable.setWidget(1, 3, priceBox);
 		rulesFlexTable.setWidget(1, 4, addButton);
-		
+
 		// Add styles to elements in the stock list table.
 		rulesFlexTable.setCellPadding(6);
 		rulesFlexTable.addStyleName("rulesList");
@@ -246,12 +248,12 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void loadRules() {
-		ruleService.getRules(new AsyncCallback<AbstractUITradeRule[]>() {
+		ruleService.getRules(new AsyncCallback<UITradeRule[]>() {
 			public void onFailure(Throwable error) {
 				handleError("ruleService.getRules", error);
 			}
 
-			public void onSuccess(AbstractUITradeRule[] rules) {
+			public void onSuccess(UITradeRule[] rules) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
 				// remove another rule in between?
@@ -260,13 +262,13 @@ public class Bitsafe implements EntryPoint {
 		});
 	}
 
-	private void displayRules(AbstractUITradeRule[] rules) {
-		for (AbstractUITradeRule rule : rules) {
+	private void displayRules(UITradeRule[] rules) {
+		for (UITradeRule rule : rules) {
 			displayRule(rule);
 		}
 	}
 
-	private void displayRule(final AbstractUITradeRule rule) {
+	private void displayRule(final UITradeRule rule) {
 		// Add the rule to the table.
 		int row = rulesFlexTable.getRowCount();
 		rulesList.add(rule);
@@ -294,9 +296,9 @@ public class Bitsafe implements EntryPoint {
 				// remove another rule in between?
 				int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				AbstractUITradeRule ruleToRemove = rulesList
+				UITradeRule ruleToRemove = rulesList
 						.get(removedIndex - 2);
-				if (ruleToRemove.getDbKey() == AbstractUITradeRule.INVALID_DB_ID) {
+				if (ruleToRemove.getDbKey() == UITradeRule.INVALID_DB_ID) {
 					handleError("removeStockButton ClickHandler: Rule to remove has invalid ID!");
 					return;
 				}
@@ -306,7 +308,7 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setWidget(row, 4, removeStockButton);
 	}
 
-	private void removeRule(final AbstractUITradeRule ruleToRemove) {
+	private void removeRule(final UITradeRule ruleToRemove) {
 		ruleService.removeRule(ruleToRemove.getDbKey(),
 				new AsyncCallback<Void>() {
 					public void onFailure(Throwable error) {
@@ -319,7 +321,7 @@ public class Bitsafe implements EntryPoint {
 				});
 	}
 
-	private void undisplayRule(AbstractUITradeRule ruleToRemove) {
+	private void undisplayRule(UITradeRule ruleToRemove) {
 		// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 		// index we look for in the list and what happens if user add /
 		// remove another rule in between?
@@ -334,8 +336,6 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	protected void addRule(int addIndex) {
-		AbstractUITradeRule ruleToAdd = null;
-
 		boolean isActive = ((CheckBox) rulesFlexTable.getWidget(addIndex, 0))
 				.getValue();
 		String name = ((TextBox) rulesFlexTable.getWidget(addIndex, 1))
@@ -354,29 +354,31 @@ public class Bitsafe implements EntryPoint {
 			} catch (NumberFormatException error) {
 				handleError("BigDecimal.valueOf(sPrice)", error);
 				return;
-			}		
-			ruleToAdd = new UIStopLossRule(name, isActive, new UIBigMoney(
-					UICurrencyUnit.USD, price));
+			}
+			final UITradeRule ruleToAdd = new UIStopLossRule(name,
+					isActive, new UIBigMoney(UICurrencyUnit.USD, price));
 			try {
 				ruleToAdd.verify();
 			} catch (UIVerifyException e) {
 				handleError("ruleToAdd.verify()", e);
 				return;
 			}
+
+			ruleService.addRule(ruleToAdd, new AsyncCallback<Long>() {
+				public void onFailure(Throwable error) {
+					handleError("ruleService.addRule", error);
+				}
+
+				public void onSuccess(Long dbKey) {
+					// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
+					// relay on index we look for in the list and what happens
+					// if user add / remove another rule in between?
+					// TODO: This does not set the server set creationDate.
+					// Should we ?
+					ruleToAdd.setDbKey(dbKey);
+					displayRule(ruleToAdd);
+				}
+			});
 		}
-
-		ruleService.addRule(ruleToAdd,
-				new AsyncCallback<AbstractUITradeRule>() {
-					public void onFailure(Throwable error) {
-						handleError("ruleService.addRule", error);
-					}
-
-					public void onSuccess(AbstractUITradeRule ret) {
-						// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
-						// index we look for in the list and what happens if user add /
-						// remove another rule in between?
-						displayRule(ret);
-					}
-				});
 	}
 }

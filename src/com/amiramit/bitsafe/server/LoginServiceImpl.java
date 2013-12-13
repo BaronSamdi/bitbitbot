@@ -3,8 +3,8 @@ package com.amiramit.bitsafe.server;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.LoginInfo;
-import com.amiramit.bitsafe.client.LoginService;
-import com.amiramit.bitsafe.client.UIVerifyException;
+import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
