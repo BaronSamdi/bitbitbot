@@ -8,6 +8,7 @@ public class OfyService {
     static {
     	factory().register(TradeRule.class);
         factory().register(StopLossRule.class);
+        factory().register(BLLastTicker.class);
     }
 
     public static Objectify ofy() {
