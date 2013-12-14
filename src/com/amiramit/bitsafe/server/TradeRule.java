@@ -6,6 +6,8 @@ import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.condition.IfTrue;
 
 @Entity
 public abstract class TradeRule {
@@ -13,17 +15,20 @@ public abstract class TradeRule {
 	@Id
 	private Long key;
 
+	@Index
 	private User user;
 
 	private Date createDate;
 
-	private String name;	
+	private String name;
 
-	private Boolean active;
+	@Index(IfTrue.class)
+	private boolean active;
 
-	protected TradeRule() {}
+	protected TradeRule() {
+	}
 
-	public TradeRule(final User user, final String name, final Boolean active) {
+	public TradeRule(final User user, final String name, final boolean active) {
 		this.createDate = new Date();
 		this.user = user;
 		this.name = name;
@@ -50,7 +55,11 @@ public abstract class TradeRule {
 		this.user = user;
 	}
 
-	public Boolean getActive() {
+	public boolean getActive() {
 		return active;
+	}
+
+	public boolean checkTrigger() {
+		XXX
 	}
 }

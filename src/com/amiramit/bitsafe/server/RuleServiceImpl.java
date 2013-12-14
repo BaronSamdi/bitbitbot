@@ -28,8 +28,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			.getName());
 
 	@Override
-	public Long addRule(final UITradeRule uiRule)
-			throws NotLoggedInException, UIVerifyException {
+	public Long addRule(final UITradeRule uiRule) throws NotLoggedInException,
+			UIVerifyException {
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
 		final User user = ServerCommServiceImpl.checkLoggedIn();
@@ -84,12 +84,12 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		LOG.info("getRules called for user: " + user);
 
 		// TODO: Make this limit known to user somehow!
-		List<TradeRule> dbRules = ofy().load().type(TradeRule.class).limit(100)
-				.list();
+		// TODO: Load only specific user rules!!!
+		List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
+				.filter("user", user).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
 
-		final UITradeRule[] ret = new UITradeRule[dbRules
-				.size()];
+		final UITradeRule[] ret = new UITradeRule[dbRules.size()];
 		final Iterator<TradeRule> it = dbRules.iterator();
 		int i = 0;
 		while (it.hasNext()) {

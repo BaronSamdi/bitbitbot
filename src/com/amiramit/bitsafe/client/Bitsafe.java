@@ -3,11 +3,9 @@ package com.amiramit.bitsafe.client;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import com.amiramit.bitsafe.client.UITypes.UITradeRule;
-import com.amiramit.bitsafe.client.UITypes.UIBigMoney;
-import com.amiramit.bitsafe.client.UITypes.UICurrencyUnit;
 import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
 import com.amiramit.bitsafe.client.UITypes.UITicker;
+import com.amiramit.bitsafe.client.UITypes.UITradeRule;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.client.service.LoginServiceAsync;
@@ -278,8 +276,7 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setText(row, 1, rule.getName());
 		if (rule instanceof UIStopLossRule) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
-			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getPrice()
-					.getAmount().toString());
+			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getAtPrice().toString());
 		} else {
 			handleError("Display rule got unknown rule!");
 			return;
@@ -296,9 +293,8 @@ public class Bitsafe implements EntryPoint {
 				// remove another rule in between?
 				int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				UITradeRule ruleToRemove = rulesList
-						.get(removedIndex - 2);
-				if (ruleToRemove.getDbKey() == UITradeRule.INVALID_DB_ID) {
+				UITradeRule ruleToRemove = rulesList.get(removedIndex - 2);
+				if (ruleToRemove.getDbKey() == null) {
 					handleError("removeStockButton ClickHandler: Rule to remove has invalid ID!");
 					return;
 				}
@@ -355,8 +351,9 @@ public class Bitsafe implements EntryPoint {
 				handleError("BigDecimal.valueOf(sPrice)", error);
 				return;
 			}
-			final UITradeRule ruleToAdd = new UIStopLossRule(name,
-					isActive, new UIBigMoney(UICurrencyUnit.USD, price));
+
+			final UITradeRule ruleToAdd = new UIStopLossRule(name, isActive,
+					price);
 			try {
 				ruleToAdd.verify();
 			} catch (UIVerifyException e) {

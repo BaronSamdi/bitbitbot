@@ -10,34 +10,33 @@ public class UIStopLossRule extends UITradeRule implements UIElement, Serializab
 	
 	private static final long serialVersionUID = 1L;
 	
-	private UIBigMoney price;
+	private BigDecimal atPrice;
 	
 	public UIStopLossRule(final Long dbKey, final Date createDate, final String name, final Boolean active,
-			final UIBigMoney price) {
+			final BigDecimal atPrice) {
 		super(dbKey, createDate, name, active);
-		this.price = price;
+		this.atPrice = atPrice;
 	}
 	
 	public UIStopLossRule(final String name, final Boolean active,
-			final UIBigMoney price) {
-		super(INVALID_DB_ID, null, name, active);
-		this.price = price;
+			final BigDecimal atPrice) {
+		super(null, null, name, active);
+		this.atPrice = atPrice;
 	}
 	
-	public UIStopLossRule() {
-		super(INVALID_DB_ID, null, null, null);
+	protected UIStopLossRule() {
+		super();
 	}
 
-	public UIBigMoney getPrice() {
-		return price;
+	public BigDecimal getAtPrice() {
+		return atPrice;
 	}
 
 	@Override
 	public void verify() throws UIVerifyException {
-		FieldVerifier.verifyNotNull(price);
-		price.verify();
+		FieldVerifier.verifyNotNull(atPrice);
 		
-		if (price.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+		if (atPrice.compareTo(BigDecimal.ZERO) <= 0) {
 			throw new UIVerifyException("UIStopLossRule price <= 0");
 		}
 		

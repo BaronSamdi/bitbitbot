@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.server;
+package UNUSED;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;

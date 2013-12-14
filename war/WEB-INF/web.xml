@@ -3,6 +3,13 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+	
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>Bitsafe.html</welcome-file>
+	</welcome-file-list>
+	
+	<!-- Security constraints. Limit cron and tasks servlets invocation to admins only -->
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>cron</web-resource-name>
@@ -32,48 +39,8 @@
 		<filter-name>ObjectifyFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-
-	<!-- Servlets -->
-	<servlet>
-		<servlet-name>loginService</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.LoginServiceImpl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>loginService</servlet-name>
-		<url-pattern>/bitsafe/login</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>serverCommServiceServlet</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.ServerCommServiceImpl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>serverCommServiceServlet</servlet-name>
-		<url-pattern>/bitsafe/srv</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>serverMainServlet</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.ServerMain</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>serverMainServlet</servlet-name>
-		<url-pattern>/_ah/start</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>serverMainServlet</servlet-name>
-		<url-pattern>/get_last_ticker</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>ruleService</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.RuleServiceImpl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ruleService</servlet-name>
-		<url-pattern>/bitsafe/rule</url-pattern>
-	</servlet-mapping>
-
+	
+	<!-- XSRF protection support -->
 	<servlet>
 		<servlet-name>xsrf</servlet-name>
 		<servlet-class>com.google.gwt.user.server.rpc.XsrfTokenServiceServlet</servlet-class>
@@ -87,9 +54,41 @@
 		<param-value>session_id</param-value>
 	</context-param>
 
-	<!-- Default page to serve -->
-	<welcome-file-list>
-		<welcome-file>Bitsafe.html</welcome-file>
-	</welcome-file-list>
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>loginService</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.LoginServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>loginService</servlet-name>
+		<url-pattern>/bitsafe/login</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>ruleService</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.RuleServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ruleService</servlet-name>
+		<url-pattern>/bitsafe/rule</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>serverCommServiceServlet</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.ServerCommServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>serverCommServiceServlet</servlet-name>
+		<url-pattern>/bitsafe/srv</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>tenMinTasksServlet</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.TenMinTasksServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>tenMinTasksServlet</servlet-name>
+		<url-pattern>/cron/runEveryTenMinutesTasks</url-pattern>
+	</servlet-mapping>
 
 </web-app>

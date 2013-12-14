@@ -1,28 +1,25 @@
 package com.amiramit.bitsafe.server;
 
-import org.joda.money.BigMoney;
+import java.math.BigDecimal;
 
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.EntitySubclass;
-import com.googlecode.objectify.annotation.Serialize;
 
-@EntitySubclass(index=true)
+@EntitySubclass(index = true)
 public class StopLossRule extends TradeRule {
 
-	// TODO: Use BigDecimal here instead of @Serialize?
-	@Serialize
-	private BigMoney price;
+	private BigDecimal atPrice;
 
 	protected StopLossRule() {
 	}
-			
-	public StopLossRule(final User user, final String name, final Boolean active, final BigMoney price) {
+
+	public StopLossRule(final User user, final String name,
+			final Boolean active, final BigDecimal atPrice) {
 		super(user, name, active);
-		this.price = price;
+		this.atPrice = atPrice;
 	}
 
-	public BigMoney getPrice() {
-		return price;
+	public BigDecimal getAtPrice() {
+		return atPrice;
 	}
 }

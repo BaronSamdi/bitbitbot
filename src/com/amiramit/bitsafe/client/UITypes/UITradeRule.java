@@ -9,19 +9,20 @@ public abstract class UITradeRule implements UIElement, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Long INVALID_DB_ID = null;
 	private Long dbKey;
 	private Date createDate;
 	private String name;
-	private Boolean active;
+	private boolean active;
 
 	public UITradeRule(final Long dbKey, final Date createDate,
-			final String name, final Boolean active) {
-		super();
+			final String name, final boolean active) {
 		this.dbKey = dbKey;
 		this.createDate = createDate;
 		this.name = name;
 		this.active = active;
+	}
+	
+	protected UITradeRule() {
 	}
 
 	public Date getCreateDate() {
@@ -32,7 +33,7 @@ public abstract class UITradeRule implements UIElement, Serializable {
 		return name;
 	}
 
-	public Boolean getActive() {
+	public boolean getActive() {
 		return active;
 	}
 
@@ -51,6 +52,7 @@ public abstract class UITradeRule implements UIElement, Serializable {
 		FieldVerifier.verifyIsNull(dbKey);
 		FieldVerifier.verifyIsNull(createDate);
 		FieldVerifier.verifyString(name);
-		FieldVerifier.verifyNotNull(active);
+		
+		// No need to check for 'active' field ...
 	}
 }
