@@ -2,6 +2,7 @@ package com.amiramit.bitsafe.server;
 
 import java.util.Date;
 
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -25,14 +26,19 @@ public abstract class TradeRule {
 	@Index(IfTrue.class)
 	private boolean active;
 
+	@Index
+	private ExchangeName atExchange;
+
 	protected TradeRule() {
 	}
 
-	public TradeRule(final User user, final String name, final boolean active) {
+	public TradeRule(final User user, final String name, final boolean active,
+			final ExchangeName atExchange) {
 		this.createDate = new Date();
 		this.user = user;
 		this.name = name;
 		this.active = active;
+		this.atExchange = atExchange;
 	}
 
 	public Long getKey() {
@@ -55,11 +61,24 @@ public abstract class TradeRule {
 		this.user = user;
 	}
 
+	public ExchangeName getAtExchange() {
+		return this.atExchange;
+	}
+
 	public boolean getActive() {
 		return active;
 	}
 
 	public boolean checkTrigger() {
-		XXX
+		return active;
 	}
+
+	@Override
+	public String toString() {
+		return "TradeRule [key=" + key + ", user=" + user + ", createDate="
+				+ createDate + ", name=" + name + ", active=" + active
+				+ ", atExchange=" + atExchange + "]";
+	}
+
+	public abstract boolean trigger();
 }

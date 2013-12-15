@@ -11,31 +11,48 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.datastore.QueryResultIterator;
+import com.google.appengine.api.taskqueue.DeferredTask;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 
-@SuppressWarnings("serial")
-public class ProcessRulesServlet extends HttpServlet {
-	private static final Logger LOG = Logger.getLogger(RuleServiceImpl.class
-			.getName());
+public class ProcessRulesTask  implements DeferredTask {
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger LOG = Logger
+			.getLogger(ProcessRulesTask.class.getName());
 
 	// We want to make sure we can process all rules in less then one minute,
 	// since we want to process all of them every one minute!
 	public static final long LIMIT_MILLIS = 1000 * 25;
+	
+	private ExchangeName blExchangeName;
+
+	public ProcessRulesTask(ExchangeName blExchangeName) {
+		super();
+		this.blExchangeName = blExchangeName;
+	}
 
 	@Override
-	protected void service(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+    public void run() {
+		LOG.info("ProcessRulesServlet starting ...");
 		long startTime = System.currentTimeMillis();
 
 		int numRules = 0;
 		QueryResultIterator<TradeRule> dbRulesIt = ofy().load()
-				.type(TradeRule.class).filter("active", true).iterator();
+				.type(TradeRule.class).filter("active", true)
+				.filter("atExchange", blExchangeName).iterator();
 		while (dbRulesIt.hasNext()) {
 			++numRules;
 			TradeRule curRule = dbRulesIt.next();
 
 			if (curRule.checkTrigger()) {
-				curRule.doTrigger();
+				DoRuleTrigger task = new DoRuleTrigger(curRule.getKey());
+				Queue queue = QueueFactory.getQueue("DoRuleTrigger");	
+				TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
+				queue.add(taskOptions);
 			}
 
 			if (System.currentTimeMillis() - startTime > LIMIT_MILLIS) {

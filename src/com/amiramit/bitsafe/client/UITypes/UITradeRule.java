@@ -3,6 +3,7 @@ package com.amiramit.bitsafe.client.UITypes;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
 public abstract class UITradeRule implements UIElement, Serializable {
@@ -13,15 +14,18 @@ public abstract class UITradeRule implements UIElement, Serializable {
 	private Date createDate;
 	private String name;
 	private boolean active;
+	private ExchangeName atExchange;
 
 	public UITradeRule(final Long dbKey, final Date createDate,
-			final String name, final boolean active) {
+			final String name, final boolean active,
+			final ExchangeName atExchange) {
 		this.dbKey = dbKey;
 		this.createDate = createDate;
 		this.name = name;
 		this.active = active;
+		this.atExchange = atExchange;
 	}
-	
+
 	protected UITradeRule() {
 	}
 
@@ -45,6 +49,10 @@ public abstract class UITradeRule implements UIElement, Serializable {
 		this.dbKey = dbKey;
 	}
 
+	public ExchangeName getAtExchange() {
+		return atExchange;
+	}
+
 	@Override
 	public void verify() throws UIVerifyException {
 		// dbKey must be null when sending from ui to server
@@ -52,7 +60,8 @@ public abstract class UITradeRule implements UIElement, Serializable {
 		FieldVerifier.verifyIsNull(dbKey);
 		FieldVerifier.verifyIsNull(createDate);
 		FieldVerifier.verifyString(name);
-		
+		FieldVerifier.verifyNotNull(atExchange);
+
 		// No need to check for 'active' field ...
 	}
 }

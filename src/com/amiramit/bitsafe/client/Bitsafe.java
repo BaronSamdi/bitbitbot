@@ -13,6 +13,7 @@ import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.service.RuleServiceAsync;
 import com.amiramit.bitsafe.client.service.ServerCommService;
 import com.amiramit.bitsafe.client.service.ServerCommServiceAsync;
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -141,12 +142,17 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setText(0, 1, "Rule Name");
 		rulesFlexTable.setText(0, 2, "Rule Type");
 		rulesFlexTable.setText(0, 3, "Trigger Price");
-		rulesFlexTable.setText(0, 4, "Remove");
+		rulesFlexTable.setText(0, 4, "Exchange");
+		rulesFlexTable.setText(0, 5, "Remove");
 
 		TextBox nameBox = new TextBox();
 		nameBox.setText("Name your rule");
 		ListBox ruleBox = new ListBox();
 		ruleBox.addItem(STOP_LOSS);
+		ListBox exchangeBox = new ListBox();
+		for (ExchangeName i : ExchangeName.values()) {
+			ruleBox.addItem(i.toString());
+		}
 		TextBox priceBox = new TextBox();
 		priceBox.setText("Trigger Price");
 		Button addButton = new Button("Add");
@@ -166,7 +172,8 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setWidget(1, 1, nameBox);
 		rulesFlexTable.setWidget(1, 2, ruleBox);
 		rulesFlexTable.setWidget(1, 3, priceBox);
-		rulesFlexTable.setWidget(1, 4, addButton);
+		rulesFlexTable.setWidget(1, 4, exchangeBox);
+		rulesFlexTable.setWidget(1, 5, addButton);
 
 		// Add styles to elements in the stock list table.
 		rulesFlexTable.setCellPadding(6);
@@ -231,6 +238,8 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.getCellFormatter().addStyleName(row, 3,
 				"rulesListNumericColumn");
 		rulesFlexTable.getCellFormatter().addStyleName(row, 4,
+				"rulesListStringColumn");
+		rulesFlexTable.getCellFormatter().addStyleName(row, 5,
 				"rulesListRemoveColumn");
 	}
 
@@ -274,6 +283,7 @@ public class Bitsafe implements EntryPoint {
 		ruleDisplayCheckBox.setValue(rule.getActive());
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getName());
+		rulesFlexTable.setText(row, 4, rule.getAtExchange().toString());
 		if (rule instanceof UIStopLossRule) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
 			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getAtPrice().toString());
@@ -301,7 +311,7 @@ public class Bitsafe implements EntryPoint {
 				removeRule(ruleToRemove);
 			}
 		});
-		rulesFlexTable.setWidget(row, 4, removeStockButton);
+		rulesFlexTable.setWidget(row, 5, removeStockButton);
 	}
 
 	private void removeRule(final UITradeRule ruleToRemove) {
@@ -341,6 +351,9 @@ public class Bitsafe implements EntryPoint {
 				.getWidget(addIndex, 2);
 		String type = lstboxRuleType.getItemText(lstboxRuleType
 				.getSelectedIndex());
+		
+		ExchangeName exchangeName = ExchangeName.valueOf(lstboxRuleType.getItemText(lstboxRuleType
+				.getSelectedIndex()));
 		if (type.equals(STOP_LOSS)) {
 			String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
 					.getText();
@@ -353,7 +366,7 @@ public class Bitsafe implements EntryPoint {
 			}
 
 			final UITradeRule ruleToAdd = new UIStopLossRule(name, isActive,
-					price);
+					exchangeName, price);
 			try {
 				ruleToAdd.verify();
 			} catch (UIVerifyException e) {

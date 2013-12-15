@@ -5,6 +5,7 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Index;
@@ -30,7 +31,7 @@ public class BLLastTicker {
 
 	}
 
-	public BLLastTicker(BLExchangeName atExchange, Ticker ticker) {
+	public BLLastTicker(ExchangeName atExchange, Ticker ticker) {
 		this.atExchange = atExchange.toString();
 		this.tradableIdentifier = ticker.getTradableIdentifier();
 		this.last = ticker.getLast().getAmount();
@@ -90,11 +91,11 @@ public class BLLastTicker {
 				+ timestamp + "]";
 	}
 
-	public BLExchangeName getAtExchange() {
-		return BLExchangeName.valueOf(atExchange);
+	public ExchangeName getAtExchange() {
+		return ExchangeName.valueOf(atExchange);
 	}
 
-	static public BLLastTicker getLastTicker(BLExchangeName atExchange) {
+	static public BLLastTicker getLastTicker(ExchangeName atExchange) {
 		return ofy().load().type(BLLastTicker.class).id(atExchange.toString())
 				.safe();
 	}

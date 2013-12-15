@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.joda.money.BigMoney;
-import org.joda.money.CurrencyUnit;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.amiramit.bitsafe.client.UITypes.UITradeRule;
 import com.amiramit.bitsafe.client.UITypes.UIBigMoney;
 import com.amiramit.bitsafe.client.UITypes.UICurrencyUnit;
 import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
+import com.amiramit.bitsafe.client.UITypes.UITradeRule;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.shared.FieldVerifier;
@@ -41,12 +40,10 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		TradeRule srvRule = null;
 		if (uiRule instanceof UIStopLossRule) {
 			final UIStopLossRule slRule = ((UIStopLossRule) uiRule);
-			final CurrencyUnit cu = CurrencyUnit.getInstance(slRule.getPrice()
-					.getUnit().name());
-			final BigMoney bm = BigMoney.of(cu, slRule.getPrice().getAmount());
 
 			srvRule = new StopLossRule(user, uiRule.getName(),
-					uiRule.getActive(), bm);
+					uiRule.getActive(), uiRule.getAtExchange(),
+					slRule.getAtPrice());
 		} else {
 			throw new UIVerifyException("Unknown ui rule type: "
 					+ uiRule.getClass().getName());
@@ -104,13 +101,10 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	private UITradeRule tradeRuleToUIRule(final TradeRule curRule) {
 		if (curRule instanceof StopLossRule) {
 			final StopLossRule slRule = (StopLossRule) curRule;
-			final BigMoney price = slRule.getPrice();
-			final UIBigMoney uiPrice = new UIBigMoney(
-					UICurrencyUnit.valueOf(price.getCurrencyUnit().getCode()),
-					price.getAmount());
 			return new UIStopLossRule(curRule.getKey(),
 					curRule.getCreateDate(), curRule.getName(),
-					curRule.getActive(), uiPrice);
+					curRule.getActive(), curRule.getAtExchange(),
+					slRule.getAtPrice());
 		}
 
 		LOG.severe("Unknow rule class: " + curRule.getClass()
