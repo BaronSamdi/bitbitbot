@@ -1,0 +1,51 @@
+<queue-entries>
+	<!--Change the total storage limit for all queues to 50MB to protect against 
+		fork-bomb -->
+	<total-storage-limit>50M</total-storage-limit>
+
+	<queue>
+		<name>FetchPriceFromExchange</name>
+		<!-- Process at most 1 per second -->
+		<rate>1/s</rate>
+		<!-- Don't allow bursts -->
+		<bucket-size>1</bucket-size>
+		<!-- Make sure that even if a task latency is high, no more then 10 concurrent 
+			requests will be made -->
+		<max-concurrent-requests>10</max-concurrent-requests>
+
+		<!-- Don't allow retries -->
+		<retry-parameters>
+			<task-retry-limit>1</task-retry-limit>
+		</retry-parameters>
+	</queue>
+
+	<queue>
+		<name>ProcessRules</name>
+		<!-- Invoked after fetchPrice success. Process at most 1 per second -->
+		<rate>1/s</rate>
+		<!-- Don't allow bursts -->
+		<bucket-size>1</bucket-size>
+		<!-- Don't allow concurrency -->
+		<max-concurrent-requests>1</max-concurrent-requests>
+
+		<!-- Allow 1 retry, and then just process next time fetchPrice success -->
+		<retry-parameters>
+			<task-retry-limit>2</task-retry-limit>
+		</retry-parameters>
+	</queue>
+
+	<queue>
+		<name>DoRuleTrigger</name>
+		<!-- Process at most 10 per second -->
+		<rate>10/s</rate>
+		<!-- Allow bursts of up to 20 per given second -->
+		<bucket-size>20</bucket-size>
+		<!-- init concurrent requests to 50 -->
+		<max-concurrent-requests>50</max-concurrent-requests>
+
+		<!-- Allow 5 retries, and then just process next time fetchPrice success -->
+		<retry-parameters>
+			<task-retry-limit>5</task-retry-limit>
+		</retry-parameters>
+	</queue>
+</queue-entries>
