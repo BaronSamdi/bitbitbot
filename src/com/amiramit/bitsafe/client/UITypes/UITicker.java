@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
 public class UITicker implements Serializable, UIElement {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	ExchangeName atExchange;
 	private String tradableIdentifier;
 	private BigDecimal last;
 	private BigDecimal bid;
@@ -33,10 +35,11 @@ public class UITicker implements Serializable, UIElement {
 	 *            24h volume
 	 * @param timestamp
 	 */
-	public UITicker(String tradableIdentifier, BigDecimal last, BigDecimal bid,
-			BigDecimal ask, BigDecimal high, BigDecimal low, BigDecimal volume,
-			Date timestamp) {
+	public UITicker(ExchangeName atExchange, String tradableIdentifier,
+			BigDecimal last, BigDecimal bid, BigDecimal ask, BigDecimal high,
+			BigDecimal low, BigDecimal volume, Date timestamp) {
 
+		this.atExchange = atExchange;
 		this.tradableIdentifier = tradableIdentifier;
 		this.last = last;
 		this.bid = bid;
@@ -90,6 +93,11 @@ public class UITicker implements Serializable, UIElement {
 		return timestamp;
 	}
 
+	public ExchangeName getAtExchange() {
+
+		return atExchange;
+	}
+
 	@Override
 	public String toString() {
 
@@ -101,6 +109,7 @@ public class UITicker implements Serializable, UIElement {
 
 	@Override
 	public void verify() throws UIVerifyException {
+		FieldVerifier.verifyNotNull(atExchange);
 		FieldVerifier.verifyValidSymbol(tradableIdentifier);
 		FieldVerifier.verifyNotNull(last);
 		FieldVerifier.verifyNotNull(bid);

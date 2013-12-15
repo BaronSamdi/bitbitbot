@@ -151,7 +151,7 @@ public class Bitsafe implements EntryPoint {
 		ruleBox.addItem(STOP_LOSS);
 		ListBox exchangeBox = new ListBox();
 		for (ExchangeName i : ExchangeName.values()) {
-			ruleBox.addItem(i.toString());
+			exchangeBox.addItem(i.toString());
 		}
 		TextBox priceBox = new TextBox();
 		priceBox.setText("Trigger Price");
@@ -204,23 +204,27 @@ public class Bitsafe implements EntryPoint {
 
 			private void refreshWatchList() {
 				// We send the request to the server.
-				serverComm.getTicker("BTCUSD", new AsyncCallback<UITicker>() {
-					public void onFailure(Throwable caught) {
-						handleError("serverComm.getTicker", caught);
-					}
+				serverComm.getTicker(ExchangeName.MtGox,
+						new AsyncCallback<UITicker>() {
+							public void onFailure(Throwable caught) {
+								handleError("serverComm.getTicker", caught);
+							}
 
-					public void onSuccess(UITicker result) {
-						if (result == null) {
-							handleError("At serverComm.getTicker: Got null from server");
-							return;
-						}
-						priceLabel.setText(result.getLast().toString());
-						lastUpdatedLabel.setText(DateTimeFormat.getFormat(
-								PredefinedFormat.DATE_TIME_SHORT).format(
-								result.getTimestamp()));
-						errorLabel.setText("");
-					}
-				});
+							public void onSuccess(UITicker result) {
+								if (result == null) {
+									handleError("At serverComm.getTicker: Got null from server");
+									return;
+								}
+								priceLabel.setText(result.getAtExchange()
+										+ ": " + result.getLast().toString());
+								lastUpdatedLabel
+										.setText(DateTimeFormat
+												.getFormat(
+														PredefinedFormat.DATE_TIME_SHORT)
+												.format(result.getTimestamp()));
+								errorLabel.setText("");
+							}
+						});
 			}
 		};
 
@@ -281,12 +285,14 @@ public class Bitsafe implements EntryPoint {
 		rulesList.add(rule);
 		CheckBox ruleDisplayCheckBox = new CheckBox();
 		ruleDisplayCheckBox.setValue(rule.getActive());
+		ruleDisplayCheckBox.setEnabled(false);
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getName());
 		rulesFlexTable.setText(row, 4, rule.getAtExchange().toString());
 		if (rule instanceof UIStopLossRule) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
-			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getAtPrice().toString());
+			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getAtPrice()
+					.toString());
 		} else {
 			handleError("Display rule got unknown rule!");
 			return;
@@ -351,9 +357,11 @@ public class Bitsafe implements EntryPoint {
 				.getWidget(addIndex, 2);
 		String type = lstboxRuleType.getItemText(lstboxRuleType
 				.getSelectedIndex());
-		
-		ExchangeName exchangeName = ExchangeName.valueOf(lstboxRuleType.getItemText(lstboxRuleType
-				.getSelectedIndex()));
+
+		ListBox lstboxAtExchange = (ListBox) rulesFlexTable
+				.getWidget(addIndex, 4);
+		ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
+				.getItemText(lstboxAtExchange.getSelectedIndex()));
 		if (type.equals(STOP_LOSS)) {
 			String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
 					.getText();

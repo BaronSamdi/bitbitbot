@@ -6,12 +6,14 @@ import java.util.logging.Logger;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.annotation.EntitySubclass;
+import com.googlecode.objectify.annotation.Serialize;
 
 @EntitySubclass(index = true)
 public class StopLossRule extends TradeRule {
 	private static final Logger LOG = Logger
 			.getLogger(StopLossRule.class.getName());
 
+	@Serialize
 	private BigDecimal atPrice;
 
 	protected StopLossRule() {
@@ -53,6 +55,8 @@ public class StopLossRule extends TradeRule {
 			LOG.severe("StopLossRule: " + this.toString() + " triggered!");
 			// Currently just print to log ...
 			// TODO: do the actual sell in relevant exchange ...
+			
+			// TODO:Rule trigger is a success, make rule inactive
 		}
 		return false;
 	}	

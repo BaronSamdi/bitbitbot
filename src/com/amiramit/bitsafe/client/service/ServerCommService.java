@@ -3,6 +3,7 @@ package com.amiramit.bitsafe.client.service;
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.google.gwt.user.client.rpc.XsrfProtectedService;
 
@@ -11,6 +12,6 @@ import com.google.gwt.user.client.rpc.XsrfProtectedService;
  */
 @RemoteServiceRelativePath("srv")
 public interface ServerCommService extends XsrfProtectedService {
-	UITicker getTicker(String symbol) throws IllegalArgumentException,
+	UITicker getTicker(ExchangeName atExchange) throws IllegalArgumentException,
 			UIVerifyException, NotLoggedInException;
 }

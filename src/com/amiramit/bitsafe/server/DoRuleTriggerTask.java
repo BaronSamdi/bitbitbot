@@ -6,15 +6,15 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.taskqueue.DeferredTask;
 
-class DoRuleTrigger implements DeferredTask {
+class DoRuleTriggerTask implements DeferredTask {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger LOG = Logger.getLogger(DoRuleTrigger.class
+	private static final Logger LOG = Logger.getLogger(DoRuleTriggerTask.class
 			.getName());
 	
 	private Long dbKey; 
 
-	public DoRuleTrigger(Long dbKey) {
+	public DoRuleTriggerTask(Long dbKey) {
 		this.dbKey = dbKey;
 	}
 

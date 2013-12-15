@@ -49,7 +49,7 @@ public class ProcessRulesTask  implements DeferredTask {
 			TradeRule curRule = dbRulesIt.next();
 
 			if (curRule.checkTrigger()) {
-				DoRuleTrigger task = new DoRuleTrigger(curRule.getKey());
+				DoRuleTriggerTask task = new DoRuleTriggerTask(curRule.getKey());
 				Queue queue = QueueFactory.getQueue("DoRuleTrigger");	
 				TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
 				queue.add(taskOptions);
@@ -62,7 +62,7 @@ public class ProcessRulesTask  implements DeferredTask {
 			}
 		}
 
-		LOG.info("ProcessRulesServlet processed " + numRules + " in "
+		LOG.info("ProcessRulesServlet done. Processed " + numRules + " rules in "
 				+ (System.currentTimeMillis() - startTime) / 1000 + " seconds");
 	}
 }

@@ -5,26 +5,35 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Serialize;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 
 @Entity
 @Cache
 public class BLLastTicker {
 
-	@Index
+	@Id
 	private String atExchange;
 
 	private String tradableIdentifier;
+	@Serialize
 	private BigDecimal last;
+	@Serialize
 	private BigDecimal bid;
+	@Serialize
 	private BigDecimal ask;
+	@Serialize
 	private BigDecimal high;
+	@Serialize
 	private BigDecimal low;
+	@Serialize
 	private BigDecimal volume;
+
 	private Date timestamp;
 
 	protected BLLastTicker() {
@@ -98,5 +107,11 @@ public class BLLastTicker {
 	static public BLLastTicker getLastTicker(ExchangeName atExchange) {
 		return ofy().load().type(BLLastTicker.class).id(atExchange.toString())
 				.safe();
+	}
+
+	public UITicker toUITicker() {
+		return new UITicker(getAtExchange(), getTradableIdentifier(),
+				getLast(), getBid(), getAsk(), getHigh(), getLow(),
+				getVolume(), getTimestamp());
 	}
 }

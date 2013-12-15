@@ -50,7 +50,7 @@ public class FieldVerifier {
 					+ truncateStr(symbol, 10));
 		}
 	}
-
+	
 	private static boolean isAlphanumeric(String str) {
 		if (str == null) {
 			return false;

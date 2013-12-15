@@ -1,17 +1,12 @@
 package com.amiramit.bitsafe.server;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.service.ServerCommService;
-import com.amiramit.bitsafe.shared.FieldVerifier;
-import com.google.appengine.api.backends.BackendServiceFactory;
+import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -21,34 +16,21 @@ import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class ServerCommServiceImpl extends XsrfProtectedServiceServlet implements
-		ServerCommService {
+public class ServerCommServiceImpl extends XsrfProtectedServiceServlet
+		implements ServerCommService {
 	private static final Logger LOG = Logger
 			.getLogger(ServerCommServiceImpl.class.getName());
 
 	@Override
-	public UITicker getTicker(String symbol) throws UIVerifyException,
-			NotLoggedInException {
+	public UITicker getTicker(ExchangeName atExchange)
+			throws UIVerifyException, NotLoggedInException {
 		checkLoggedIn();
-		// Verify that the input is valid.
-		FieldVerifier.verifyValidSymbol(symbol);
+		// No need to verify atExchange because it is enum
 
-		// symbol is ignored for now ...
-		LOG.info("getTicker with symbol: " + symbol);
+		LOG.info("getTicker with symbol: " + atExchange);
 
-		String backendURLString = BackendServiceFactory.getBackendService()
-				.getBackendAddress("bitsafe-backend");
-		URL url;
 		UITicker lastTicker = null;
-		try {
-			url = new URL("http://" + backendURLString + "/get_last_ticker");
-			URLConnection conn = url.openConnection();
-			ObjectInputStream is = new ObjectInputStream(conn.getInputStream());
-			lastTicker = (UITicker) is.readObject();
-		} catch (IOException | ClassNotFoundException e) {
-			LOG.severe("Error getting last ticker from backend: " + e);
-			e.printStackTrace();
-		}
+		lastTicker = BLLastTicker.getLastTicker(atExchange).toUITicker();
 
 		return lastTicker;
 	}
