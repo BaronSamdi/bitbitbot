@@ -106,7 +106,7 @@ public class BLLastTicker {
 
 	static public BLLastTicker getLastTicker(ExchangeName atExchange) {
 		return ofy().load().type(BLLastTicker.class).id(atExchange.toString())
-				.safe();
+				.now();
 	}
 
 	public UITicker toUITicker() {

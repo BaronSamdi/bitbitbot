@@ -29,8 +29,8 @@ public class ServerCommServiceImpl extends XsrfProtectedServiceServlet
 
 		LOG.info("getTicker with symbol: " + atExchange);
 
-		UITicker lastTicker = null;
-		lastTicker = BLLastTicker.getLastTicker(atExchange).toUITicker();
+		BLLastTicker blLastTicker = BLLastTicker.getLastTicker(atExchange);
+		UITicker lastTicker = blLastTicker == null ? null : blLastTicker.toUITicker();
 
 		return lastTicker;
 	}
