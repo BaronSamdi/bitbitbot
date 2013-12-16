@@ -11,6 +11,7 @@ import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.condition.IfTrue;
 
 @Entity
+@Cache
 public abstract class TradeRule {
 
 	@Id

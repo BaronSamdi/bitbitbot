@@ -5,10 +5,12 @@ import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.users.User;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.EntitySubclass;
 import com.googlecode.objectify.annotation.Serialize;
 
 @EntitySubclass(index = true)
+@Cache
 public class StopLossRule extends TradeRule {
 	private static final Logger LOG = Logger
 			.getLogger(StopLossRule.class.getName());
