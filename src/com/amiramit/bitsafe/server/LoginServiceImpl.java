@@ -6,6 +6,7 @@ import com.amiramit.bitsafe.client.LoginInfo;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.shared.FieldVerifier;
+import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -31,6 +32,10 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		if (user != null) {
 			LOG.info("User login requested, for logged in user. User details: "
 					+ user);
+			
+			String token = ChannelServiceFactory.getChannelService().createChannel(
+					channelName);
+			
 			loginInfo.setLoggedIn(true);
 			loginInfo.setEmailAddress(user.getEmail());
 			loginInfo.setNickname(user.getNickname());

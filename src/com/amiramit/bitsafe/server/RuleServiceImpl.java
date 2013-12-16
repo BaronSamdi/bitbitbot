@@ -6,11 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.joda.money.BigMoney;
-
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.amiramit.bitsafe.client.UITypes.UIBigMoney;
-import com.amiramit.bitsafe.client.UITypes.UICurrencyUnit;
 import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
 import com.amiramit.bitsafe.client.UITypes.UITradeRule;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
