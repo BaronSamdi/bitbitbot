@@ -7,7 +7,7 @@ import com.amiramit.bitsafe.shared.FieldVerifier;
 
 public class UIBigMoney implements UIElement, Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private UICurrencyUnit unit;
 	private BigDecimal amount;
 
@@ -16,9 +16,14 @@ public class UIBigMoney implements UIElement, Serializable {
 		this.unit = unit;
 		this.amount = amount;
 	}
-	
-	public UIBigMoney() {
-		this(null, null);
+
+	/**
+	 * This constructor exists for frameworks (e.g. Google Web Toolkit) that
+	 * require it for serialization purposes. It should not be called
+	 * explicitly.
+	 */
+	@SuppressWarnings("unused")
+	private UIBigMoney() {
 	}
 
 	public BigDecimal getAmount() {

@@ -27,6 +27,11 @@ public class UIStopLossRule extends UITradeRule implements UIElement,
 		this.atPrice = atPrice;
 	}
 
+	/**
+	 * This constructor exists for frameworks (e.g. Google Web Toolkit) that
+	 * require it for serialization purposes. It should not be called
+	 * explicitly.
+	 */
 	protected UIStopLossRule() {
 		super();
 	}

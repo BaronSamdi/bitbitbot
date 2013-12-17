@@ -5,11 +5,8 @@ import java.util.List;
 
 public class Channel {
 	private final List<ChannelListener> channelListeners;
-	private final String channelName;
-	private String token;
 
-	public Channel(String channelName) {
-		this.channelName = channelName;
+	public Channel() {
 		channelListeners = new ArrayList<ChannelListener>();
 	}
 
@@ -46,25 +43,25 @@ public class Channel {
 	}
 
 	public native void join(String channelKey) /*-{
-		var channel = new $wnd.goog.appengine.Channel(channelKey);
-		var socket = channel.open();
-		var self = this;
+												var channel = new $wnd.goog.appengine.Channel(channelKey);
+												var socket = channel.open();
+												var self = this;
 
-		socket.onmessage = function(evt) {
-			var data = evt.data;
-			self.@com.amiramit.bitsafe.client.channel.Channel::onMessage(Ljava/lang/String;)(data);
-		};
+												socket.onmessage = function(evt) {
+												var data = evt.data;
+												self.@com.amiramit.bitsafe.client.channel.Channel::onMessage(Ljava/lang/String;)(data);
+												};
 
-		socket.onopen = function() {
-			self.@com.amiramit.bitsafe.client.channel.Channel::onOpen()();
-		};
+												socket.onopen = function() {
+												self.@com.amiramit.bitsafe.client.channel.Channel::onOpen()();
+												};
 
-		socket.onerror = function(error) {
-			self.@com.amiramit.bitsafe.client.channel.Channel::onError(ILjava/lang/String;)(error.code, error.description);
-		};
+												socket.onerror = function(error) {
+												self.@com.amiramit.bitsafe.client.channel.Channel::onError(ILjava/lang/String;)(error.code, error.description);
+												};
 
-		socket.onclose = function() {
-			self.@com.amiramit.bitsafe.client.channel.Channel::onClose()();
-		};
-	}-*/;
+												socket.onclose = function() {
+												self.@com.amiramit.bitsafe.client.channel.Channel::onClose()();
+												};
+												}-*/;
 }

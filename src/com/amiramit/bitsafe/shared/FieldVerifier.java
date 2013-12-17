@@ -33,12 +33,11 @@ public class FieldVerifier {
 			throw new UIVerifyException("Got null");
 		}
 	}
-	
 
 	public static void verifyIsNull(Object obj) throws UIVerifyException {
 		if (obj != null) {
 			throw new UIVerifyException("Got non-null");
-		}		
+		}
 	}
 
 	public static void verifyValidSymbol(String symbol)
@@ -50,7 +49,7 @@ public class FieldVerifier {
 					+ truncateStr(symbol, 10));
 		}
 	}
-	
+
 	private static boolean isAlphanumeric(String str) {
 		if (str == null) {
 			return false;

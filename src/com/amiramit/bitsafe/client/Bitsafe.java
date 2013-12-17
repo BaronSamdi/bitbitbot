@@ -3,16 +3,18 @@ package com.amiramit.bitsafe.client;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import com.amiramit.bitsafe.client.UITypes.UIBeanFactory;
+import com.amiramit.bitsafe.client.UITypes.UILoginInfo;
 import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
 import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.client.UITypes.UITradeRule;
 import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.client.channel.Channel;
+import com.amiramit.bitsafe.client.channel.ChannelListener;
 import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.client.service.LoginServiceAsync;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.service.RuleServiceAsync;
-import com.amiramit.bitsafe.client.service.ServerCommService;
-import com.amiramit.bitsafe.client.service.ServerCommServiceAsync;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -20,9 +22,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.Cookies;
-import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.HasRpcToken;
@@ -40,6 +39,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -47,20 +47,17 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class Bitsafe implements EntryPoint {
 	private static final String STOP_LOSS = "Stop Loss";
 
-	private static final int REFRESH_INTERVAL = 30000; // ms
-
 	/**
 	 * Create a remote service proxy to talk to the server-side
 	 */
-	private final ServerCommServiceAsync serverComm = GWT
-			.create(ServerCommService.class);
 	private final RuleServiceAsync ruleService = GWT.create(RuleService.class);
+	private final UIBeanFactory uiBeanFactory = GWT.create(UIBeanFactory.class);
 
 	private final Label priceLabel = new Label("Waiting for server ...");
 	private final Label lastUpdatedLabel = new Label("Waiting for server ...");
 	private final Label errorLabel = new Label("");
 
-	private LoginInfo loginInfo = null;
+	private UILoginInfo loginInfo = null;
 	private VerticalPanel loginPanel = new VerticalPanel();
 	private Label loginLabel = new Label(
 			"Please sign in to your Google Account to access the bitsafe application.");
@@ -81,6 +78,7 @@ public class Bitsafe implements EntryPoint {
 	/**
 	 * This is the entry point method.
 	 */
+	@Override
 	public void onModuleLoad() {
 
 		getXSRFToken();
@@ -89,12 +87,14 @@ public class Bitsafe implements EntryPoint {
 		final LoginServiceAsync loginService = GWT.create(LoginService.class);
 		try {
 			loginService.login(GWT.getHostPageBaseURL(),
-					new AsyncCallback<LoginInfo>() {
+					new AsyncCallback<UILoginInfo>() {
+						@Override
 						public void onFailure(Throwable error) {
 							handleError("loginService.login", error);
 						}
 
-						public void onSuccess(LoginInfo result) {
+						@Override
+						public void onSuccess(UILoginInfo result) {
 							loginInfo = result;
 							if (loginInfo.isLoggedIn()) {
 								loadWelcomePage();
@@ -109,20 +109,18 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void getXSRFToken() {
-		// TODO: GET SESSION COOKIE FROM SERVER!
-		Cookies.setCookie("session_id", Long.toString(Random.nextInt()));
-
 		final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
 				.create(XsrfTokenService.class);
 		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
 				+ "xsrf");
 		AsyncCallback<XsrfToken> asyncCallback = new AsyncCallback<XsrfToken>() {
 
+			@Override
 			public void onSuccess(XsrfToken token) {
 				((HasRpcToken) ruleService).setRpcToken(token);
-				((HasRpcToken) serverComm).setRpcToken(token);
 			}
 
+			@Override
 			public void onFailure(Throwable caught) {
 				try {
 					throw caught;
@@ -158,6 +156,7 @@ public class Bitsafe implements EntryPoint {
 		Button addButton = new Button("Add");
 		addButton.addStyleDependentName("add");
 		addButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
@@ -195,40 +194,43 @@ public class Bitsafe implements EntryPoint {
 		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("ticker").add(signOutLink);
 
-		// Setup timer to refresh list automatically.
-		Timer refreshTimer = new Timer() {
+		// Setup channel listener for ticker information
+		Channel tickerChannel = new Channel();
+		tickerChannel.addChannelListener(new ChannelListener() {
+
 			@Override
-			public void run() {
-				refreshWatchList();
+			public void onOpen() {
+				handleError("tickerChannel open");
 			}
 
-			private void refreshWatchList() {
-				// We send the request to the server.
-				serverComm.getTicker(ExchangeName.MtGox,
-						new AsyncCallback<UITicker>() {
-							public void onFailure(Throwable caught) {
-								handleError("serverComm.getTicker", caught);
-							}
+			@Override
+			public void onMessage(String tickerAsJson) {
+				UITicker ticker = AutoBeanCodex.decode(uiBeanFactory,
+						UITicker.class, tickerAsJson).as();
 
-							public void onSuccess(UITicker result) {
-								if (result == null) {
-									handleError("At serverComm.getTicker: Got null from server");
-									return;
-								}
-								priceLabel.setText(result.getAtExchange()
-										+ ": " + result.getLast().toString());
-								lastUpdatedLabel
-										.setText(DateTimeFormat
-												.getFormat(
-														PredefinedFormat.DATE_TIME_SHORT)
-												.format(result.getTimestamp()));
-								errorLabel.setText("");
-							}
-						});
+				priceLabel.setText(ticker.getAtExchange() + ": "
+						+ ticker.getLast().toString());
+				lastUpdatedLabel.setText(DateTimeFormat.getFormat(
+						PredefinedFormat.DATE_TIME_SHORT).format(
+						ticker.getTimestamp()));
+				errorLabel.setText("");
 			}
-		};
 
-		refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
+			@Override
+			public void onError(int code, String description) {
+				handleError("tickerChannel error code: " + code
+						+ " description: " + description);
+			}
+
+			@Override
+			public void onClose() {
+				handleError("tickerChannel close");
+			}
+		});
+
+		handleError("Tring to join channel: " + loginInfo.getChannelToken());
+		tickerChannel.join(loginInfo.getChannelToken());
+
 		loadRules();
 	}
 
@@ -260,10 +262,12 @@ public class Bitsafe implements EntryPoint {
 
 	private void loadRules() {
 		ruleService.getRules(new AsyncCallback<UITradeRule[]>() {
+			@Override
 			public void onFailure(Throwable error) {
 				handleError("ruleService.getRules", error);
 			}
 
+			@Override
 			public void onSuccess(UITradeRule[] rules) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
@@ -303,6 +307,7 @@ public class Bitsafe implements EntryPoint {
 		Button removeStockButton = new Button("x");
 		removeStockButton.addStyleDependentName("remove");
 		removeStockButton.addClickHandler(new ClickHandler() {
+			@Override
 			public void onClick(ClickEvent event) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
@@ -323,10 +328,12 @@ public class Bitsafe implements EntryPoint {
 	private void removeRule(final UITradeRule ruleToRemove) {
 		ruleService.removeRule(ruleToRemove.getDbKey(),
 				new AsyncCallback<Void>() {
+					@Override
 					public void onFailure(Throwable error) {
 						handleError("ruleService.removeRule", error);
 					}
 
+					@Override
 					public void onSuccess(Void ignore) {
 						undisplayRule(ruleToRemove);
 					}
@@ -358,8 +365,8 @@ public class Bitsafe implements EntryPoint {
 		String type = lstboxRuleType.getItemText(lstboxRuleType
 				.getSelectedIndex());
 
-		ListBox lstboxAtExchange = (ListBox) rulesFlexTable
-				.getWidget(addIndex, 4);
+		ListBox lstboxAtExchange = (ListBox) rulesFlexTable.getWidget(addIndex,
+				4);
 		ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
 				.getItemText(lstboxAtExchange.getSelectedIndex()));
 		if (type.equals(STOP_LOSS)) {
@@ -383,10 +390,12 @@ public class Bitsafe implements EntryPoint {
 			}
 
 			ruleService.addRule(ruleToAdd, new AsyncCallback<Long>() {
+				@Override
 				public void onFailure(Throwable error) {
 					handleError("ruleService.addRule", error);
 				}
 
+				@Override
 				public void onSuccess(Long dbKey) {
 					// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
 					// relay on index we look for in the list and what happens

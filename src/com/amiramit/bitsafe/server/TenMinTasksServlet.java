@@ -16,11 +16,13 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 public class TenMinTasksServlet extends HttpServlet {
 	private static final Logger LOG = Logger.getLogger(TenMinTasksServlet.class
 			.getName());
-	
-	// Create 
-	private static final int NUM_OF_FETCH_PRICE_TASKS = 10;
-	private static final int DELAY_BETWEEN_FETCH_PRICE_TASKS = 60 * 1000; // In millis
 
+	// Create
+	private static final int NUM_OF_FETCH_PRICE_TASKS = 10;
+	private static final int DELAY_BETWEEN_FETCH_PRICE_TASKS = 60 * 1000; // In
+																			// millis
+
+	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		LOG.info("TenMinTasksServlet called");

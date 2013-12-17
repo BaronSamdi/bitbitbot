@@ -10,12 +10,12 @@ public class UIVerifyException extends Exception implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public UIVerifyException() {		
+	public UIVerifyException() {
 		super();
 		LOG.severe("UIVerifyException");
 	}
 
-	public UIVerifyException(final String message) {		
+	public UIVerifyException(final String message) {
 		super(message);
 		LOG.severe("UIVerifyException with messege: " + message);
 	}

@@ -51,7 +51,7 @@
 	</servlet-mapping>
 	<context-param>
 		<param-name>gwt.xsrf.session_cookie_name</param-name>
-		<param-value>session_id</param-value>
+		<param-value>JSESSIONID</param-value>
 	</context-param>
 
 	<!-- Servlets -->
@@ -71,15 +71,6 @@
 	<servlet-mapping>
 		<servlet-name>ruleService</servlet-name>
 		<url-pattern>/bitsafe/rule</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>serverCommServiceServlet</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.ServerCommServiceImpl</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>serverCommServiceServlet</servlet-name>
-		<url-pattern>/bitsafe/srv</url-pattern>
 	</servlet-mapping>
 
 	<servlet>

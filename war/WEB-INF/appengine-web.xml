@@ -6,6 +6,8 @@
 	<!-- Allows App Engine to send multiple requests to one instance in parallel: -->
 	<threadsafe>true</threadsafe>
 
+	<sessions-enabled>true</sessions-enabled>
+
 	<!-- Configure serving/caching of GWT files -->
 	<static-files>
 		<include path="**" />
@@ -28,5 +30,16 @@
 		data to the datastore: <async-session-persistence enabled="true" /> With 
 		this feature enabled, there is a very small chance your app will see stale 
 		session data. For details, see http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions -->
+
+	<!-- enable HTTP sessions -->
+	<sessions-enabled>true</sessions-enabled>
+	<async-session-persistence enabled="true" />
+
+	<!-- be notified when a client connects to or disconnects from a channel 
+		When you enable channel_presence, your application receives POSTs to the 
+		following URL paths: POSTs to /_ah/channel/connected/ signal that the client 
+		has connected to the channel and can receive messages. POSTs to /_ah/channel/disconnected/ 
+		signal that the client has disconnected from the channel. <inbound-services> 
+		<service>channel_presence</service> </inbound-services> -->
 
 </appengine-web-app>

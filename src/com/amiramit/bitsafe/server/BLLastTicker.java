@@ -5,7 +5,6 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -36,8 +35,13 @@ public class BLLastTicker {
 
 	private Date timestamp;
 
-	protected BLLastTicker() {
-
+	/**
+	 * This constructor exists for frameworks (e.g. Google Web Toolkit) that
+	 * require it for serialization purposes. It should not be called
+	 * explicitly.
+	 */
+	@SuppressWarnings("unused")
+	private BLLastTicker() {
 	}
 
 	public BLLastTicker(ExchangeName atExchange, Ticker ticker) {
@@ -109,9 +113,9 @@ public class BLLastTicker {
 				.now();
 	}
 
-	public UITicker toUITicker() {
-		return new UITicker(getAtExchange(), getTradableIdentifier(),
-				getLast(), getBid(), getAsk(), getHigh(), getLow(),
-				getVolume(), getTimestamp());
-	}
+	/*
+	 * public UITicker toUITicker() { UIBeanFactory factory =
+	 * AutoBeanFactorySource.create(UIBeanFactory.class); AutoBean<UITicker>
+	 * uiTicker = factory.ticker(); return uiTicker.as(); }
+	 */
 }
