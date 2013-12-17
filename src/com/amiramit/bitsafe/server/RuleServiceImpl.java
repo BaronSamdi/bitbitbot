@@ -44,9 +44,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 					+ uiRule.getClass().getName());
 		}
 
-		// TODO: We need to call now() in order to retrieve the key?
-		ofy().save().entity(srvRule).now();
-		assert (srvRule.getKey() != null);
+		srvRule.save();
 
 		return srvRule.getKey();
 	}

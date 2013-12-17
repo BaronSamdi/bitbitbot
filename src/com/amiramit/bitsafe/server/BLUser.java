@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
+import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -24,6 +25,7 @@ public class BLUser {
 
 	private Date creationDate;
 	private Date lastLogIn;
+	private String channelClientID;
 
 	public BLUser(String userID) {
 		super();
@@ -73,5 +75,33 @@ public class BLUser {
 
 	public void save() {
 		ofy().save().entity(this);
+	}
+
+	public void onLogin() {
+		channelClientID = null;
+		lastLogIn = new Date();
+	}
+
+	public String establishChannel(String JSESSIONID) {
+		if (channelClientID != null) {
+			LOG.info("establishChannel with session ID: " + JSESSIONID
+					+ " returning existing channel id: " + channelClientID);
+			return channelClientID;
+		}
+
+		// TODO: Add some salt here?
+		String token = JSESSIONID;
+		channelClientID = ChannelServiceFactory.getChannelService()
+				.createChannel(JSESSIONID);
+		LOG.info("establishChannel token new token " + token + " for user: " + this);
+		return token;
+	}
+
+	public void onChannelDisconnect() {
+		channelClientID = null;
+	}
+
+	public String getChannelID() {
+		return channelClientID;
 	}
 }

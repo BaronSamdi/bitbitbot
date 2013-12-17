@@ -5,5 +5,6 @@ import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 
 //Declare the factory type
 public interface UIBeanFactory extends AutoBeanFactory {
-	AutoBean<UITicker> ticker();
+	public AutoBean<UITicker> ticker();
+	public AutoBean<UIRuleTriggerResult> ruleTriggerResult();
 }

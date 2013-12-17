@@ -1,5 +1,7 @@
 package com.amiramit.bitsafe.server;
 
+import static com.amiramit.bitsafe.server.OfyService.ofy;
+
 import java.util.Date;
 
 import com.amiramit.bitsafe.shared.ExchangeName;
@@ -34,6 +36,9 @@ public abstract class TradeRule {
 
 	public TradeRule(final String userId, final String name,
 			final boolean active, final ExchangeName atExchange) {
+		assert userId != null;
+		assert name != null;
+		assert atExchange != null;
 		this.createDate = new Date();
 		this.userId = userId;
 		this.name = name;
@@ -68,6 +73,10 @@ public abstract class TradeRule {
 	public boolean getActive() {
 		return active;
 	}
+	
+	protected void setActive(boolean active) {
+		this.active = active;
+	}
 
 	public boolean checkTrigger() {
 		return active;
@@ -81,4 +90,9 @@ public abstract class TradeRule {
 	}
 
 	public abstract boolean trigger();
+
+	public void save() {
+		ofy().save().entity(this);
+		assert (this.getKey() != null);		
+	}
 }

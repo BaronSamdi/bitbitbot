@@ -3,7 +3,15 @@ package com.amiramit.bitsafe.server;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 
+import com.amiramit.bitsafe.client.UITypes.UIBeanFactory;
+import com.amiramit.bitsafe.client.UITypes.UIRuleTriggerResult;
+import com.amiramit.bitsafe.client.UITypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
+import com.google.appengine.api.channel.ChannelMessage;
+import com.google.appengine.api.channel.ChannelServiceFactory;
+import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.EntitySubclass;
 import com.googlecode.objectify.annotation.Serialize;
@@ -24,6 +32,7 @@ public class StopLossRule extends TradeRule {
 			final Boolean active, final ExchangeName atExchange,
 			final BigDecimal atPrice) {
 		super(userId, name, active, atExchange);
+		assert atPrice != null;
 		this.atPrice = atPrice;
 	}
 
@@ -59,7 +68,34 @@ public class StopLossRule extends TradeRule {
 			// Currently just print to log ...
 			// TODO: do the actual sell in relevant exchange ...
 
-			// TODO:Rule trigger is a success, make rule inactive
+			// Since this rule has been triggered and we don't want it to
+			// trigger
+			// again, make it inactive
+			this.setActive(false);
+			this.save();
+
+			// Send rule trigger notification to user
+			BLUser blUser = BLUser.getUser(this.getUserId());
+			String userChannelId = blUser.getChannelID();
+
+			if (userChannelId != null) {
+				UIBeanFactory factory = AutoBeanFactorySource
+						.create(UIBeanFactory.class);
+				// TODO: just for check, remove this!
+				AutoBean<UITicker> tickerBean = factory.ticker();
+				BLLastTicker lastTicker = BLLastTicker
+						.getLastTicker(getAtExchange());
+
+				AutoBean<UIRuleTriggerResult> triggerResultBean = factory
+						.ruleTriggerResult();
+				triggerResultBean.as().setRuleId(this.getKey());
+				triggerResultBean.as().setUITicker(tickerBean.as());
+
+				String beanPayload = AutoBeanCodex.encode(triggerResultBean)
+						.getPayload();
+				ChannelServiceFactory.getChannelService().sendMessage(
+						new ChannelMessage(userChannelId, beanPayload));
+			}
 		}
 		return false;
 	}

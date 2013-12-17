@@ -60,20 +60,12 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 			blUser = BLUser.getUser(userId);
 		} catch (NotFoundException e) {
 			blUser = new BLUser(userId);
-			blUser.save();
 		}
+		blUser.onLogin();
+		String channelToken = blUser.establishChannel(session.getId());		
+		blUser.save();
 
-		// Store channelID in the session
-		String token = (String) session.getAttribute("channelToken");
-		if (token == null) {
-			String channelKey = userId + RANDOM.nextLong();
-			token = ChannelServiceFactory.getChannelService().createChannel(
-					channelKey);
-			LOG.info("Created new token " + token + " for user: " + user);
-			session.setAttribute("channelToken", token);
-		}
-
-		loginInfo.setChannelToken(token);
+		loginInfo.setChannelToken(channelToken);
 		loginInfo.setLoggedIn(true);
 		loginInfo.setEmailAddress(user.getEmail());
 		loginInfo.setNickname(user.getNickname());
