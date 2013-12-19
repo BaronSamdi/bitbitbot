@@ -77,8 +77,9 @@ public class StopLossRule extends TradeRule {
 			// Send rule trigger notification to user
 			BLUser blUser = BLUser.getUser(this.getUserId());
 			String userChannelId = blUser.getChannelID();
-
+			
 			if (userChannelId != null) {
+				LOG.info("Notifing user on channel: " + userChannelId);
 				UIBeanFactory factory = AutoBeanFactorySource
 						.create(UIBeanFactory.class);
 				// TODO: just for check, remove this!
@@ -95,7 +96,11 @@ public class StopLossRule extends TradeRule {
 						.getPayload();
 				ChannelServiceFactory.getChannelService().sendMessage(
 						new ChannelMessage(userChannelId, beanPayload));
+			} else {
+				LOG.info("User not connected.");
 			}
+			
+			return true;
 		}
 		return false;
 	}

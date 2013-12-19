@@ -2,6 +2,8 @@ package com.amiramit.bitsafe.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.UITypes.UIBeanFactory;
 import com.amiramit.bitsafe.client.UITypes.UILoginInfo;
@@ -15,6 +17,7 @@ import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.client.service.LoginServiceAsync;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.service.RuleServiceAsync;
+import com.amiramit.bitsafe.server.BLUser;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -45,7 +48,8 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class Bitsafe implements EntryPoint {
-	private static final String STOP_LOSS = "Stop Loss";
+	private static final Logger LOG = Logger.getLogger(Bitsafe.class.getName());
+    private static final String STOP_LOSS = "Stop Loss";
 
 	/**
 	 * Create a remote service proxy to talk to the server-side
@@ -81,8 +85,6 @@ public class Bitsafe implements EntryPoint {
 	@Override
 	public void onModuleLoad() {
 
-		getXSRFToken();
-
 		// Check login status using login service.
 		final LoginServiceAsync loginService = GWT.create(LoginService.class);
 		try {
@@ -97,7 +99,7 @@ public class Bitsafe implements EntryPoint {
 						public void onSuccess(UILoginInfo result) {
 							loginInfo = result;
 							if (loginInfo.isLoggedIn()) {
-								loadWelcomePage();
+								getXSRFToken();
 							} else {
 								loadLogin();
 							}
@@ -118,6 +120,7 @@ public class Bitsafe implements EntryPoint {
 			@Override
 			public void onSuccess(XsrfToken token) {
 				((HasRpcToken) ruleService).setRpcToken(token);
+				loadWelcomePage();
 			}
 
 			@Override
@@ -205,6 +208,7 @@ public class Bitsafe implements EntryPoint {
 
 			@Override
 			public void onMessage(String tickerAsJson) {
+				handleError("tickerChannel onMessage: " + tickerAsJson);
 				UITicker ticker = AutoBeanCodex.decode(uiBeanFactory,
 						UITicker.class, tickerAsJson).as();
 
@@ -224,7 +228,7 @@ public class Bitsafe implements EntryPoint {
 
 			@Override
 			public void onClose() {
-				handleError("tickerChannel close");
+				handleError("tickerChannel onClose().");
 			}
 		});
 
@@ -250,6 +254,7 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void handleError(String error) {
+		LOG.severe(error);
 		errorLabel.setText(error);
 	}
 

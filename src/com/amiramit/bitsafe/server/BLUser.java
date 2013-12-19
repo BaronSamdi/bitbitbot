@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
+import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -78,23 +79,32 @@ public class BLUser {
 	}
 
 	public void onLogin() {
-		channelClientID = null;
 		lastLogIn = new Date();
 	}
 
 	public String establishChannel(String JSESSIONID) {
 		if (channelClientID != null) {
 			LOG.info("establishChannel with session ID: " + JSESSIONID
-					+ " returning existing channel id: " + channelClientID);
-			return channelClientID;
+					+ " validating existing channel id: " + channelClientID);
+
+			try {
+				ChannelServiceFactory.getChannelService().sendMessage(
+						new ChannelMessage(channelClientID, ""));
+				return channelClientID;
+			} catch (Throwable e) {
+				LOG.info("establishChannel error sending, creating new channel ...");
+			}
 		}
 
 		// TODO: Add some salt here?
 		String token = JSESSIONID;
 		channelClientID = ChannelServiceFactory.getChannelService()
-				.createChannel(JSESSIONID);
-		LOG.info("establishChannel token new token " + token + " for user: " + this);
-		return token;
+				.createChannel(token);
+		LOG.info("establishChannel token new token " + channelClientID
+				+ " for user: " + this + "; sending welcome messege");
+		ChannelServiceFactory.getChannelService().sendMessage(
+				new ChannelMessage(channelClientID, "Welcome!"));
+		return channelClientID;
 	}
 
 	public void onChannelDisconnect() {

@@ -13,9 +13,13 @@
 	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/> -->
 
 	<!-- Other module inherits -->
+	
+	<!-- inherit autobean classes -->
 	<inherits name="com.google.web.bindery.autobean.AutoBean"/>
 	<!-- Inherit the core Web Toolkit stuff. -->
-	<inherits name='com.google.gwt.user.User' />
+	<!--  <inherits name='com.google.gwt.user.User' /> -->
+	<!-- Inherit GWT logging -->
+	<inherits name="com.google.gwt.logging.Logging"/>
 
 	<!-- Specify the app entry point class. -->
 	<entry-point class='com.amiramit.bitsafe.client.Bitsafe' />
