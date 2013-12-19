@@ -42,8 +42,9 @@ public class StopLossRule extends TradeRule {
 
 	@Override
 	public boolean checkTrigger() {
-		if (!super.checkTrigger())
+		if (!super.checkTrigger()) {
 			return false;
+		}
 
 		BLLastTicker lastTicker = BLLastTicker.getLastTicker(getAtExchange());
 		LOG.info("StopLossRule: " + this.toString()
