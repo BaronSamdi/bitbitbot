@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.UITypes;
+package com.amiramit.bitsafe.client.uitypes;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -45,7 +45,7 @@ public abstract class UITradeRule implements UIElement, Serializable {
 		return dbKey;
 	}
 
-	public void setDbKey(Long dbKey) {
+	public void setDbKey(final Long dbKey) {
 		this.dbKey = dbKey;
 	}
 
@@ -64,4 +64,5 @@ public abstract class UITradeRule implements UIElement, Serializable {
 
 		// No need to check for 'active' field ...
 	}
+
 }

@@ -73,8 +73,8 @@ public abstract class TradeRule {
 	public boolean getActive() {
 		return active;
 	}
-	
-	protected void setActive(boolean active) {
+
+	protected void setActive(final boolean active) {
 		this.active = active;
 	}
 
@@ -93,6 +93,6 @@ public abstract class TradeRule {
 
 	public void save() {
 		ofy().save().entity(this);
-		assert (this.getKey() != null);		
+		assert (this.getKey() != null);
 	}
 }

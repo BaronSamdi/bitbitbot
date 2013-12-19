@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.UITypes;
+package com.amiramit.bitsafe.client.uitypes;
 
 import java.io.Serializable;
 
@@ -13,23 +13,23 @@ public class UILoginInfo implements Serializable {
 	private String nickname;
 	private String channelToken;
 
-	public void setLoginUrl(String loginUrl) {
+	public void setLoginUrl(final String loginUrl) {
 		this.loginUrl = loginUrl;
 	}
 
-	public void setLogoutUrl(String logoutUrl) {
+	public void setLogoutUrl(final String logoutUrl) {
 		this.logoutUrl = logoutUrl;
 	}
 
-	public void setEmailAddress(String emailAddress) {
+	public void setEmailAddress(final String emailAddress) {
 		this.emailAddress = emailAddress;
 	}
 
-	public void setNickname(String nickname) {
+	public void setNickname(final String nickname) {
 		this.nickname = nickname;
 	}
 
-	public void setChannelToken(String channelToken) {
+	public void setChannelToken(final String channelToken) {
 		this.channelToken = channelToken;
 	}
 

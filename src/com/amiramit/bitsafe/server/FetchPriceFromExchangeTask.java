@@ -26,7 +26,7 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 
 	private ExchangeName blExchangeName;
 
-	public FetchPriceFromExchangeTask(ExchangeName blExchangeName) {
+	public FetchPriceFromExchangeTask(final ExchangeName blExchangeName) {
 		super();
 		this.blExchangeName = blExchangeName;
 	}
@@ -68,9 +68,9 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 		OfyService.ofy().save().entity(blLastTicker);
 
 		// Create ProcessRulesServlet task
-		ProcessRulesTask task = new ProcessRulesTask(blExchangeName);
-		Queue queue = QueueFactory.getQueue("ProcessRules");
-		TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
+		final ProcessRulesTask task = new ProcessRulesTask(blExchangeName);
+		final Queue queue = QueueFactory.getQueue("ProcessRules");
+		final TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
 		queue.add(taskOptions);
 	}
 }

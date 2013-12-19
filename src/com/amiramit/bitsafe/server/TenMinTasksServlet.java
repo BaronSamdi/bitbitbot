@@ -23,17 +23,17 @@ public class TenMinTasksServlet extends HttpServlet {
 																			// millis
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(final HttpServletRequest req,
+			final HttpServletResponse resp) throws IOException {
 		LOG.info("TenMinTasksServlet called");
 
 		// Create 10 min worth of FetchPriceFromExchangeTask
 		for (int i = 0; i < NUM_OF_FETCH_PRICE_TASKS; ++i) {
-			FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
+			final FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
 					ExchangeName.MtGox);
-			Queue queue = QueueFactory.getQueue("FetchPriceFromExchange");
-			TaskOptions taskOptions = TaskOptions.Builder.withPayload(task)
-					.countdownMillis(i * DELAY_BETWEEN_FETCH_PRICE_TASKS);
+			final Queue queue = QueueFactory.getQueue("FetchPriceFromExchange");
+			final TaskOptions taskOptions = TaskOptions.Builder.withPayload(
+					task).countdownMillis(i * DELAY_BETWEEN_FETCH_PRICE_TASKS);
 			queue.add(taskOptions);
 		}
 	}

@@ -2,22 +2,22 @@ package com.amiramit.bitsafe.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.amiramit.bitsafe.client.UITypes.UIBeanFactory;
-import com.amiramit.bitsafe.client.UITypes.UILoginInfo;
-import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
-import com.amiramit.bitsafe.client.UITypes.UITicker;
-import com.amiramit.bitsafe.client.UITypes.UITradeRule;
-import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.channel.Channel;
 import com.amiramit.bitsafe.client.channel.ChannelListener;
 import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.client.service.LoginServiceAsync;
+import com.amiramit.bitsafe.client.service.PushService;
+import com.amiramit.bitsafe.client.service.PushServiceAsync;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.service.RuleServiceAsync;
-import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
+import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
+import com.amiramit.bitsafe.client.uitypes.UITicker;
+import com.amiramit.bitsafe.client.uitypes.UITradeRule;
+import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -49,13 +49,14 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
  */
 public class Bitsafe implements EntryPoint {
 	private static final Logger LOG = Logger.getLogger(Bitsafe.class.getName());
-    private static final String STOP_LOSS = "Stop Loss";
+	private static final String STOP_LOSS = "Stop Loss";
 
 	/**
-	 * Create a remote service proxy to talk to the server-side
+	 * Create a remote service proxy to talk to the server-side.
 	 */
 	private final RuleServiceAsync ruleService = GWT.create(RuleService.class);
-	private final UIBeanFactory uiBeanFactory = GWT.create(UIBeanFactory.class);
+	private final PushServiceAsync pushService = GWT.create(PushService.class);
+	private final UIBeanFactory uiBeanFactory = GWT.create(UIBeanFactory.class);	
 
 	private final Label priceLabel = new Label("Waiting for server ...");
 	private final Label lastUpdatedLabel = new Label("Waiting for server ...");
@@ -91,12 +92,12 @@ public class Bitsafe implements EntryPoint {
 			loginService.login(GWT.getHostPageBaseURL(),
 					new AsyncCallback<UILoginInfo>() {
 						@Override
-						public void onFailure(Throwable error) {
+						public void onFailure(final Throwable error) {
 							handleError("loginService.login", error);
 						}
 
 						@Override
-						public void onSuccess(UILoginInfo result) {
+						public void onSuccess(final UILoginInfo result) {
 							loginInfo = result;
 							if (loginInfo.isLoggedIn()) {
 								getXSRFToken();
@@ -105,7 +106,7 @@ public class Bitsafe implements EntryPoint {
 							}
 						}
 					});
-		} catch (UIVerifyException error) {
+		} catch (final UIVerifyException error) {
 			handleError("loginService.login UIVerifyException", error);
 		}
 	}
@@ -115,21 +116,23 @@ public class Bitsafe implements EntryPoint {
 				.create(XsrfTokenService.class);
 		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
 				+ "xsrf");
-		AsyncCallback<XsrfToken> asyncCallback = new AsyncCallback<XsrfToken>() {
+		final AsyncCallback<XsrfToken> asyncCallback = new AsyncCallback<XsrfToken>() {
 
 			@Override
-			public void onSuccess(XsrfToken token) {
+			public void onSuccess(final XsrfToken token) {
 				((HasRpcToken) ruleService).setRpcToken(token);
+				((HasRpcToken) pushService).setRpcToken(token);
+				
 				loadWelcomePage();
 			}
 
 			@Override
-			public void onFailure(Throwable caught) {
+			public void onFailure(final Throwable caught) {
 				try {
 					throw caught;
-				} catch (RpcTokenException e) {
+				} catch (final RpcTokenException e) {
 					handleError("xsrf.getNewXsrfToken RpcTokenException", e);
-				} catch (Throwable e) {
+				} catch (final Throwable e) {
 					handleError("xsrf.getNewXsrfToken Throwable", e);
 				}
 			}
@@ -146,25 +149,25 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setText(0, 4, "Exchange");
 		rulesFlexTable.setText(0, 5, "Remove");
 
-		TextBox nameBox = new TextBox();
+		final TextBox nameBox = new TextBox();
 		nameBox.setText("Name your rule");
-		ListBox ruleBox = new ListBox();
+		final ListBox ruleBox = new ListBox();
 		ruleBox.addItem(STOP_LOSS);
-		ListBox exchangeBox = new ListBox();
-		for (ExchangeName i : ExchangeName.values()) {
+		final ListBox exchangeBox = new ListBox();
+		for (final ExchangeName i : ExchangeName.values()) {
 			exchangeBox.addItem(i.toString());
 		}
-		TextBox priceBox = new TextBox();
+		final TextBox priceBox = new TextBox();
 		priceBox.setText("Trigger Price");
-		Button addButton = new Button("Add");
+		final Button addButton = new Button("Add");
 		addButton.addStyleDependentName("add");
 		addButton.addClickHandler(new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(final ClickEvent event) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
 				// remove another rule in between?
-				int addIndex = rulesFlexTable.getCellForEvent(event)
+				final int addIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
 				addRule(addIndex);
 			}
@@ -198,7 +201,7 @@ public class Bitsafe implements EntryPoint {
 		RootPanel.get("ticker").add(signOutLink);
 
 		// Setup channel listener for ticker information
-		Channel tickerChannel = new Channel();
+		final Channel tickerChannel = new Channel();
 		tickerChannel.addChannelListener(new ChannelListener() {
 
 			@Override
@@ -207,9 +210,9 @@ public class Bitsafe implements EntryPoint {
 			}
 
 			@Override
-			public void onMessage(String tickerAsJson) {
+			public void onMessage(final String tickerAsJson) {
 				handleError("tickerChannel onMessage: " + tickerAsJson);
-				UITicker ticker = AutoBeanCodex.decode(uiBeanFactory,
+				final UITicker ticker = AutoBeanCodex.decode(uiBeanFactory,
 						UITicker.class, tickerAsJson).as();
 
 				priceLabel.setText(ticker.getAtExchange() + ": "
@@ -221,14 +224,27 @@ public class Bitsafe implements EntryPoint {
 			}
 
 			@Override
-			public void onError(int code, String description) {
+			public void onError(final int code, final String description) {
 				handleError("tickerChannel error code: " + code
 						+ " description: " + description);
 			}
 
 			@Override
 			public void onClose() {
-				handleError("tickerChannel onClose().");
+				handleError("tickerChannel onClose(), trying to open a new one ...");
+				pushService.getChannelKey(new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(final Throwable caught) {
+						handleError("pushService.getChannelKey", caught);						
+					}
+
+					@Override
+					public void onSuccess(final String result) {
+						handleError("Success. joining ...");
+						tickerChannel.join(result);						
+					}
+				});				
 			}
 		});
 
@@ -238,7 +254,7 @@ public class Bitsafe implements EntryPoint {
 		loadRules();
 	}
 
-	private void setRulesTableRowStyle(int row) {
+	private void setRulesTableRowStyle(final int row) {
 		rulesFlexTable.getCellFormatter().addStyleName(row, 0,
 				"rulesListBooleanColumn");
 		rulesFlexTable.getCellFormatter().addStyleName(row, 1,
@@ -253,12 +269,12 @@ public class Bitsafe implements EntryPoint {
 				"rulesListRemoveColumn");
 	}
 
-	private void handleError(String error) {
+	private void handleError(final String error) {
 		LOG.severe(error);
 		errorLabel.setText(error);
 	}
 
-	private void handleError(String location, Throwable error) {
+	private void handleError(final String location, final Throwable error) {
 		handleError("at: " + location + " error: " + error.toString());
 		if (error instanceof NotLoggedInException) {
 			Window.Location.replace(loginInfo.getLogoutUrl());
@@ -268,12 +284,12 @@ public class Bitsafe implements EntryPoint {
 	private void loadRules() {
 		ruleService.getRules(new AsyncCallback<UITradeRule[]>() {
 			@Override
-			public void onFailure(Throwable error) {
+			public void onFailure(final Throwable error) {
 				handleError("ruleService.getRules", error);
 			}
 
 			@Override
-			public void onSuccess(UITradeRule[] rules) {
+			public void onSuccess(final UITradeRule[] rules) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
 				// remove another rule in between?
@@ -282,17 +298,17 @@ public class Bitsafe implements EntryPoint {
 		});
 	}
 
-	private void displayRules(UITradeRule[] rules) {
-		for (UITradeRule rule : rules) {
+	private void displayRules(final UITradeRule[] rules) {
+		for (final UITradeRule rule : rules) {
 			displayRule(rule);
 		}
 	}
 
 	private void displayRule(final UITradeRule rule) {
 		// Add the rule to the table.
-		int row = rulesFlexTable.getRowCount();
+		final int row = rulesFlexTable.getRowCount();
 		rulesList.add(rule);
-		CheckBox ruleDisplayCheckBox = new CheckBox();
+		final CheckBox ruleDisplayCheckBox = new CheckBox();
 		ruleDisplayCheckBox.setValue(rule.getActive());
 		ruleDisplayCheckBox.setEnabled(false);
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
@@ -309,17 +325,18 @@ public class Bitsafe implements EntryPoint {
 		setRulesTableRowStyle(row);
 
 		// Add a button to remove this stock from the table.
-		Button removeStockButton = new Button("x");
+		final Button removeStockButton = new Button("x");
 		removeStockButton.addStyleDependentName("remove");
 		removeStockButton.addClickHandler(new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(final ClickEvent event) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
 				// remove another rule in between?
-				int removedIndex = rulesFlexTable.getCellForEvent(event)
+				final int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				UITradeRule ruleToRemove = rulesList.get(removedIndex - 2);
+				final UITradeRule ruleToRemove = rulesList
+						.get(removedIndex - 2);
 				if (ruleToRemove.getDbKey() == null) {
 					handleError("removeStockButton ClickHandler: Rule to remove has invalid ID!");
 					return;
@@ -334,22 +351,22 @@ public class Bitsafe implements EntryPoint {
 		ruleService.removeRule(ruleToRemove.getDbKey(),
 				new AsyncCallback<Void>() {
 					@Override
-					public void onFailure(Throwable error) {
+					public void onFailure(final Throwable error) {
 						handleError("ruleService.removeRule", error);
 					}
 
 					@Override
-					public void onSuccess(Void ignore) {
+					public void onSuccess(final Void ignore) {
 						undisplayRule(ruleToRemove);
 					}
 				});
 	}
 
-	private void undisplayRule(UITradeRule ruleToRemove) {
+	private void undisplayRule(final UITradeRule ruleToRemove) {
 		// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 		// index we look for in the list and what happens if user add /
 		// remove another rule in between?
-		int removeIndex = rulesList.indexOf(ruleToRemove);
+		final int removeIndex = rulesList.indexOf(ruleToRemove);
 		if (removeIndex == -1) {
 			handleError("undisplayRule got rule which has been removed already!");
 			return;
@@ -359,28 +376,28 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.removeRow(removeIndex + 2);
 	}
 
-	protected void addRule(int addIndex) {
-		boolean isActive = ((CheckBox) rulesFlexTable.getWidget(addIndex, 0))
-				.getValue();
-		String name = ((TextBox) rulesFlexTable.getWidget(addIndex, 1))
+	protected void addRule(final int addIndex) {
+		final boolean isActive = ((CheckBox) rulesFlexTable.getWidget(addIndex,
+				0)).getValue();
+		final String name = ((TextBox) rulesFlexTable.getWidget(addIndex, 1))
 				.getText();
 
-		ListBox lstboxRuleType = (ListBox) rulesFlexTable
-				.getWidget(addIndex, 2);
-		String type = lstboxRuleType.getItemText(lstboxRuleType
+		final ListBox lstboxRuleType = (ListBox) rulesFlexTable.getWidget(
+				addIndex, 2);
+		final String type = lstboxRuleType.getItemText(lstboxRuleType
 				.getSelectedIndex());
 
-		ListBox lstboxAtExchange = (ListBox) rulesFlexTable.getWidget(addIndex,
-				4);
-		ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
+		final ListBox lstboxAtExchange = (ListBox) rulesFlexTable.getWidget(
+				addIndex, 4);
+		final ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
 				.getItemText(lstboxAtExchange.getSelectedIndex()));
 		if (type.equals(STOP_LOSS)) {
-			String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
-					.getText();
+			final String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex,
+					3)).getText();
 			BigDecimal price = null;
 			try {
 				price = new BigDecimal(sPrice);
-			} catch (NumberFormatException error) {
+			} catch (final NumberFormatException error) {
 				handleError("BigDecimal.valueOf(sPrice)", error);
 				return;
 			}
@@ -389,19 +406,19 @@ public class Bitsafe implements EntryPoint {
 					exchangeName, price);
 			try {
 				ruleToAdd.verify();
-			} catch (UIVerifyException e) {
+			} catch (final UIVerifyException e) {
 				handleError("ruleToAdd.verify()", e);
 				return;
 			}
 
 			ruleService.addRule(ruleToAdd, new AsyncCallback<Long>() {
 				@Override
-				public void onFailure(Throwable error) {
+				public void onFailure(final Throwable error) {
 					handleError("ruleService.addRule", error);
 				}
 
 				@Override
-				public void onSuccess(Long dbKey) {
+				public void onSuccess(final Long dbKey) {
 					// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
 					// relay on index we look for in the list and what happens
 					// if user add / remove another rule in between?

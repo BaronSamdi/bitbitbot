@@ -23,7 +23,7 @@ public class ProcessRulesTask implements DeferredTask {
 
 	private ExchangeName blExchangeName;
 
-	public ProcessRulesTask(ExchangeName blExchangeName) {
+	public ProcessRulesTask(final ExchangeName blExchangeName) {
 		super();
 		this.blExchangeName = blExchangeName;
 	}
@@ -34,17 +34,19 @@ public class ProcessRulesTask implements DeferredTask {
 		long startTime = System.currentTimeMillis();
 
 		int numRules = 0;
-		QueryResultIterator<TradeRule> dbRulesIt = ofy().load()
+		final QueryResultIterator<TradeRule> dbRulesIt = ofy().load()
 				.type(TradeRule.class).filter("active", true)
 				.filter("atExchange", blExchangeName).iterator();
 		while (dbRulesIt.hasNext()) {
 			++numRules;
-			TradeRule curRule = dbRulesIt.next();
+			final TradeRule curRule = dbRulesIt.next();
 
 			if (curRule.checkTrigger()) {
-				DoRuleTriggerTask task = new DoRuleTriggerTask(curRule.getKey());
-				Queue queue = QueueFactory.getQueue("DoRuleTrigger");
-				TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
+				final DoRuleTriggerTask task = new DoRuleTriggerTask(
+						curRule.getKey());
+				final Queue queue = QueueFactory.getQueue("DoRuleTrigger");
+				final TaskOptions taskOptions = TaskOptions.Builder
+						.withPayload(task);
 				queue.add(taskOptions);
 			}
 

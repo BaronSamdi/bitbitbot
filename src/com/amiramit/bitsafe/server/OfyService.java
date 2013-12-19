@@ -4,7 +4,11 @@ import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 
-public class OfyService {
+public final class OfyService {
+
+	private OfyService() {
+	}
+
 	static {
 		factory().register(TradeRule.class);
 		factory().register(StopLossRule.class);

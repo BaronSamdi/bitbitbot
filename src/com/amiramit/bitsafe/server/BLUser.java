@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.google.appengine.api.channel.ChannelMessage;
-import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -26,9 +24,10 @@ public class BLUser {
 
 	private Date creationDate;
 	private Date lastLogIn;
+	private Date lastChannelClientIdSet;
 	private String channelClientID;
 
-	public BLUser(String userID) {
+	public BLUser(final String userID) {
 		super();
 		this.userID = userID;
 		this.creationDate = new Date();
@@ -56,20 +55,20 @@ public class BLUser {
 		return creationDate;
 	}
 
-	static protected BLUser getUser(String userID) {
+	protected static BLUser getUser(final String userID) {
 		checkNotNull(userID);
 		return ofy().load().type(BLUser.class).id(userID).safe();
 	}
 
-	public static BLUser checkLoggedIn(HttpServletRequest req)
+	public static BLUser checkLoggedIn(final HttpServletRequest req)
 			throws NotLoggedInException {
-		HttpSession session = req.getSession(false);
-		String userId = (String) session.getAttribute("userID");
+		final HttpSession session = req.getSession(false);
+		final String userId = (String) session.getAttribute("userID");
 		if (userId == null) {
 			throw new NotLoggedInException("Not logged in.");
 		}
 
-		BLUser ret = BLUser.getUser(userId);
+		final BLUser ret = BLUser.getUser(userId);
 		LOG.info("checkLoggedIn for user: " + ret);
 		return ret;
 	}
@@ -82,36 +81,16 @@ public class BLUser {
 		lastLogIn = new Date();
 	}
 
-	public String establishChannel(String JSESSIONID) {
-		if (channelClientID != null) {
-			LOG.info("establishChannel with session ID: " + JSESSIONID
-					+ " validating existing channel id: " + channelClientID);
-
-			try {
-				ChannelServiceFactory.getChannelService().sendMessage(
-						new ChannelMessage(channelClientID, ""));
-				return channelClientID;
-			} catch (Throwable e) {
-				LOG.info("establishChannel error sending, creating new channel ...");
-			}
-		}
-
-		// TODO: Add some salt here?
-		String token = JSESSIONID;
-		channelClientID = ChannelServiceFactory.getChannelService()
-				.createChannel(token);
-		LOG.info("establishChannel token new token " + channelClientID
-				+ " for user: " + this + "; sending welcome messege");
-		ChannelServiceFactory.getChannelService().sendMessage(
-				new ChannelMessage(channelClientID, "Welcome!"));
+	public String getChannelClientID() {
 		return channelClientID;
 	}
 
-	public void onChannelDisconnect() {
-		channelClientID = null;
+	public void setChannelClientID(final String channelClientID) {
+		this.channelClientID = channelClientID;
+		this.lastChannelClientIdSet = new Date();
 	}
 
-	public String getChannelID() {
-		return channelClientID;
+	public Date getLastChannelClientIdSet() {
+		return lastChannelClientIdSet;
 	}
 }

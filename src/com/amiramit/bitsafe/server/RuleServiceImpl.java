@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.amiramit.bitsafe.client.UITypes.UIStopLossRule;
-import com.amiramit.bitsafe.client.UITypes.UITradeRule;
-import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
 import com.amiramit.bitsafe.client.service.RuleService;
+import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
+import com.amiramit.bitsafe.client.uitypes.UITradeRule;
+import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
+@SuppressWarnings("serial")
 public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		RuleService {
 
-	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = Logger.getLogger(RuleServiceImpl.class
 			.getName());
 
@@ -55,7 +55,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		final BLUser user = BLUser.checkLoggedIn(getThreadLocalRequest());
 		FieldVerifier.verifyNotNull(id);
 		LOG.info("removeRule with id: " + id);
-		TradeRule dbRule = ofy().load().type(TradeRule.class).id(id).safe();
+		final TradeRule dbRule = ofy().load().type(TradeRule.class).id(id)
+				.safe();
 		if (!dbRule.getUserId().equals(user.getUserID())) {
 			LOG.severe("removeRule with id: " + id + " from User: " + user
 					+ "failed because dbule user: " + dbRule.getUserId()
@@ -75,7 +76,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 		// TODO: Make this limit known to user somehow!
 		// TODO: Load only specific user rules!!!
-		List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
+		final List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
 				.filter("userId", user.getUserID()).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
 

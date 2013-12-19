@@ -44,7 +44,7 @@ public class BLLastTicker {
 	private BLLastTicker() {
 	}
 
-	public BLLastTicker(ExchangeName atExchange, Ticker ticker) {
+	public BLLastTicker(final ExchangeName atExchange, final Ticker ticker) {
 		this.atExchange = atExchange.toString();
 		this.tradableIdentifier = ticker.getTradableIdentifier();
 		this.last = ticker.getLast().getAmount();
@@ -108,7 +108,7 @@ public class BLLastTicker {
 		return ExchangeName.valueOf(atExchange);
 	}
 
-	static public BLLastTicker getLastTicker(ExchangeName atExchange) {
+	public static BLLastTicker getLastTicker(final ExchangeName atExchange) {
 		return ofy().load().type(BLLastTicker.class).id(atExchange.toString())
 				.now();
 	}

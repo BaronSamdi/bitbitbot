@@ -10,7 +10,7 @@ public class Channel {
 		channelListeners = new ArrayList<ChannelListener>();
 	}
 
-	private void onMessage(String message) {
+	private void onMessage(final String message) {
 		for (int i = 0; i < channelListeners.size(); i++) {
 			channelListeners.get(i).onMessage(message);
 		}
@@ -22,7 +22,7 @@ public class Channel {
 		}
 	}
 
-	private void onError(int code, String description) {
+	private void onError(final int code, final String description) {
 		for (int i = 0; i < channelListeners.size(); i++) {
 			channelListeners.get(i).onError(code, description);
 		}
@@ -34,34 +34,35 @@ public class Channel {
 		}
 	}
 
-	public void addChannelListener(ChannelListener channelListener) {
+	public void addChannelListener(final ChannelListener channelListener) {
 		channelListeners.add(channelListener);
 	}
 
-	public void removeChannelListener(ChannelListener channelListener) {
+	public void removeChannelListener(final ChannelListener channelListener) {
 		channelListeners.remove(channelListener);
 	}
 
-	public native void join(String channelKey) /*-{
-												var channel = new $wnd.goog.appengine.Channel(channelKey);
-												var socket = channel.open();
-												var self = this;
+	public native void join(final String channelKey)
+	/*-{
+		var channel = new $wnd.goog.appengine.Channel(channelKey);
+		var socket = channel.open();
+		var self = this;
 
-												socket.onmessage = function(evt) {
-												var data = evt.data;
-												self.@com.amiramit.bitsafe.client.channel.Channel::onMessage(Ljava/lang/String;)(data);
-												};
+		socket.onmessage = function(evt) {
+			var data = evt.data;
+			self.@com.amiramit.bitsafe.client.channel.Channel::onMessage(Ljava/lang/String;)(data);
+		};
 
-												socket.onopen = function() {
-												self.@com.amiramit.bitsafe.client.channel.Channel::onOpen()();
-												};
+		socket.onopen = function() {
+			self.@com.amiramit.bitsafe.client.channel.Channel::onOpen()();
+		};
 
-												socket.onerror = function(error) {
-												self.@com.amiramit.bitsafe.client.channel.Channel::onError(ILjava/lang/String;)(error.code, error.description);
-												};
+		socket.onerror = function(error) {
+			self.@com.amiramit.bitsafe.client.channel.Channel::onError(ILjava/lang/String;)(error.code, error.description);
+		};
 
-												socket.onclose = function() {
-												self.@com.amiramit.bitsafe.client.channel.Channel::onClose()();
-												};
-												}-*/;
+		socket.onclose = function() {
+			self.@com.amiramit.bitsafe.client.channel.Channel::onClose()();
+		};
+	}-*/;
 }

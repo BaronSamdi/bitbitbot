@@ -3,9 +3,9 @@ package com.amiramit.bitsafe.server;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 
-import com.amiramit.bitsafe.client.UITypes.UIBeanFactory;
-import com.amiramit.bitsafe.client.UITypes.UIRuleTriggerResult;
-import com.amiramit.bitsafe.client.UITypes.UITicker;
+import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.UIRuleTriggerResult;
+import com.amiramit.bitsafe.client.uitypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelServiceFactory;
@@ -46,7 +46,8 @@ public class StopLossRule extends TradeRule {
 			return false;
 		}
 
-		BLLastTicker lastTicker = BLLastTicker.getLastTicker(getAtExchange());
+		final BLLastTicker lastTicker = BLLastTicker
+				.getLastTicker(getAtExchange());
 		LOG.info("StopLossRule: " + this.toString()
 				+ " is at checkTrigger with lastTicker = " + lastTicker);
 		if (lastTicker.getLast().compareTo(atPrice) < 0) {
@@ -76,31 +77,41 @@ public class StopLossRule extends TradeRule {
 			this.save();
 
 			// Send rule trigger notification to user
-			BLUser blUser = BLUser.getUser(this.getUserId());
-			String userChannelId = blUser.getChannelID();
-			
+			final BLUser blUser = BLUser.getUser(this.getUserId());
+			final String userChannelId = blUser.getChannelClientID();
+
 			if (userChannelId != null) {
 				LOG.info("Notifing user on channel: " + userChannelId);
-				UIBeanFactory factory = AutoBeanFactorySource
+				final UIBeanFactory factory = AutoBeanFactorySource
 						.create(UIBeanFactory.class);
 				// TODO: just for check, remove this!
-				AutoBean<UITicker> tickerBean = factory.ticker();
-				BLLastTicker lastTicker = BLLastTicker
+				final AutoBean<UITicker> tickerBean = factory.ticker();
+				final BLLastTicker lastTicker = BLLastTicker
 						.getLastTicker(getAtExchange());
+				tickerBean.as().setAsk(lastTicker.getAsk());
+				tickerBean.as().setAtExchange(lastTicker.getAtExchange());
+				tickerBean.as().setBid(lastTicker.getBid());
+				tickerBean.as().setHigh(lastTicker.getHigh());
+				tickerBean.as().setLast(lastTicker.getLast());
+				tickerBean.as().setLow(lastTicker.getLow());
+				tickerBean.as().setTimestamp(lastTicker.getTimestamp());
+				tickerBean.as().setTradableIdentifier(
+						lastTicker.getTradableIdentifier());
+				tickerBean.as().setVolume(lastTicker.getVolume());
 
-				AutoBean<UIRuleTriggerResult> triggerResultBean = factory
+				final AutoBean<UIRuleTriggerResult> triggerResultBean = factory
 						.ruleTriggerResult();
 				triggerResultBean.as().setRuleId(this.getKey());
 				triggerResultBean.as().setUITicker(tickerBean.as());
 
-				String beanPayload = AutoBeanCodex.encode(triggerResultBean)
-						.getPayload();
+				final String beanPayload = AutoBeanCodex.encode(
+						triggerResultBean).getPayload();
 				ChannelServiceFactory.getChannelService().sendMessage(
 						new ChannelMessage(userChannelId, beanPayload));
 			} else {
 				LOG.info("User not connected.");
 			}
-			
+
 			return true;
 		}
 		return false;

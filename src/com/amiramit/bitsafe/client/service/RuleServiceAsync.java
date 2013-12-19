@@ -1,6 +1,6 @@
 package com.amiramit.bitsafe.client.service;
 
-import com.amiramit.bitsafe.client.UITypes.UITradeRule;
+import com.amiramit.bitsafe.client.uitypes.UITradeRule;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RuleServiceAsync {

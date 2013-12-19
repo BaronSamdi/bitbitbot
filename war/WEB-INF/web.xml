@@ -72,6 +72,15 @@
 		<servlet-name>ruleService</servlet-name>
 		<url-pattern>/bitsafe/rule</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>pushService</servlet-name>
+		<servlet-class>com.amiramit.bitsafe.server.PushServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>pushService</servlet-name>
+		<url-pattern>/bitsafe/push</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>tenMinTasksServlet</servlet-name>

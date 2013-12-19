@@ -1,6 +1,6 @@
 package com.amiramit.bitsafe.shared;
 
-import com.amiramit.bitsafe.client.UITypes.UIVerifyException;
+import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.google.gwt.safehtml.shared.UriUtils;
 
 /**
@@ -23,24 +23,24 @@ import com.google.gwt.safehtml.shared.UriUtils;
  * JavaScript (such as Widgets) cannot be run on the server.
  * </p>
  */
-public class FieldVerifier {
+public final class FieldVerifier {
 
 	private FieldVerifier() {
 	};
 
-	public static void verifyNotNull(Object obj) throws UIVerifyException {
+	public static void verifyNotNull(final Object obj) throws UIVerifyException {
 		if (obj == null) {
 			throw new UIVerifyException("Got null");
 		}
 	}
 
-	public static void verifyIsNull(Object obj) throws UIVerifyException {
+	public static void verifyIsNull(final Object obj) throws UIVerifyException {
 		if (obj != null) {
 			throw new UIVerifyException("Got non-null");
 		}
 	}
 
-	public static void verifyValidSymbol(String symbol)
+	public static void verifyValidSymbol(final String symbol)
 			throws UIVerifyException {
 		verifyNotNull(symbol);
 
@@ -50,21 +50,21 @@ public class FieldVerifier {
 		}
 	}
 
-	private static boolean isAlphanumeric(String str) {
+	private static boolean isAlphanumeric(final String str) {
 		if (str == null) {
 			return false;
 		}
-		int sz = str.length();
+		final int sz = str.length();
 		for (int i = 0; i < sz; i++) {
-			char charAt = str.charAt(i);
-			if (charAt != ' ' && Character.isLetterOrDigit(charAt) == false) {
+			final char charAt = str.charAt(i);
+			if (charAt != ' ' && !Character.isLetterOrDigit(charAt)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public static void verifyString(String str) throws UIVerifyException {
+	public static void verifyString(final String str) throws UIVerifyException {
 		verifyNotNull(str);
 		if (!isAlphanumeric(str)) {
 			throw new UIVerifyException("String: '" + truncateStr(str, 30)
@@ -72,11 +72,12 @@ public class FieldVerifier {
 		}
 	}
 
-	private static String truncateStr(String str, int len) {
+	private static String truncateStr(final String str, final int len) {
 		return str.substring(0, Math.min(str.length(), len));
 	}
 
-	public static void verifyUri(String requestUri) throws UIVerifyException {
+	public static void verifyUri(final String requestUri)
+			throws UIVerifyException {
 		verifyNotNull(requestUri);
 		if (requestUri.length() > 50) {
 			throw new UIVerifyException(

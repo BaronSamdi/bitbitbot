@@ -14,13 +14,14 @@ class DoRuleTriggerTask implements DeferredTask {
 
 	private Long dbKey;
 
-	public DoRuleTriggerTask(Long dbKey) {
+	public DoRuleTriggerTask(final Long dbKey) {
 		this.dbKey = dbKey;
 	}
 
 	@Override
 	public void run() {
-		TradeRule dbRule = ofy().load().type(TradeRule.class).id(dbKey).safe();
+		final TradeRule dbRule = ofy().load().type(TradeRule.class).id(dbKey)
+				.safe();
 		LOG.info("ProcessRulesServlet processing rule: " + dbRule);
 		dbRule.trigger();
 	}
