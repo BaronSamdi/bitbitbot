@@ -75,7 +75,6 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		LOG.info("getRules called for user: " + user);
 
 		// TODO: Make this limit known to user somehow!
-		// TODO: Load only specific user rules!!!
 		final List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
 				.filter("userId", user.getUserID()).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
