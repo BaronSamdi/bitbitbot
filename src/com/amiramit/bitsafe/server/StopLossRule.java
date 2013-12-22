@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
 import com.amiramit.bitsafe.client.uitypes.UIRuleTriggerResult;
-import com.amiramit.bitsafe.client.uitypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelServiceFactory;
@@ -28,7 +27,7 @@ public class StopLossRule extends TradeRule {
 	protected StopLossRule() {
 	}
 
-	public StopLossRule(final String userId, final String name,
+	public StopLossRule(final long userId, final String name,
 			final Boolean active, final ExchangeName atExchange,
 			final BigDecimal atPrice) {
 		super(userId, name, active, atExchange);

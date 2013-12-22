@@ -12,12 +12,10 @@ public class NotLoggedInException extends Exception implements Serializable {
 
 	public NotLoggedInException() {
 		super();
-		LOG.severe("NotLoggedInException");
 	}
 
 	public NotLoggedInException(final String message) {
 		super(message);
-		LOG.severe("NotLoggedInException with messege: " + message);
 	}
 
 }

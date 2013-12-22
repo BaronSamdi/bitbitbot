@@ -19,7 +19,7 @@ public abstract class TradeRule {
 	private Long key;
 
 	@Index
-	private String userId;
+	private long userId;
 
 	private Date createDate;
 
@@ -34,9 +34,8 @@ public abstract class TradeRule {
 	protected TradeRule() {
 	}
 
-	public TradeRule(final String userId, final String name,
+	public TradeRule(final long userId, final String name,
 			final boolean active, final ExchangeName atExchange) {
-		assert userId != null;
 		assert name != null;
 		assert atExchange != null;
 		this.createDate = new Date();
@@ -54,7 +53,7 @@ public abstract class TradeRule {
 		return name;
 	}
 
-	public String getUserId() {
+	public long getUserId() {
 		return this.userId;
 	}
 
@@ -62,7 +61,7 @@ public abstract class TradeRule {
 		return this.createDate;
 	}
 
-	public void setUser(final String userId) {
+	public void setUser(final long userId) {
 		this.userId = userId;
 	}
 

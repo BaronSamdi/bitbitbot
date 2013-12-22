@@ -40,7 +40,7 @@ public class BLLastTicker {
 	private Date timestamp;
 
 	/**
-	 * This constructor exists for frameworks (e.g. Google Web Toolkit) that
+	 * This constructor exists for frameworks (e.g. Objectify) that
 	 * require it for serialization purposes. It should not be called
 	 * explicitly.
 	 */

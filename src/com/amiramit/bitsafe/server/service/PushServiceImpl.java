@@ -3,6 +3,8 @@ package com.amiramit.bitsafe.server.service;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpSession;
+
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.service.PushService;
 import com.amiramit.bitsafe.server.BLUser;
@@ -22,10 +24,9 @@ public class PushServiceImpl extends XsrfProtectedServiceServlet implements
 
 	@Override
 	public String getChannelKey() throws NotLoggedInException {
-		final BLUser user = BLUser.checkLoggedIn(getThreadLocalRequest());
-
-		return newChannelToken(user, getThreadLocalRequest().getSession()
-				.getId());
+		HttpSession session = getThreadLocalRequest().getSession();
+		final BLUser user = BLUser.checkLoggedIn(session);
+		return newChannelToken(user, session.getId());
 	}
 
 	public static String getChannelToken(final BLUser user,

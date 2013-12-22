@@ -1,11 +1,6 @@
 package com.amiramit.bitsafe.server;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
-import org.scribe.builder.api.GoogleApi;
 import org.scribe.builder.api.TwitterApi;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -25,14 +19,12 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
+import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.shared.FieldVerifier;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.objectify.NotFoundException;
 
 @SuppressWarnings("serial")
 public class LoginCallbackServlet extends HttpServlet {
@@ -45,37 +37,33 @@ public class LoginCallbackServlet extends HttpServlet {
 
 	private static final String TWITTER_APP_ID = null;
 	private static final String TWITTER_APP_SECRET = null;
-	private static final String TWITTER_PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
+	private static final String TWITTER_PROTECTED_RESOURCE_URL = 
+			"https://api.twitter.com/1.1/account/verify_credentials.json";
 
-	private static final String FACEBOOK_APP_ID = null;
-	private static final String FACEBOOK_APP_SECRET = null;
-	private static final String FACEBOOK_PROTECTED_RESOURCE_URL = "https://graph.facebook.com/me";
+	private static final String FACEBOOK_APP_ID = "266929410125455";
+	private static final String FACEBOOK_APP_SECRET = "b4c0f9a0cecd2e2986d9b9b2dbf87242";
+	private static final String FACEBOOK_PROTECTED_RESOURCE_URL = "https://graph.facebook.com/me?fields=id,name,email";
 
-	private OAuthService getOAuthService(ProviderName authProvider,
-			String callbackUrl) {
-		OAuthService service = null;
-
+	private OAuthService getOAuthService(final ProviderName authProvider,
+			final String callbackUrl) throws UIVerifyException {
 		assert authProvider != null && callbackUrl != null;
 
 		switch (authProvider) {
 		case TWITTER:
-			service = new ServiceBuilder().provider(TwitterApi.class)
+			return new ServiceBuilder().provider(TwitterApi.class)
 					.apiKey(TWITTER_APP_ID).apiSecret(TWITTER_APP_SECRET)
 					.callback(callbackUrl).build();
-			break;
 		case FACEBOOK:
-			service = new ServiceBuilder().provider(FacebookApi.class)
+			return new ServiceBuilder().provider(FacebookApi.class)
 					.apiKey(FACEBOOK_APP_ID).apiSecret(FACEBOOK_APP_SECRET)
 					.callback(callbackUrl).build();
-			break;
+		default:
+			throw new UIVerifyException(
+					"Unhandled authProvider in getOAuthService");
 		}
-
-		checkNotNull(service);
-
-		return service;
 	}
 
-	private String getProtectedResourceUrl(ProviderName authProvider)
+	private String getProtectedResourceUrl(final ProviderName authProvider)
 			throws UIVerifyException {
 		assert authProvider != null;
 
@@ -84,9 +72,10 @@ public class LoginCallbackServlet extends HttpServlet {
 			return TWITTER_PROTECTED_RESOURCE_URL;
 		case FACEBOOK:
 			return FACEBOOK_PROTECTED_RESOURCE_URL;
+		default:
+			throw new UIVerifyException(
+					"Unhandled authProvider in getProtectedResourceUrl");
 		}
-
-		throw new UIVerifyException("Invalid authProvider!");
 	}
 
 	@Override
@@ -101,7 +90,7 @@ public class LoginCallbackServlet extends HttpServlet {
 				handleLoginCallbackRequest(request, response);
 				return;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			LOG.log(Level.SEVERE, "Exception handling doGet", e);
 		}
 
@@ -114,7 +103,7 @@ public class LoginCallbackServlet extends HttpServlet {
 		final HttpSession session = request.getSession(false);
 		final ProviderName provider = (ProviderName) getAndRemoveAttribute(
 				session, "LOGIN_PROVIDER");
-		String afterLoginUrl = (String) getAndRemoveAttribute(session,
+		final String afterLoginUrl = (String) getAndRemoveAttribute(session,
 				"AFTER_LOGIN_REDIRECT");
 		FieldVerifier.verifyUri(afterLoginUrl);
 
@@ -124,8 +113,9 @@ public class LoginCallbackServlet extends HttpServlet {
 			if (user == null) {
 				LOG.severe("Got google provider - User should not be null here!");
 				return;
-			} else {// already logged in ...
-				LOG.info("Got login callback request from looged in google user.");
+			} else { // already logged in ...
+				LOG.info("Got login callback request from looged in google user:"
+						+ user);
 				doLogin(response, session, new SocialUser(user), afterLoginUrl);
 			}
 			return;
@@ -134,9 +124,10 @@ public class LoginCallbackServlet extends HttpServlet {
 		// Facebook (and some others) has optional state variable to protect
 		// against CSFR. We'll use it
 		// if (provider.equals("facebook")) {
-		String reqState = request.getParameter("state");
-		String sessionState = (String) session.getAttribute("LOGIN_STATE");
-		if (!reqState.equals(session)) {
+		final String reqState = request.getParameter("state");
+		final String sessionState = (String) session
+				.getAttribute("LOGIN_STATE");
+		if (!reqState.equals(sessionState)) {
 			LOG.severe("State mismatch in session, expected: " + sessionState
 					+ " Passed: " + reqState);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -145,38 +136,44 @@ public class LoginCallbackServlet extends HttpServlet {
 		// }
 
 		// if there is any request token in session, get it; can be null
-		Token requestToken = (Token) getAndRemoveAttribute(session,
+		final Token requestToken = (Token) getAndRemoveAttribute(session,
 				"LOGIN_TOKEN");
 
-		OAuthService service = getOAuthService(provider, request
+		final OAuthService service = getOAuthService(provider, request
 				.getRequestURL().toString());
-		String oauth_verifier = request.getParameter("oauth_verifier");
-		FieldVerifier.verifyString(oauth_verifier);
-		Verifier verifier = new Verifier(oauth_verifier);
-		Token accessToken = service.getAccessToken(requestToken, verifier);
+		final String oauthVerifier = request.getParameter("code");
+		final Verifier verifier = new Verifier(oauthVerifier);
+		final Token accessToken = service
+				.getAccessToken(requestToken, verifier);
 
 		// Should be verified now; try to get a protected resource ...
-		OAuthRequest oAuthReq = new OAuthRequest(Verb.GET,
+		final OAuthRequest oAuthReq = new OAuthRequest(Verb.GET,
 				getProtectedResourceUrl(provider));
 		service.signRequest(accessToken, oAuthReq);
-		Response oAuthRes = oAuthReq.send();
-		String json = oAuthRes.getBody();
-		SocialUser socialUser = new SocialUser(provider, json);
+		final Response oAuthRes = oAuthReq.send();
+		final String json = oAuthRes.getBody();
+		final SocialUser socialUser = new SocialUser(provider, json);
 		doLogin(response, session, socialUser, afterLoginUrl);
 	}
 
-	private void doLogin(HttpServletResponse response, HttpSession session,
-			SocialUser socialUser, String redirectUrl) throws IOException {
+	private void doLogin(final HttpServletResponse response,
+			final HttpSession session, final SocialUser socialUser,
+			final String redirectUrl) throws IOException {
 		BLUser blUser = socialUser.toBLUser();
-		blUser.onLogin();
+		doLogin(response, session, blUser, redirectUrl);
+	}
+
+	private void doLogin(final HttpServletResponse response,
+			final HttpSession session, final BLUser blUser,
+			final String redirectUrl) throws IOException {
+		blUser.onLogin(session);
 		blUser.save();
-		session.setAttribute("userID", checkNotNull(blUser.getUserID()));
 		response.sendRedirect(redirectUrl);
 	}
 
 	private Object getAndRemoveAttribute(final HttpSession session,
-			String attribute) {
-		Object res = session.getAttribute(attribute);
+			final String attribute) {
+		final Object res = session.getAttribute(attribute);
 		session.removeAttribute(attribute);
 		return res;
 	}
@@ -184,13 +181,25 @@ public class LoginCallbackServlet extends HttpServlet {
 	private void handleLoginRequest(final HttpServletRequest request,
 			final HttpServletResponse response, final HttpSession session)
 			throws UIVerifyException, IOException {
-		String afterLoginUrl = request.getParameter("u");
+		final String afterLoginUrl = request.getParameter("u");
 		FieldVerifier.verifyUri(afterLoginUrl);
 
-		String providerStr = request.getParameter("p");
-		ProviderName provider = FieldVerifier.verifyProvider(providerStr);
+		try {
+			BLUser user = BLUser.checkLoggedIn(session);
+			LOG.info("Got login request from user: " + user
+					+ " with logged in session");
+			doLogin(response, session, user, afterLoginUrl);
+			return;
+		} catch (NotLoggedInException e) {
+			// Expected ...
+			LOG.info("Got login request from unknown user");
+		}
 
-		String callbackUrl = request.getRequestURL().toString() + "/callback";
+		final String providerStr = request.getParameter("p");
+		final ProviderName provider = FieldVerifier.verifyProvider(providerStr);
+
+		final String callbackUrl = request.getRequestURL().toString()
+				+ "/callback";
 
 		// if provider is google it's the simplest case - just use google user
 		// services ...
@@ -198,21 +207,22 @@ public class LoginCallbackServlet extends HttpServlet {
 			final UserService userService = UserServiceFactory.getUserService();
 			final User user = userService.getCurrentUser();
 			if (user == null) {
-				String loginURL = userService.createLoginURL(callbackUrl);
+				final String loginURL = userService.createLoginURL(callbackUrl);
 				LOG.info("Got login request with google provider. redirecting to "
 						+ loginURL);
 
 				session.setAttribute("LOGIN_PROVIDER", provider);
 				session.setAttribute("AFTER_LOGIN_REDIRECT", afterLoginUrl);
 				response.sendRedirect(loginURL);
-			} else {// already logged in ...
-				LOG.info("Got login request from already looged in google user.");
+			} else { // already logged in ...
+				LOG.info("Got login request from already looged in google user: "
+						+ user);
 				doLogin(response, session, new SocialUser(user), afterLoginUrl);
 			}
 			return;
 		}
 
-		OAuthService service = getOAuthService(provider, callbackUrl);
+		final OAuthService service = getOAuthService(provider, callbackUrl);
 
 		Token requestToken = null;
 		// Twitter (and some others) requires request token first. obtain it ...
@@ -226,15 +236,15 @@ public class LoginCallbackServlet extends HttpServlet {
 		// Facebook (and some others) has optional state variable to protect
 		// against CSFR. We'll use it
 		// if (provider.equals("facebook")) {
-		String state = Utils.getRandomString();
+		final String state = Utils.getRandomString();
 		authorizationUrl += "&state=" + state;
 		session.setAttribute("LOGIN_STATE", state);
 		// }
 
-		LOG.info("Got the Request Token: " + requestToken.getToken()
-				+ " provide = " + provider + " afterLoginUrl = "
-				+ afterLoginUrl + " callbackUrl = " + callbackUrl
-				+ " authorizationUrl = " + authorizationUrl);
+		LOG.info("Got the Request Token: " + requestToken + " provide = "
+				+ provider + " afterLoginUrl = " + afterLoginUrl
+				+ " callbackUrl = " + callbackUrl + " authorizationUrl = "
+				+ authorizationUrl);
 
 		session.setAttribute("LOGIN_PROVIDER", provider);
 		session.setAttribute("AFTER_LOGIN_REDIRECT", afterLoginUrl);

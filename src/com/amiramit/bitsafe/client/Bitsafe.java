@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.channel.Channel;
 import com.amiramit.bitsafe.client.channel.ChannelListener;
-import com.amiramit.bitsafe.client.service.LoginService;
-import com.amiramit.bitsafe.client.service.LoginServiceAsync;
+import com.amiramit.bitsafe.client.service.LoginInfoService;
+import com.amiramit.bitsafe.client.service.LoginInfoServiceAsync;
 import com.amiramit.bitsafe.client.service.PushService;
 import com.amiramit.bitsafe.client.service.PushServiceAsync;
 import com.amiramit.bitsafe.client.service.RuleService;
@@ -25,7 +25,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.HasRpcToken;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -56,7 +55,9 @@ public class Bitsafe implements EntryPoint {
 	 */
 	private final RuleServiceAsync ruleService = GWT.create(RuleService.class);
 	private final PushServiceAsync pushService = GWT.create(PushService.class);
-	private final UIBeanFactory uiBeanFactory = GWT.create(UIBeanFactory.class);	
+	private final LoginInfoServiceAsync loginInfoService = GWT
+			.create(LoginInfoService.class);
+	private final UIBeanFactory uiBeanFactory = GWT.create(UIBeanFactory.class);
 
 	private final Label priceLabel = new Label("Waiting for server ...");
 	private final Label lastUpdatedLabel = new Label("Waiting for server ...");
@@ -72,43 +73,29 @@ public class Bitsafe implements EntryPoint {
 	private ArrayList<UITradeRule> rulesList = new ArrayList<UITradeRule>();
 	private FlexTable rulesFlexTable = new FlexTable();
 
-	private void loadLogin() {
-		// Assemble login panel.
-		signInLink.setHref(loginInfo.getLoginUrl());
-		loginPanel.add(loginLabel);
-		loginPanel.add(signInLink);
-		RootPanel.get("ticker").add(loginPanel);
-	}
-
 	/**
 	 * This is the entry point method.
 	 */
 	@Override
 	public void onModuleLoad() {
+		getXSRFToken();
+	}
 
+	private void getLoginInfo() {
 		// Check login status using login service.
-		final LoginServiceAsync loginService = GWT.create(LoginService.class);
-		try {
-			loginService.login(GWT.getHostPageBaseURL(),
-					new AsyncCallback<UILoginInfo>() {
-						@Override
-						public void onFailure(final Throwable error) {
-							handleError("loginService.login", error);
-						}
 
-						@Override
-						public void onSuccess(final UILoginInfo result) {
-							loginInfo = result;
-							if (loginInfo.isLoggedIn()) {
-								getXSRFToken();
-							} else {
-								loadLogin();
-							}
-						}
-					});
-		} catch (final UIVerifyException error) {
-			handleError("loginService.login UIVerifyException", error);
-		}
+		loginInfoService.getLoginInfo(new AsyncCallback<UILoginInfo>() {
+			@Override
+			public void onFailure(final Throwable error) {
+				handleError("loginService.login", error);
+			}
+
+			@Override
+			public void onSuccess(final UILoginInfo result) {
+				loginInfo = result;
+				loadWelcomePage();
+			}
+		});
 	}
 
 	private void getXSRFToken() {
@@ -122,8 +109,9 @@ public class Bitsafe implements EntryPoint {
 			public void onSuccess(final XsrfToken token) {
 				((HasRpcToken) ruleService).setRpcToken(token);
 				((HasRpcToken) pushService).setRpcToken(token);
-				
-				loadWelcomePage();
+				((HasRpcToken) loginInfoService).setRpcToken(token);
+
+				getLoginInfo();
 			}
 
 			@Override
@@ -236,15 +224,15 @@ public class Bitsafe implements EntryPoint {
 
 					@Override
 					public void onFailure(final Throwable caught) {
-						handleError("pushService.getChannelKey", caught);						
+						handleError("pushService.getChannelKey", caught);
 					}
 
 					@Override
 					public void onSuccess(final String result) {
 						handleError("Success. joining ...");
-						incommingChannel.join(result);						
+						incommingChannel.join(result);
 					}
-				});				
+				});
 			}
 		});
 
@@ -277,7 +265,8 @@ public class Bitsafe implements EntryPoint {
 	private void handleError(final String location, final Throwable error) {
 		handleError("at: " + location + " error: " + error.toString());
 		if (error instanceof NotLoggedInException) {
-			Window.Location.replace(loginInfo.getLogoutUrl());
+			// TODO: redirect to login page
+			// Window.Location.replace(loginInfo.getLogoutUrl());
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.amiramit.bitsafe.shared;
 
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
-import com.amiramit.bitsafe.server.LoginCallbackServlet;
 import com.amiramit.bitsafe.server.LoginCallbackServlet.ProviderName;
 import com.google.gwt.safehtml.shared.UriUtils;
 
@@ -97,7 +96,9 @@ public final class FieldVerifier {
 		}
 	}
 
-	public static ProviderName verifyProvider(String provider) throws UIVerifyException {
+	public static ProviderName verifyProvider(final String provider)
+			throws UIVerifyException {
 		verifyNotNull(provider);
-		return ProviderName.valueOf(provider);	}
+		return ProviderName.valueOf(provider);
+	}
 }

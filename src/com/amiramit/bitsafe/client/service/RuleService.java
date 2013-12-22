@@ -11,8 +11,7 @@ public interface RuleService extends XsrfProtectedService {
 	Long addRule(UITradeRule rule) throws NotLoggedInException,
 			UIVerifyException;
 
-	void removeRule(Long id) throws NotLoggedInException,
-			UIVerifyException;
+	void removeRule(Long id) throws NotLoggedInException, UIVerifyException;
 
 	UITradeRule[] getRules() throws NotLoggedInException;
 }

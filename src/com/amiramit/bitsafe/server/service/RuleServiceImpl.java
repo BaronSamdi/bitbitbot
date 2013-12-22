@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpSession;
+
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
@@ -29,7 +31,8 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			UIVerifyException {
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
-		final BLUser user = BLUser.checkLoggedIn(getThreadLocalRequest());
+		HttpSession session = getThreadLocalRequest().getSession();
+		final BLUser blUser = BLUser.checkLoggedIn(session);
 		FieldVerifier.verifyNotNull(uiRule);
 		uiRule.verify();
 
@@ -39,7 +42,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		if (uiRule instanceof UIStopLossRule) {
 			final UIStopLossRule slRule = ((UIStopLossRule) uiRule);
 
-			srvRule = new StopLossRule(user.getUserID(), uiRule.getName(),
+			srvRule = new StopLossRule(blUser.getUserId(), uiRule.getName(),
 					uiRule.getActive(), uiRule.getAtExchange(),
 					slRule.getAtPrice());
 		} else {
@@ -55,13 +58,14 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public void removeRule(final Long id) throws NotLoggedInException,
 			UIVerifyException {
-		final BLUser user = BLUser.checkLoggedIn(getThreadLocalRequest());
+		HttpSession session = getThreadLocalRequest().getSession();
+		final BLUser blUser = BLUser.checkLoggedIn(session);
 		FieldVerifier.verifyNotNull(id);
 		LOG.info("removeRule with id: " + id);
 		final TradeRule dbRule = ofy().load().type(TradeRule.class).id(id)
 				.safe();
-		if (!dbRule.getUserId().equals(user.getUserID())) {
-			LOG.severe("removeRule with id: " + id + " from User: " + user
+		if (dbRule.getUserId() != blUser.getUserId()) {
+			LOG.severe("removeRule with id: " + id + " from User: " + blUser
 					+ "failed because dbule user: " + dbRule.getUserId()
 					+ " does not match!");
 			return;
@@ -74,12 +78,13 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 	@Override
 	public UITradeRule[] getRules() throws NotLoggedInException {
-		final BLUser user = BLUser.checkLoggedIn(getThreadLocalRequest());
-		LOG.info("getRules called for user: " + user);
+		HttpSession session = getThreadLocalRequest().getSession();
+		final BLUser blUser = BLUser.checkLoggedIn(session);
+		LOG.info("getRules called for user: " + blUser);
 
 		// TODO: Make this limit known to user somehow!
 		final List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
-				.filter("userId", user.getUserID()).limit(100).list();
+				.filter("userId", blUser.getUserId()).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
 
 		final UITradeRule[] ret = new UITradeRule[dbRules.size()];

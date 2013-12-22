@@ -6,16 +6,10 @@ public class UILoginInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean loggedIn = false;
-	private String loginUrl;
 	private String logoutUrl;
 	private String emailAddress;
 	private String nickname;
 	private String channelToken;
-
-	public void setLoginUrl(final String loginUrl) {
-		this.loginUrl = loginUrl;
-	}
 
 	public void setLogoutUrl(final String logoutUrl) {
 		this.logoutUrl = logoutUrl;
@@ -31,18 +25,6 @@ public class UILoginInfo implements Serializable {
 
 	public void setChannelToken(final String channelToken) {
 		this.channelToken = channelToken;
-	}
-
-	public boolean isLoggedIn() {
-		return loggedIn;
-	}
-
-	public void setLoggedIn(final boolean loggedIn) {
-		this.loggedIn = loggedIn;
-	}
-
-	public String getLoginUrl() {
-		return loginUrl;
 	}
 
 	public String getLogoutUrl() {
