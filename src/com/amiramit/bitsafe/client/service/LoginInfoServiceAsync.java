@@ -7,4 +7,6 @@ public interface LoginInfoServiceAsync {
 
 	void getLoginInfo(AsyncCallback<UILoginInfo> callback);
 
+	void logout(AsyncCallback<String> callback);
+
 }

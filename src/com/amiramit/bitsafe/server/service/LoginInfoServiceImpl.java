@@ -42,4 +42,12 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 		return loginInfo;
 	}
 
+	@Override
+	public String logout() throws NotLoggedInException {
+		HttpSession session = getThreadLocalRequest().getSession();
+		final BLUser blUser = BLUser.checkLoggedIn(session);
+		blUser.onLogout(session);
+		return "/";
+	}
+
 }

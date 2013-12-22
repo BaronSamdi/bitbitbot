@@ -25,6 +25,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.HasRpcToken;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -185,6 +186,23 @@ public class Bitsafe implements EntryPoint {
 		RootPanel.get("errorLabelContainer").add(errorLabel);
 
 		// Set up sign out hyperlink.
+		signOutLink.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				loginInfoService.logout(new AsyncCallback<String>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						handleError("loginInfoService.logout");
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						Window.Location.replace(loginInfo.getLogoutUrl());
+					}
+				});
+			}
+		});
 		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("ticker").add(signOutLink);
 

@@ -95,10 +95,4 @@ public final class FieldVerifier {
 					+ truncateStr(requestUri, 50));
 		}
 	}
-
-	public static ProviderName verifyProvider(final String provider)
-			throws UIVerifyException {
-		verifyNotNull(provider);
-		return ProviderName.valueOf(provider);
-	}
 }

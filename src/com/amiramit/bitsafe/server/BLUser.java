@@ -97,11 +97,6 @@ public class BLUser {
 		ofy().save().entity(this);
 	}
 
-	public void onLogin(final HttpSession session) {
-		checkNotNull(session);
-		session.setAttribute("userID", getUserId());
-		lastLogIn = new Date();
-	}
 
 	public String getChannelClientID() {
 		return channelClientID;
@@ -121,5 +116,16 @@ public class BLUser {
 			socialUserIds = new ArrayList<String>(1);
 		}
 		socialUserIds.add(socialUserId);
+	}
+
+	public void onLogin(final HttpSession session) {
+		checkNotNull(session);
+		session.setAttribute("userID", getUserId());
+		lastLogIn = new Date();
+	}
+	
+	public void onLogout(HttpSession session) {
+		checkNotNull(session);
+		session.removeAttribute("userID");
 	}
 }

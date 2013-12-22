@@ -37,12 +37,12 @@ public class LoginCallbackServlet extends HttpServlet {
 
 	private static final String TWITTER_APP_ID = null;
 	private static final String TWITTER_APP_SECRET = null;
-	private static final String TWITTER_PROTECTED_RESOURCE_URL = 
+	private static final String TWITTER_PROTECTED_USER_INFO_URL = 
 			"https://api.twitter.com/1.1/account/verify_credentials.json";
 
 	private static final String FACEBOOK_APP_ID = "266929410125455";
 	private static final String FACEBOOK_APP_SECRET = "b4c0f9a0cecd2e2986d9b9b2dbf87242";
-	private static final String FACEBOOK_PROTECTED_RESOURCE_URL = "https://graph.facebook.com/me?fields=id,name,email";
+	private static final String FACEBOOK_PROTECTED_USER_INFO_URL = "https://graph.facebook.com/me?fields=id,name,email";	
 
 	private OAuthService getOAuthService(final ProviderName authProvider,
 			final String callbackUrl) throws UIVerifyException {
@@ -63,15 +63,15 @@ public class LoginCallbackServlet extends HttpServlet {
 		}
 	}
 
-	private String getProtectedResourceUrl(final ProviderName authProvider)
+	private String getProtectedUserInfoUrl(final ProviderName authProvider)
 			throws UIVerifyException {
 		assert authProvider != null;
 
 		switch (authProvider) {
 		case TWITTER:
-			return TWITTER_PROTECTED_RESOURCE_URL;
+			return TWITTER_PROTECTED_USER_INFO_URL;
 		case FACEBOOK:
-			return FACEBOOK_PROTECTED_RESOURCE_URL;
+			return FACEBOOK_PROTECTED_USER_INFO_URL;
 		default:
 			throw new UIVerifyException(
 					"Unhandled authProvider in getProtectedResourceUrl");
@@ -147,12 +147,16 @@ public class LoginCallbackServlet extends HttpServlet {
 				.getAccessToken(requestToken, verifier);
 
 		// Should be verified now; try to get a protected resource ...
-		final OAuthRequest oAuthReq = new OAuthRequest(Verb.GET,
-				getProtectedResourceUrl(provider));
+		OAuthRequest oAuthReq = new OAuthRequest(Verb.GET,
+				getProtectedUserInfoUrl(provider));
 		service.signRequest(accessToken, oAuthReq);
-		final Response oAuthRes = oAuthReq.send();
+		Response oAuthRes = oAuthReq.send();
 		final String json = oAuthRes.getBody();
 		final SocialUser socialUser = new SocialUser(provider, json);
+			
+		LOG.info("Login success for user: " + socialUser + 
+				" token: " + accessToken);
+			
 		doLogin(response, session, socialUser, afterLoginUrl);
 	}
 
@@ -196,7 +200,8 @@ public class LoginCallbackServlet extends HttpServlet {
 		}
 
 		final String providerStr = request.getParameter("p");
-		final ProviderName provider = FieldVerifier.verifyProvider(providerStr);
+		FieldVerifier.verifyNotNull(providerStr);
+		final ProviderName provider = ProviderName.valueOf(providerStr);
 
 		final String callbackUrl = request.getRequestURL().toString()
 				+ "/callback";
