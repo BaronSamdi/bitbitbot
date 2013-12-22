@@ -1,10 +1,11 @@
-package com.amiramit.bitsafe.server;
+package com.amiramit.bitsafe.server.service;
 
 import java.util.Date;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.service.PushService;
+import com.amiramit.bitsafe.server.BLUser;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 

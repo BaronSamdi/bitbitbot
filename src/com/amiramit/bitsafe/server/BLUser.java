@@ -55,7 +55,7 @@ public class BLUser {
 		return creationDate;
 	}
 
-	protected static BLUser getUser(final String userID) {
+	public static BLUser getUser(final String userID) {
 		checkNotNull(userID);
 		return ofy().load().type(BLUser.class).id(userID).safe();
 	}

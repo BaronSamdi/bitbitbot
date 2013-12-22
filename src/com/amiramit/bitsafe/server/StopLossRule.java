@@ -71,12 +71,11 @@ public class StopLossRule extends TradeRule {
 			// TODO: do the actual sell in relevant exchange ...
 
 			// Since this rule has been triggered and we don't want it to
-			// trigger
-			// again, make it inactive
+			// trigger again, make it inactive
 			this.setActive(false);
 			this.save();
 
-			// Send rule trigger notification to user
+			// Try to send rule trigger notification to user
 			final BLUser blUser = BLUser.getUser(this.getUserId());
 			final String userChannelId = blUser.getChannelClientID();
 
@@ -84,25 +83,10 @@ public class StopLossRule extends TradeRule {
 				LOG.info("Notifing user on channel: " + userChannelId);
 				final UIBeanFactory factory = AutoBeanFactorySource
 						.create(UIBeanFactory.class);
-				// TODO: just for check, remove this!
-				final AutoBean<UITicker> tickerBean = factory.ticker();
-				final BLLastTicker lastTicker = BLLastTicker
-						.getLastTicker(getAtExchange());
-				tickerBean.as().setAsk(lastTicker.getAsk());
-				tickerBean.as().setAtExchange(lastTicker.getAtExchange());
-				tickerBean.as().setBid(lastTicker.getBid());
-				tickerBean.as().setHigh(lastTicker.getHigh());
-				tickerBean.as().setLast(lastTicker.getLast());
-				tickerBean.as().setLow(lastTicker.getLow());
-				tickerBean.as().setTimestamp(lastTicker.getTimestamp());
-				tickerBean.as().setTradableIdentifier(
-						lastTicker.getTradableIdentifier());
-				tickerBean.as().setVolume(lastTicker.getVolume());
 
 				final AutoBean<UIRuleTriggerResult> triggerResultBean = factory
 						.ruleTriggerResult();
 				triggerResultBean.as().setRuleId(this.getKey());
-				triggerResultBean.as().setUITicker(tickerBean.as());
 
 				final String beanPayload = AutoBeanCodex.encode(
 						triggerResultBean).getPayload();

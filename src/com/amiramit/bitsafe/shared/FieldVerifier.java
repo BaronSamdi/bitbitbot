@@ -1,6 +1,8 @@
 package com.amiramit.bitsafe.shared;
 
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.server.LoginCallbackServlet;
+import com.amiramit.bitsafe.server.LoginCallbackServlet.ProviderName;
 import com.google.gwt.safehtml.shared.UriUtils;
 
 /**
@@ -66,6 +68,9 @@ public final class FieldVerifier {
 
 	public static void verifyString(final String str) throws UIVerifyException {
 		verifyNotNull(str);
+		if (str.isEmpty()) {
+			throw new UIVerifyException("Empty String");
+		}
 		if (!isAlphanumeric(str)) {
 			throw new UIVerifyException("String: '" + truncateStr(str, 30)
 					+ "' is not alpha numeric");
@@ -79,9 +84,9 @@ public final class FieldVerifier {
 	public static void verifyUri(final String requestUri)
 			throws UIVerifyException {
 		verifyNotNull(requestUri);
-		if (requestUri.length() > 50) {
+		if (requestUri.length() > 50 || requestUri.isEmpty()) {
 			throw new UIVerifyException(
-					"Unsafe URI requested at login (length > 50!): "
+					"Unsafe URI requested at login (length > 50 || isEmpty): "
 							+ truncateStr(requestUri, 50));
 		}
 
@@ -92,4 +97,7 @@ public final class FieldVerifier {
 		}
 	}
 
+	public static ProviderName verifyProvider(String provider) throws UIVerifyException {
+		verifyNotNull(provider);
+		return ProviderName.valueOf(provider);	}
 }

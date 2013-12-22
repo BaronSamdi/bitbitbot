@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.server;
+package com.amiramit.bitsafe.server.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import com.amiramit.bitsafe.client.service.LoginService;
 import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.server.BLUser;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -29,8 +30,6 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 		// Validate request URI
 		FieldVerifier.verifyUri(requestUri);
 
-		final UserService userService = UserServiceFactory.getUserService();
-		final User user = userService.getCurrentUser();
 		final UILoginInfo loginInfo = new UILoginInfo();
 
 		LOG.info("User login requested with uri: " + requestUri);
@@ -46,7 +45,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 
 		// Store logged in state in the session
 		final HttpServletRequest req = getThreadLocalRequest();
-		final HttpSession session = req.getSession(true);
+		final HttpSession session = req.getSession(false);
 
 		final String userId = user.getUserId();
 		session.setAttribute("userID", checkNotNull(userId));

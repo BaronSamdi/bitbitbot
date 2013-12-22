@@ -22,7 +22,15 @@
 	<!-- Configure java.util.logging -->
 	<system-properties>
 		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties" />
-	</system-properties>
+		    <!-- TODO: uncomment and edit the following settings with your information -->
+
+		<property name="fb_app_id" value="266929410125455" />
+		<property name="fb_secret" value="b4c0f9a0cecd2e2986d9b9b2dbf87242" />
+
+		<property name="twitter-consumer-key" value="your_twitter_consumer_key" />
+		<property name="twitter-consumer-secret" value="your_twitter_consumer_secret" />
+		
+	</system-properties>	
 
 	<!-- HTTP Sessions are disabled by default. To enable HTTP sessions specify: 
 		<sessions-enabled>true</sessions-enabled> It's possible to reduce request 

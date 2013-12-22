@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.server;
+package com.amiramit.bitsafe.server.service;
 
 import static com.amiramit.bitsafe.server.OfyService.ofy;
 
@@ -11,6 +11,9 @@ import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
 import com.amiramit.bitsafe.client.uitypes.UITradeRule;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.server.StopLossRule;
+import com.amiramit.bitsafe.server.TradeRule;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 

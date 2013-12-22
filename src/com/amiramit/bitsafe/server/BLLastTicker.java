@@ -5,7 +5,11 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
+import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -113,9 +117,24 @@ public class BLLastTicker {
 				.now();
 	}
 
-	/*
-	 * public UITicker toUITicker() { UIBeanFactory factory =
-	 * AutoBeanFactorySource.create(UIBeanFactory.class); AutoBean<UITicker>
-	 * uiTicker = factory.ticker(); return uiTicker.as(); }
-	 */
+	public AutoBean<UITicker> toUITickerBean() {
+		final UIBeanFactory factory = AutoBeanFactorySource
+				.create(UIBeanFactory.class);
+		// TODO: just for check, remove this!
+		final AutoBean<UITicker> tickerBean = factory.ticker();
+		final BLLastTicker lastTicker = BLLastTicker
+				.getLastTicker(getAtExchange());
+		tickerBean.as().setAsk(lastTicker.getAsk());
+		tickerBean.as().setAtExchange(lastTicker.getAtExchange());
+		tickerBean.as().setBid(lastTicker.getBid());
+		tickerBean.as().setHigh(lastTicker.getHigh());
+		tickerBean.as().setLast(lastTicker.getLast());
+		tickerBean.as().setLow(lastTicker.getLow());
+		tickerBean.as().setTimestamp(lastTicker.getTimestamp());
+		tickerBean.as().setTradableIdentifier(
+				lastTicker.getTradableIdentifier());
+		tickerBean.as().setVolume(lastTicker.getVolume());
+		return tickerBean;
+	}
+
 }
