@@ -9,6 +9,9 @@ import com.amiramit.bitsafe.client.service.LoginInfoService;
 import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
 @SuppressWarnings("serial")
@@ -36,9 +39,6 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 		loginInfo.setEmailAddress(blUser.getEmail());
 		loginInfo.setNickname(blUser.getNickname());
 
-		// TODO: set logout URL!
-		loginInfo.setLogoutUrl("");
-
 		return loginInfo;
 	}
 
@@ -47,7 +47,18 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 		HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		blUser.onLogout(session);
-		return "/";
+		
+		String afterLogoutUrl = "/"; 
+		
+		// handle special case of google: user actually have to press a link to log out ...
+		final UserService userService = UserServiceFactory.getUserService();
+		if (userService.isUserLoggedIn()) {
+			LOG.info("User: " + blUser + " logged out and has google login. redirect to google logout");
+			return userService.createLogoutURL(afterLogoutUrl);
+		}
+		
+		LOG.info("User: " + blUser + " logged out. redirect to logout link");
+		return afterLogoutUrl;
 	}
 
 }

@@ -198,12 +198,11 @@ public class Bitsafe implements EntryPoint {
 
 					@Override
 					public void onSuccess(String result) {
-						Window.Location.replace(loginInfo.getLogoutUrl());
+						Window.Location.replace(result);
 					}
 				});
 			}
 		});
-		signOutLink.setHref(loginInfo.getLogoutUrl());
 		RootPanel.get("ticker").add(signOutLink);
 
 		// Setup channel listener for ticker information

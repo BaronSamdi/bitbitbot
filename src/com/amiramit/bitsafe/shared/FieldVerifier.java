@@ -1,7 +1,6 @@
 package com.amiramit.bitsafe.shared;
 
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
-import com.amiramit.bitsafe.server.LoginCallbackServlet.ProviderName;
 import com.google.gwt.safehtml.shared.UriUtils;
 
 /**
