@@ -1,5 +1,7 @@
 package com.amiramit.bitsafe.server;
 
+import rule.Rule;
+
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
@@ -10,8 +12,7 @@ public final class OfyService {
 	}
 
 	static {
-		factory().register(TradeRule.class);
-		factory().register(StopLossRule.class);
+		factory().register(Rule.class);
 		factory().register(BLLastTicker.class);
 		factory().register(BLUser.class);
 	}

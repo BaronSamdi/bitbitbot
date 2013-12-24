@@ -20,9 +20,9 @@ public class GoogleLogin extends LoginProvider {
 			.getName());
 
 	@Override
-	public void doLoginCallback(HttpServletRequest request,
-			HttpServletResponse response, HttpSession session,
-			String afterLoginUrl) throws IOException, UIVerifyException {
+	public void doLoginCallback(final HttpServletRequest request,
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl) throws IOException, UIVerifyException {
 		final UserService userService = UserServiceFactory.getUserService();
 		final User user = userService.getCurrentUser();
 		if (user == null) {
@@ -35,9 +35,10 @@ public class GoogleLogin extends LoginProvider {
 		}
 	}
 
-	public void doLoginFirstStage(HttpServletResponse response,
-			HttpSession session, String afterLoginUrl, String callbackUrl)
-			throws IOException, UIVerifyException {
+	@Override
+	public void doLoginFirstStage(final HttpServletResponse response,
+			final HttpSession session, final String afterLoginUrl,
+			final String callbackUrl) throws IOException, UIVerifyException {
 		// if provider is google it's the simplest case - just use google
 		// user services ...
 		final UserService userService = UserServiceFactory.getUserService();

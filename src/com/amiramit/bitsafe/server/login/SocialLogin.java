@@ -25,14 +25,13 @@ abstract class SocialLogin extends LoginProvider {
 
 	private final LoginProviderName providerName;
 	private final String userInfoUrl;
-	protected final String userLogoutUrl;
 	private final ServiceBuilder builder;
 
-	protected SocialLogin(LoginProviderName providerName, String userInfoUrl,
-			String userLogoutUrl, ServiceBuilder builder) {
+	protected SocialLogin(final LoginProviderName providerName,
+			final String userInfoUrl, final String userLogoutUrl,
+			final ServiceBuilder builder) {
 		this.providerName = providerName;
 		this.userInfoUrl = userInfoUrl;
-		this.userLogoutUrl = userLogoutUrl;
 		this.builder = builder;
 	}
 
@@ -46,9 +45,10 @@ abstract class SocialLogin extends LoginProvider {
 		return builder.build();
 	}
 
+	@Override
 	public void doLoginFirstStage(final HttpServletResponse response,
-			HttpSession session, String afterLoginUrl, String callbackUrl)
-			throws UIVerifyException, IOException {
+			final HttpSession session, final String afterLoginUrl,
+			final String callbackUrl) throws UIVerifyException, IOException {
 		final OAuthService service = getOAuthService(callbackUrl);
 
 		Token requestToken = null;
@@ -62,11 +62,9 @@ abstract class SocialLogin extends LoginProvider {
 
 		// Facebook (and some others) has optional state variable to protect
 		// against CSFR. We'll use it
-		// if (provider.equals("facebook")) {
 		final String state = Utils.getRandomString();
 		authorizationUrl += "&state=" + state;
 		session.setAttribute("LOGIN_STATE", state);
-		// }
 
 		LOG.info("Got the Request Token: " + requestToken + " provide = "
 				+ providerName + " afterLoginUrl = " + afterLoginUrl
@@ -78,9 +76,10 @@ abstract class SocialLogin extends LoginProvider {
 		response.sendRedirect(authorizationUrl);
 	}
 
+	@Override
 	public void doLoginCallback(final HttpServletRequest request,
-			final HttpServletResponse response, HttpSession session,
-			String afterLoginUrl) throws IOException, UIVerifyException {
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl) throws IOException, UIVerifyException {
 
 		// Facebook (and some others) has optional state variable to protect
 		// against CSFR. We'll use it
@@ -105,9 +104,9 @@ abstract class SocialLogin extends LoginProvider {
 				.getAccessToken(requestToken, verifier);
 
 		// Should be verified now; try to get a protected resource ...
-		OAuthRequest oAuthReq = new OAuthRequest(Verb.GET, userInfoUrl);
+		final OAuthRequest oAuthReq = new OAuthRequest(Verb.GET, userInfoUrl);
 		service.signRequest(accessToken, oAuthReq);
-		Response oAuthRes = oAuthReq.send();
+		final Response oAuthRes = oAuthReq.send();
 		final String json = oAuthRes.getBody();
 		final SocialUser socialUser = new SocialUser(providerName, json);
 

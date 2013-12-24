@@ -27,22 +27,29 @@ public class SocialUser {
 				});
 
 		this.id = (String) userData.get("id");
-		FieldVerifier.verifyString(id);
 		this.nickname = (String) userData.get("name");
-		if (providerName.equals(LoginProviderName.FACEBOOK)) {
-			this.email = (String) userData.get("email");
-		}
-		FieldVerifier.verifyString(id);
+		this.email = (String) userData.get("email");
 		this.providerName = providerName;
+		verify();
 	}
 
 	public SocialUser(final User user) throws UIVerifyException {
 		// TODO: get as much information on the user as possible
 		this.id = user.getUserId();
-		FieldVerifier.verifyString(id);
 		this.email = user.getEmail();
-		this.nickname = user.getNickname();
 		this.providerName = LoginProviderName.GOOGLE;
+		verify();
+	}
+
+	private void verify() throws UIVerifyException {
+		FieldVerifier.verifyNotNull(providerName);
+		FieldVerifier.verifyString(id);
+		if (nickname != null) {
+			FieldVerifier.verifyString(nickname);
+		}
+		if (email != null) {
+			FieldVerifier.verifyEmail(email);
+		}
 	}
 
 	public LoginProviderName getProviderName() {

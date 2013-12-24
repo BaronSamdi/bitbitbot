@@ -8,14 +8,14 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpSession;
 
+import rule.Rule;
+
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
 import com.amiramit.bitsafe.client.uitypes.UITradeRule;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
-import com.amiramit.bitsafe.server.StopLossRule;
-import com.amiramit.bitsafe.server.TradeRule;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
@@ -31,14 +31,14 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			UIVerifyException {
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		FieldVerifier.verifyNotNull(uiRule);
 		uiRule.verify();
 
 		LOG.info("addRule with rule: " + uiRule);
 
-		TradeRule srvRule = null;
+		Rule srvRule = null;
 		if (uiRule instanceof UIStopLossRule) {
 			final UIStopLossRule slRule = ((UIStopLossRule) uiRule);
 
@@ -58,12 +58,11 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public void removeRule(final Long id) throws NotLoggedInException,
 			UIVerifyException {
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		FieldVerifier.verifyNotNull(id);
 		LOG.info("removeRule with id: " + id);
-		final TradeRule dbRule = ofy().load().type(TradeRule.class).id(id)
-				.safe();
+		final Rule dbRule = ofy().load().type(Rule.class).id(id).safe();
 		if (dbRule.getUserId() != blUser.getUserId()) {
 			LOG.severe("removeRule with id: " + id + " from User: " + blUser
 					+ "failed because dbule user: " + dbRule.getUserId()
@@ -78,20 +77,20 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 	@Override
 	public UITradeRule[] getRules() throws NotLoggedInException {
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		LOG.info("getRules called for user: " + blUser);
 
 		// TODO: Make this limit known to user somehow!
-		final List<TradeRule> dbRules = ofy().load().type(TradeRule.class)
+		final List<Rule> dbRules = ofy().load().type(Rule.class)
 				.filter("userId", blUser.getUserId()).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
 
 		final UITradeRule[] ret = new UITradeRule[dbRules.size()];
-		final Iterator<TradeRule> it = dbRules.iterator();
+		final Iterator<Rule> it = dbRules.iterator();
 		int i = 0;
 		while (it.hasNext()) {
-			final TradeRule curRule = it.next();
+			final Rule curRule = it.next();
 			ret[i] = tradeRuleToUIRule(curRule);
 			++i;
 		}
@@ -99,7 +98,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		return ret;
 	}
 
-	private UITradeRule tradeRuleToUIRule(final TradeRule curRule) {
+	private UITradeRule tradeRuleToUIRule(final Rule curRule) {
 		if (curRule instanceof StopLossRule) {
 			final StopLossRule slRule = (StopLossRule) curRule;
 			return new UIStopLossRule(curRule.getKey(),

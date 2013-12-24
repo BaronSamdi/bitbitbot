@@ -24,7 +24,7 @@ public class PushServiceImpl extends XsrfProtectedServiceServlet implements
 
 	@Override
 	public String getChannelKey() throws NotLoggedInException {
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser user = BLUser.checkLoggedIn(session);
 		return newChannelToken(user, session.getId());
 	}

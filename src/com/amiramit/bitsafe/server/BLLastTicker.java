@@ -40,9 +40,8 @@ public class BLLastTicker {
 	private Date timestamp;
 
 	/**
-	 * This constructor exists for frameworks (e.g. Objectify) that
-	 * require it for serialization purposes. It should not be called
-	 * explicitly.
+	 * This constructor exists for frameworks (e.g. Objectify) that require it
+	 * for serialization purposes. It should not be called explicitly.
 	 */
 	@SuppressWarnings("unused")
 	private BLLastTicker() {

@@ -18,7 +18,7 @@ import com.amiramit.bitsafe.server.SocialUser;
 public abstract class LoginProvider {
 	private static final Logger LOG = Logger.getLogger(LoginProvider.class
 			.getName());
-	
+
 	public abstract void doLoginCallback(HttpServletRequest request,
 			HttpServletResponse response, HttpSession session,
 			String afterLoginUrl) throws IOException, UIVerifyException;
@@ -26,7 +26,7 @@ public abstract class LoginProvider {
 	protected void doLogin(final HttpServletResponse response,
 			final HttpSession session, final SocialUser socialUser,
 			final String redirectUrl) throws IOException {
-		BLUser blUser = socialUser.toBLUser();
+		final BLUser blUser = socialUser.toBLUser();
 		doLogin(response, session, blUser, redirectUrl);
 	}
 
@@ -42,16 +42,16 @@ public abstract class LoginProvider {
 			final HttpSession session, final String afterLoginUrl)
 			throws IOException {
 		try {
-			BLUser user = BLUser.checkLoggedIn(session);
+			final BLUser user = BLUser.checkLoggedIn(session);
 			LOG.info("Got login request from user: " + user
 					+ " with logged in session");
 			LoginProvider.doLogin(response, session, user, afterLoginUrl);
 			return true;
-		} catch (NotLoggedInException e) {
+		} catch (final NotLoggedInException e) {
 			// Expected ...
 			LOG.info("Got login request from unknown user");
 		}
-		
+
 		return false;
 	}
 
@@ -59,21 +59,21 @@ public abstract class LoginProvider {
 			HttpSession session, String afterLoginUrl, String callbackUrl)
 			throws IOException, UIVerifyException;
 
-	static final LoginProvider facebookProvider = new FacebookLogin(
+	static final LoginProvider FACEBOOK_PROVIDER = new FacebookLogin(
 			"https://graph.facebook.com/me",
 			"https://graph.facebook.com/me/permissions", new ServiceBuilder()
 					.provider(FacebookApi.class).apiKey("266929410125455")
 					.apiSecret("b4c0f9a0cecd2e2986d9b9b2dbf87242"));
-	static final LoginProvider googleProvider = new GoogleLogin();
+	static final LoginProvider GOOGLE_PROVIDER = new GoogleLogin();
 
-	public static LoginProvider get(LoginProviderName provider)
+	public static LoginProvider get(final LoginProviderName provider)
 			throws UIVerifyException {
 
 		switch (provider) {
 		case FACEBOOK:
-			return facebookProvider;
+			return FACEBOOK_PROVIDER;
 		case GOOGLE:
-			return googleProvider;
+			return GOOGLE_PROVIDER;
 
 		default:
 			throw new UIVerifyException("Invalid provider: " + provider);

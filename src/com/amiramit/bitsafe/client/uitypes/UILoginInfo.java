@@ -9,9 +9,9 @@ public class UILoginInfo implements Serializable {
 	private String emailAddress;
 	private String nickname;
 	private String channelToken;
-	
+
 	public UILoginInfo() {
-		
+
 	}
 
 	public void setEmailAddress(final String emailAddress) {

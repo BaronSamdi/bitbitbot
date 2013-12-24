@@ -188,16 +188,16 @@ public class Bitsafe implements EntryPoint {
 		// Set up sign out hyperlink.
 		signOutLink.addClickHandler(new ClickHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
+			public void onClick(final ClickEvent event) {
 				loginInfoService.logout(new AsyncCallback<String>() {
 
 					@Override
-					public void onFailure(Throwable caught) {
+					public void onFailure(final Throwable caught) {
 						handleError("loginInfoService.logout");
 					}
 
 					@Override
-					public void onSuccess(String result) {
+					public void onSuccess(final String result) {
 						Window.Location.replace(result);
 					}
 				});
@@ -283,7 +283,7 @@ public class Bitsafe implements EntryPoint {
 		handleError("at: " + location + " error: " + error.toString());
 		if (error instanceof NotLoggedInException) {
 			// TODO: redirect to login page
-			// Window.Location.replace(loginInfo.getLogoutUrl());
+			Window.Location.replace("/");
 		}
 	}
 

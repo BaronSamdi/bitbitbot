@@ -9,7 +9,6 @@ import com.amiramit.bitsafe.client.service.LoginInfoService;
 import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
 import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
@@ -24,7 +23,7 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public UILoginInfo getLoginInfo() throws UIVerifyException,
 			NotLoggedInException {
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		final UILoginInfo loginInfo = new UILoginInfo();
 
@@ -44,19 +43,22 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 
 	@Override
 	public String logout() throws NotLoggedInException {
-		HttpSession session = getThreadLocalRequest().getSession();
+		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		blUser.onLogout(session);
-		
-		String afterLogoutUrl = "/"; 
-		
-		// handle special case of google: user actually have to press a link to log out ...
+
+		final String afterLogoutUrl = "/";
+
+		// handle special case of google: user actually have to press a link to
+		// log out ...
 		final UserService userService = UserServiceFactory.getUserService();
 		if (userService.isUserLoggedIn()) {
-			LOG.info("User: " + blUser + " logged out and has google login. redirect to google logout");
+			LOG.info("User: "
+					+ blUser
+					+ " logged out and has google login. redirect to google logout");
 			return userService.createLogoutURL(afterLogoutUrl);
 		}
-		
+
 		LOG.info("User: " + blUser + " logged out. redirect to logout link");
 		return afterLogoutUrl;
 	}

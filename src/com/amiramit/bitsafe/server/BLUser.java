@@ -15,6 +15,7 @@ import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.condition.IfNotNull;
 
 @Entity
 @Cache
@@ -23,7 +24,7 @@ public class BLUser {
 
 	@Id
 	private Long userId;
-	@Index
+	@Index(IfNotNull.class)
 	private List<String> socialUserIds;
 
 	private Date creationDate;
@@ -40,15 +41,14 @@ public class BLUser {
 		this.email = email;
 		this.nickname = nickname;
 	}
-	
+
 	/**
-	 * This constructor exists for frameworks (e.g. Objectify) that
-	 * require it for serialization purposes. It should not be called
-	 * explicitly.
+	 * This constructor exists for frameworks (e.g. Objectify) that require it
+	 * for serialization purposes. It should not be called explicitly.
 	 */
 	@SuppressWarnings("unused")
 	private BLUser() {
-		
+
 	}
 
 	public Long getUserId() {
@@ -97,7 +97,6 @@ public class BLUser {
 		ofy().save().entity(this);
 	}
 
-
 	public String getChannelClientID() {
 		return channelClientID;
 	}
@@ -123,8 +122,8 @@ public class BLUser {
 		session.setAttribute("userID", getUserId());
 		lastLogIn = new Date();
 	}
-	
-	public void onLogout(HttpSession session) {
+
+	public void onLogout(final HttpSession session) {
 		checkNotNull(session);
 		session.removeAttribute("userID");
 	}

@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.server;
+package rule;
 
 import static com.amiramit.bitsafe.server.OfyService.ofy;
 
@@ -9,11 +9,12 @@ import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Serialize;
 import com.googlecode.objectify.condition.IfTrue;
 
 @Entity
 @Cache
-public abstract class TradeRule {
+public final class Rule {
 
 	@Id
 	private Long key;
@@ -23,34 +24,39 @@ public abstract class TradeRule {
 
 	private Date createDate;
 
-	private String name;
+	private String description;
 
 	@Index(IfTrue.class)
 	private boolean active;
 
-	@Index
-	private ExchangeName atExchange;
+	@Serialize
+	private Trigger trigger;
 
-	protected TradeRule() {
+	@Serialize
+	private Action action;
+
+	protected Rule() {
 	}
 
-	public TradeRule(final long userId, final String name,
-			final boolean active, final ExchangeName atExchange) {
-		assert name != null;
+	public Rule(final long userId, final String description,
+			final boolean active, final ExchangeName atExchange,
+			final Trigger trigger, final Action action) {
+		assert description != null;
 		assert atExchange != null;
 		this.createDate = new Date();
 		this.userId = userId;
-		this.name = name;
+		this.description = description;
 		this.active = active;
-		this.atExchange = atExchange;
+		this.trigger = trigger;
+		this.action = action;
 	}
 
 	public Long getKey() {
 		return key;
 	}
 
-	public String getName() {
-		return name;
+	public String getDescription() {
+		return description;
 	}
 
 	public long getUserId() {
@@ -65,10 +71,6 @@ public abstract class TradeRule {
 		this.userId = userId;
 	}
 
-	public ExchangeName getAtExchange() {
-		return this.atExchange;
-	}
-
 	public boolean getActive() {
 		return active;
 	}
@@ -77,18 +79,20 @@ public abstract class TradeRule {
 		this.active = active;
 	}
 
-	public boolean checkTrigger() {
-		return active;
+	public Trigger getTrigger() {
+		return trigger;
+	}
+
+	public Action getAction() {
+		return action;
 	}
 
 	@Override
 	public String toString() {
-		return "TradeRule [key=" + key + ", userId=" + userId + ", createDate="
-				+ createDate + ", name=" + name + ", active=" + active
-				+ ", atExchange=" + atExchange + "]";
+		return "UserRule [key=" + key + ", userId=" + userId + ", createDate="
+				+ createDate + ", name=" + description + ", active=" + active
+				+ ",trigger=" + trigger + ", action=" + action + "]";
 	}
-
-	public abstract boolean trigger();
 
 	public void save() {
 		ofy().save().entity(this);

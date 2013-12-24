@@ -4,6 +4,8 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 
 import java.util.logging.Logger;
 
+import rule.Rule;
+
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.DeferredTask;
@@ -34,14 +36,15 @@ public class ProcessRulesTask implements DeferredTask {
 		long startTime = System.currentTimeMillis();
 
 		int numRules = 0;
-		final QueryResultIterator<TradeRule> dbRulesIt = ofy().load()
-				.type(TradeRule.class).filter("active", true)
-				.filter("atExchange", blExchangeName).iterator();
+		final QueryResultIterator<Rule> dbRulesIt = ofy().load()
+				.type(Rule.class).filter("active", true).iterator();
 		while (dbRulesIt.hasNext()) {
 			++numRules;
-			final TradeRule curRule = dbRulesIt.next();
+			final Rule curRule = dbRulesIt.next();
 
-			if (curRule.checkTrigger()) {
+			// Check get active again - we lazy load so something might have
+			// changed ...
+			if (curRule.getActive() && curRule.getTrigger().check()) {
 				final DoRuleTriggerTask task = new DoRuleTriggerTask(
 						curRule.getKey());
 				final Queue queue = QueueFactory.getQueue("DoRuleTrigger");

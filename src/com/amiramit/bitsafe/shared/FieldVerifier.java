@@ -50,28 +50,28 @@ public final class FieldVerifier {
 		}
 	}
 
-	private static boolean isAlphanumeric(final String str) {
-		if (str == null) {
-			return false;
-		}
+	public static void verifyAlphanumeric(final String str)
+			throws UIVerifyException {
+		verifyNotNull(str);
 		final int sz = str.length();
 		for (int i = 0; i < sz; i++) {
 			final char charAt = str.charAt(i);
 			if (charAt != ' ' && !Character.isLetterOrDigit(charAt)) {
-				return false;
+				throw new UIVerifyException("String: '" + truncateStr(str, 30)
+						+ "' is not alpha numeric; char: " + charAt);
 			}
 		}
-		return true;
 	}
 
 	public static void verifyString(final String str) throws UIVerifyException {
-		verifyNotNull(str);
+		verifyAlphanumeric(str);
+		verifyNotEmpty(str);
+	}
+
+	private static void verifyNotEmpty(final String str)
+			throws UIVerifyException {
 		if (str.isEmpty()) {
 			throw new UIVerifyException("Empty String");
-		}
-		if (!isAlphanumeric(str)) {
-			throw new UIVerifyException("String: '" + truncateStr(str, 30)
-					+ "' is not alpha numeric");
 		}
 	}
 
@@ -83,15 +83,26 @@ public final class FieldVerifier {
 			throws UIVerifyException {
 		verifyNotNull(requestUri);
 		if (requestUri.length() > 50 || requestUri.isEmpty()) {
-			throw new UIVerifyException(
-					"Unsafe URI requested at login (length > 50 || isEmpty): "
-							+ truncateStr(requestUri, 50));
+			throw new UIVerifyException("Unsafe URI (length > 50 || isEmpty): "
+					+ truncateStr(requestUri, 50));
 		}
 
 		if (!UriUtils.isSafeUri(requestUri)) {
 			// This message is logged in UIVerifyException
-			throw new UIVerifyException("Unsafe URI requested at login: "
+			throw new UIVerifyException("Unsafe URI: "
 					+ truncateStr(requestUri, 50));
+		}
+	}
+
+	public static void verifyEmail(final String email) throws UIVerifyException {
+		verifyNotNull(email);
+		verifyNotEmpty(email);
+
+		final String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?:[a-zA-Z]{2,6})$";
+
+		if (!email.matches(emailPattern)) {
+			throw new UIVerifyException("Invalid email: "
+					+ truncateStr(email, 50));
 		}
 	}
 }

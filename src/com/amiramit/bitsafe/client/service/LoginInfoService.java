@@ -9,5 +9,6 @@ import com.google.gwt.user.client.rpc.XsrfProtectedService;
 @RemoteServiceRelativePath("login")
 public interface LoginInfoService extends XsrfProtectedService {
 	UILoginInfo getLoginInfo() throws UIVerifyException, NotLoggedInException;
-	String logout() throws NotLoggedInException;	
+
+	String logout() throws NotLoggedInException;
 }
