@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.uitypes;
+package com.amiramit.bitsafe.client.uitypes.uibeans;
 
 public interface UIRuleTriggerResult {
 	Long getRuleId();

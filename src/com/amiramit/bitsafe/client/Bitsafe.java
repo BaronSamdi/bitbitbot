@@ -6,18 +6,19 @@ import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.channel.Channel;
 import com.amiramit.bitsafe.client.channel.ChannelListener;
+import com.amiramit.bitsafe.client.dto.LogActionDTO;
+import com.amiramit.bitsafe.client.dto.PriceTriggerDTO;
+import com.amiramit.bitsafe.client.dto.RuleDTO;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginInfoService;
 import com.amiramit.bitsafe.client.service.LoginInfoServiceAsync;
 import com.amiramit.bitsafe.client.service.PushService;
 import com.amiramit.bitsafe.client.service.PushServiceAsync;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.client.service.RuleServiceAsync;
-import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
-import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
-import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
-import com.amiramit.bitsafe.client.uitypes.UITicker;
-import com.amiramit.bitsafe.client.uitypes.UITradeRule;
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.service.UILoginInfo;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -71,7 +72,7 @@ public class Bitsafe implements EntryPoint {
 	private Anchor signInLink = new Anchor("Sign In");
 	private Anchor signOutLink = new Anchor("Sign Out");
 
-	private ArrayList<UITradeRule> rulesList = new ArrayList<UITradeRule>();
+	private ArrayList<RuleDTO> rulesList = new ArrayList<RuleDTO>();
 	private FlexTable rulesFlexTable = new FlexTable();
 
 	/**
@@ -132,7 +133,7 @@ public class Bitsafe implements EntryPoint {
 	private void loadWelcomePage() {
 		// Create table for stock data.
 		rulesFlexTable.setText(0, 0, "Active");
-		rulesFlexTable.setText(0, 1, "Rule Name");
+		rulesFlexTable.setText(0, 1, "Rule Description");
 		rulesFlexTable.setText(0, 2, "Rule Type");
 		rulesFlexTable.setText(0, 3, "Trigger Price");
 		rulesFlexTable.setText(0, 4, "Exchange");
@@ -288,14 +289,14 @@ public class Bitsafe implements EntryPoint {
 	}
 
 	private void loadRules() {
-		ruleService.getRules(new AsyncCallback<UITradeRule[]>() {
+		ruleService.getRules(new AsyncCallback<RuleDTO[]>() {
 			@Override
 			public void onFailure(final Throwable error) {
 				handleError("ruleService.getRules", error);
 			}
 
 			@Override
-			public void onSuccess(final UITradeRule[] rules) {
+			public void onSuccess(final RuleDTO[] rules) {
 				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 				// index we look for in the list and what happens if user add /
 				// remove another rule in between?
@@ -304,13 +305,13 @@ public class Bitsafe implements EntryPoint {
 		});
 	}
 
-	private void displayRules(final UITradeRule[] rules) {
-		for (final UITradeRule rule : rules) {
+	private void displayRules(final RuleDTO[] rules) {
+		for (final RuleDTO rule : rules) {
 			displayRule(rule);
 		}
 	}
 
-	private void displayRule(final UITradeRule rule) {
+	private void displayRule(final RuleDTO rule) {
 		// Add the rule to the table.
 		final int row = rulesFlexTable.getRowCount();
 		rulesList.add(rule);
@@ -318,12 +319,14 @@ public class Bitsafe implements EntryPoint {
 		ruleDisplayCheckBox.setValue(rule.getActive());
 		ruleDisplayCheckBox.setEnabled(false);
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
-		rulesFlexTable.setText(row, 1, rule.getName());
-		rulesFlexTable.setText(row, 4, rule.getAtExchange().toString());
-		if (rule instanceof UIStopLossRule) {
+		rulesFlexTable.setText(row, 1, rule.getDescription());
+		rulesFlexTable.setText(row, 4, rule.getTrigger().getAtExchange()
+				.toString());
+		if (rule.getTrigger() instanceof PriceTriggerDTO) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
-			rulesFlexTable.setText(row, 3, ((UIStopLossRule) rule).getAtPrice()
-					.toString());
+			rulesFlexTable.setText(row, 3,
+					((PriceTriggerDTO) rule.getTrigger()).getAtPrice()
+							.toString());
 		} else {
 			handleError("Display rule got unknown rule!");
 			return;
@@ -341,9 +344,8 @@ public class Bitsafe implements EntryPoint {
 				// remove another rule in between?
 				final int removedIndex = rulesFlexTable.getCellForEvent(event)
 						.getRowIndex();
-				final UITradeRule ruleToRemove = rulesList
-						.get(removedIndex - 2);
-				if (ruleToRemove.getDbKey() == null) {
+				final RuleDTO ruleToRemove = rulesList.get(removedIndex - 2);
+				if (ruleToRemove.getKey() == null) {
 					handleError("removeStockButton ClickHandler: Rule to remove has invalid ID!");
 					return;
 				}
@@ -353,8 +355,8 @@ public class Bitsafe implements EntryPoint {
 		rulesFlexTable.setWidget(row, 5, removeStockButton);
 	}
 
-	private void removeRule(final UITradeRule ruleToRemove) {
-		ruleService.removeRule(ruleToRemove.getDbKey(),
+	private void removeRule(final RuleDTO ruleToRemove) {
+		ruleService.removeRule(ruleToRemove.getKey(),
 				new AsyncCallback<Void>() {
 					@Override
 					public void onFailure(final Throwable error) {
@@ -368,7 +370,7 @@ public class Bitsafe implements EntryPoint {
 				});
 	}
 
-	private void undisplayRule(final UITradeRule ruleToRemove) {
+	private void undisplayRule(final RuleDTO ruleToRemove) {
 		// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
 		// index we look for in the list and what happens if user add /
 		// remove another rule in between?
@@ -385,8 +387,8 @@ public class Bitsafe implements EntryPoint {
 	protected void addRule(final int addIndex) {
 		final boolean isActive = ((CheckBox) rulesFlexTable.getWidget(addIndex,
 				0)).getValue();
-		final String name = ((TextBox) rulesFlexTable.getWidget(addIndex, 1))
-				.getText();
+		final String description = ((TextBox) rulesFlexTable.getWidget(
+				addIndex, 1)).getText();
 
 		final ListBox lstboxRuleType = (ListBox) rulesFlexTable.getWidget(
 				addIndex, 2);
@@ -408,8 +410,10 @@ public class Bitsafe implements EntryPoint {
 				return;
 			}
 
-			final UITradeRule ruleToAdd = new UIStopLossRule(name, isActive,
-					exchangeName, price);
+			final RuleDTO ruleToAdd = new RuleDTO(description, isActive,
+					new PriceTriggerDTO(exchangeName,
+							PriceTriggerDTO.TYPE.LOWER, price),
+					new LogActionDTO());
 			try {
 				ruleToAdd.verify();
 			} catch (final UIVerifyException e) {
@@ -430,7 +434,7 @@ public class Bitsafe implements EntryPoint {
 					// if user add / remove another rule in between?
 					// TODO: This does not set the server set creationDate.
 					// Should we ?
-					ruleToAdd.setDbKey(dbKey);
+					ruleToAdd.setKey(dbKey);
 					displayRule(ruleToAdd);
 				}
 			});

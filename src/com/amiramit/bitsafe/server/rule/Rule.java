@@ -1,10 +1,13 @@
-package rule;
+package com.amiramit.bitsafe.server.rule;
 
 import static com.amiramit.bitsafe.server.OfyService.ofy;
 
 import java.util.Date;
 
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.client.dto.ActionDTO;
+import com.amiramit.bitsafe.client.dto.RuleDTO;
+import com.amiramit.bitsafe.client.dto.TriggerDTO;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -35,14 +38,13 @@ public final class Rule {
 	@Serialize
 	private Action action;
 
-	protected Rule() {
+	// Just for Objectify
+	@SuppressWarnings("unused")
+	private Rule() {
 	}
 
 	public Rule(final long userId, final String description,
-			final boolean active, final ExchangeName atExchange,
-			final Trigger trigger, final Action action) {
-		assert description != null;
-		assert atExchange != null;
+			final boolean active, final Trigger trigger, final Action action) {
 		this.createDate = new Date();
 		this.userId = userId;
 		this.description = description;
@@ -96,6 +98,29 @@ public final class Rule {
 
 	public void save() {
 		ofy().save().entity(this);
+	}
+	
+	public void saveNow() {
+		// We must save now() to make id avail.
+		ofy().save().entity(this).now();
 		assert (this.getKey() != null);
+	}
+
+	public static Rule fromDTO(final Long userID, final RuleDTO uiRule)
+			throws UIVerifyException {
+		final Trigger retTrigger = Trigger.fromDTO(uiRule.getTrigger());
+		final Action retAction = Action.fromDTO(uiRule.getAction());
+		final Rule ret = new Rule(userID, uiRule.getDescription(),
+				uiRule.getActive(), retTrigger, retAction);
+		return ret;
+	}
+
+	public static RuleDTO toDTO(final Rule curRule) throws UIVerifyException {
+		final TriggerDTO retTrigger = Trigger.toDTO(curRule.getTrigger());
+		final ActionDTO retAction = Action.toDTO(curRule.getAction());
+		final RuleDTO ret = new RuleDTO(curRule.getKey(),
+				curRule.getCreateDate(), curRule.getDescription(),
+				curRule.getActive(), retTrigger, retAction);
+		return ret;
 	}
 }

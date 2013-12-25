@@ -5,8 +5,8 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
-import com.amiramit.bitsafe.client.uitypes.UITicker;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UITicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;

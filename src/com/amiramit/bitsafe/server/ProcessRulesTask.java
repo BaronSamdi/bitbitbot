@@ -4,8 +4,7 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 
 import java.util.logging.Logger;
 
-import rule.Rule;
-
+import com.amiramit.bitsafe.server.rule.Rule;
 import com.amiramit.bitsafe.shared.ExchangeName;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.DeferredTask;
@@ -51,6 +50,9 @@ public class ProcessRulesTask implements DeferredTask {
 				final TaskOptions taskOptions = TaskOptions.Builder
 						.withPayload(task);
 				queue.add(taskOptions);
+				LOG.info("ProcessRulesServlet for rule: " + curRule + " triggered");
+			} else {
+				LOG.info("ProcessRulesServlet for rule: " + curRule + " not triggered");
 			}
 
 			if (System.currentTimeMillis() - startTime > LIMIT_MILLIS) {

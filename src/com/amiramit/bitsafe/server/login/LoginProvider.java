@@ -11,7 +11,7 @@ import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.FacebookApi;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
 import com.amiramit.bitsafe.server.SocialUser;
 

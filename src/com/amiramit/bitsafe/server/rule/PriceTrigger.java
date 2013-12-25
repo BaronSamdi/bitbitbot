@@ -1,4 +1,4 @@
-package rule;
+package com.amiramit.bitsafe.server.rule;
 
 import java.math.BigDecimal;
 import java.util.logging.Logger;
@@ -7,10 +7,11 @@ import com.amiramit.bitsafe.server.BLLastTicker;
 import com.amiramit.bitsafe.shared.ExchangeName;
 
 public class PriceTrigger extends Trigger {
+	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = Logger.getLogger(PriceTrigger.class
 			.getName());
 
-	private enum TYPE {
+	public enum TYPE {
 		LOWER, HIGHER
 	};
 
@@ -46,6 +47,14 @@ public class PriceTrigger extends Trigger {
 
 		LOG.info("PriceTrigger: " + this.toString() + " at ticker: "
 				+ lastTicker + " return " + res);
-		return false;
+		return res;
+	}
+
+	public TYPE getType() {
+		return type;
+	}
+
+	public BigDecimal getAtPrice() {
+		return atPrice;
 	}
 }

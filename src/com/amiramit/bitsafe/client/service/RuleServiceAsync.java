@@ -1,13 +1,13 @@
 package com.amiramit.bitsafe.client.service;
 
-import com.amiramit.bitsafe.client.uitypes.UITradeRule;
+import com.amiramit.bitsafe.client.dto.RuleDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface RuleServiceAsync {
 
-	void addRule(UITradeRule rule, AsyncCallback<Long> callback);
+	void addRule(RuleDTO rule, AsyncCallback<Long> callback);
 
-	void getRules(AsyncCallback<UITradeRule[]> callback);
+	void getRules(AsyncCallback<RuleDTO[]> callback);
 
 	void removeRule(Long id, AsyncCallback<Void> callback);
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.server.login.LoginProviderName;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.fasterxml.jackson.core.type.TypeReference;

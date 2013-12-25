@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.uitypes;
+package com.amiramit.bitsafe.client.uitypes.uibeans;
 
 import java.math.BigDecimal;
 import java.util.Date;

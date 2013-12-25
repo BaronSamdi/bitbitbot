@@ -1,6 +1,6 @@
 package com.amiramit.bitsafe.shared;
 
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.google.gwt.safehtml.shared.UriUtils;
 
 /**

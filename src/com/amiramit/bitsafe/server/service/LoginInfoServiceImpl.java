@@ -5,9 +5,9 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.NotLoggedInException;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginInfoService;
-import com.amiramit.bitsafe.client.uitypes.UILoginInfo;
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.service.UILoginInfo;
 import com.amiramit.bitsafe.server.BLUser;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;

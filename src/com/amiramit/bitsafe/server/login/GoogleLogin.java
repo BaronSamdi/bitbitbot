@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.server.SocialUser;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

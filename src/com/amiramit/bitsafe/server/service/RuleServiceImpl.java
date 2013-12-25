@@ -8,14 +8,12 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpSession;
 
-import rule.Rule;
-
 import com.amiramit.bitsafe.client.NotLoggedInException;
+import com.amiramit.bitsafe.client.dto.RuleDTO;
+import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.RuleService;
-import com.amiramit.bitsafe.client.uitypes.UIStopLossRule;
-import com.amiramit.bitsafe.client.uitypes.UITradeRule;
-import com.amiramit.bitsafe.client.uitypes.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.server.rule.Rule;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
@@ -27,7 +25,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			.getName());
 
 	@Override
-	public Long addRule(final UITradeRule uiRule) throws NotLoggedInException,
+	public Long addRule(final RuleDTO uiRule) throws NotLoggedInException,
 			UIVerifyException {
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
@@ -35,23 +33,11 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		FieldVerifier.verifyNotNull(uiRule);
 		uiRule.verify();
-
-		LOG.info("addRule with rule: " + uiRule);
-
-		Rule srvRule = null;
-		if (uiRule instanceof UIStopLossRule) {
-			final UIStopLossRule slRule = ((UIStopLossRule) uiRule);
-
-			srvRule = new StopLossRule(blUser.getUserId(), uiRule.getName(),
-					uiRule.getActive(), uiRule.getAtExchange(),
-					slRule.getAtPrice());
-		} else {
-			throw new UIVerifyException("Unknown ui rule type: "
-					+ uiRule.getClass().getName());
-		}
-
-		srvRule.save();
-
+		final Rule srvRule = Rule.fromDTO(blUser.getUserId(), uiRule);
+		
+		// We must saveNow to make ID available
+		srvRule.saveNow();		
+		LOG.info("addRule with rule: " + uiRule + " success; returning id: " + srvRule.getKey());
 		return srvRule.getKey();
 	}
 
@@ -76,7 +62,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	}
 
 	@Override
-	public UITradeRule[] getRules() throws NotLoggedInException {
+	public RuleDTO[] getRules() throws NotLoggedInException, UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
 		final BLUser blUser = BLUser.checkLoggedIn(session);
 		LOG.info("getRules called for user: " + blUser);
@@ -86,30 +72,15 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 				.filter("userId", blUser.getUserId()).limit(100).list();
 		LOG.info("getRules returning " + dbRules.size() + " rules");
 
-		final UITradeRule[] ret = new UITradeRule[dbRules.size()];
+		final RuleDTO[] ret = new RuleDTO[dbRules.size()];
 		final Iterator<Rule> it = dbRules.iterator();
 		int i = 0;
 		while (it.hasNext()) {
 			final Rule curRule = it.next();
-			ret[i] = tradeRuleToUIRule(curRule);
+			ret[i] = Rule.toDTO(curRule);
 			++i;
 		}
 
 		return ret;
 	}
-
-	private UITradeRule tradeRuleToUIRule(final Rule curRule) {
-		if (curRule instanceof StopLossRule) {
-			final StopLossRule slRule = (StopLossRule) curRule;
-			return new UIStopLossRule(curRule.getKey(),
-					curRule.getCreateDate(), curRule.getName(),
-					curRule.getActive(), curRule.getAtExchange(),
-					slRule.getAtPrice());
-		}
-
-		LOG.severe("Unknow rule class: " + curRule.getClass()
-				+ " in tradeRuleToUIRule");
-		return null;
-	}
-
 }

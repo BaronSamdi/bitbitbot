@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.uitypes;
+package com.amiramit.bitsafe.client.service;
 
 import java.io.Serializable;
 

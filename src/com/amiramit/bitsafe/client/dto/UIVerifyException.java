@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.client.uitypes;
+package com.amiramit.bitsafe.client.dto;
 
 import java.io.Serializable;
 import java.util.logging.Logger;

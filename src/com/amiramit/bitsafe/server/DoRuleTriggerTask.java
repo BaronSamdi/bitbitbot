@@ -4,8 +4,7 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 
 import java.util.logging.Logger;
 
-import rule.Rule;
-
+import com.amiramit.bitsafe.server.rule.Rule;
 import com.google.appengine.api.taskqueue.DeferredTask;
 
 class DoRuleTriggerTask implements DeferredTask {
@@ -27,6 +26,8 @@ class DoRuleTriggerTask implements DeferredTask {
 		// Check get active again - we lazy load so something might have
 		// changed ...
 		if (dbRule.getActive() && dbRule.getTrigger().check()) {
+			LOG.severe("ProcessRulesServlet processing rule: " + dbRule
+					+ " - triggering");
 			dbRule.getAction().run(dbRule);
 		} else {
 			LOG.severe("ProcessRulesServlet processing rule: " + dbRule

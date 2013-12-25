@@ -1,9 +1,9 @@
-package rule;
+package com.amiramit.bitsafe.server.rule;
 
 import java.util.logging.Logger;
 
-import com.amiramit.bitsafe.client.uitypes.UIBeanFactory;
-import com.amiramit.bitsafe.client.uitypes.UIRuleTriggerResult;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UIBeanFactory;
+import com.amiramit.bitsafe.client.uitypes.uibeans.UIRuleTriggerResult;
 import com.amiramit.bitsafe.server.BLUser;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelServiceFactory;
@@ -12,6 +12,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 
 public class LogAction extends Action {
+	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = Logger.getLogger(LogAction.class
 			.getName());
 
@@ -32,7 +33,7 @@ public class LogAction extends Action {
 		if (userChannelId != null) {
 			LOG.info("Action: " + this.toString()
 					+ " triggered. Notifing user on channel.");
-			final UIBeanFactory factory = AutoBeanFactorySource
+			final com.amiramit.bitsafe.client.uitypes.uibeans.UIBeanFactory factory = AutoBeanFactorySource
 					.create(UIBeanFactory.class);
 
 			final AutoBean<UIRuleTriggerResult> triggerResultBean = factory
