@@ -71,25 +71,24 @@ public class BLUser {
 		return nickname;
 	}
 
-	public static BLUser getUser(final long userID) {
+	public static BLUser getUserFromId(final long userID) {
 		return ofy().load().type(BLUser.class).id(userID).safe();
 	}
 
-	public static BLUser getUser(final String socialUserID) {
+	public static BLUser getUserFromSocialId(final String socialUserID) {
 		checkNotNull(socialUserID);
 		return ofy().load().type(BLUser.class)
 				.filter("socialUserIds", socialUserID).first().safe();
 	}
 
-	public static BLUser checkLoggedIn(final HttpSession session)
+	public static BLUser getUserFromSession(final HttpSession session)
 			throws NotLoggedInException {
 		final Long userId = (Long) session.getAttribute("userID");
 		if (userId == null) {
 			throw new NotLoggedInException("Not logged in.");
 		}
 
-		final BLUser ret = BLUser.getUser(userId);
-		LOG.info("checkLoggedIn for user: " + ret);
+		final BLUser ret = BLUser.getUserFromId(userId);
 		return ret;
 	}
 

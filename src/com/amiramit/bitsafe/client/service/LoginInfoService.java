@@ -5,7 +5,7 @@ import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.google.gwt.user.client.rpc.XsrfProtectedService;
 
-@RemoteServiceRelativePath("login")
+@RemoteServiceRelativePath("logininfo")
 public interface LoginInfoService extends XsrfProtectedService {
 	UILoginInfo getLoginInfo() throws UIVerifyException, NotLoggedInException;
 

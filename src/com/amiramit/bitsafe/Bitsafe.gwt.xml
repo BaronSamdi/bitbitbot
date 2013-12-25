@@ -16,8 +16,6 @@
 	
 	<!-- inherit autobean classes -->
 	<inherits name="com.google.web.bindery.autobean.AutoBean"/>
-	<!-- Inherit the core Web Toolkit stuff. -->
-	<!--  <inherits name='com.google.gwt.user.User' /> -->
 	<!-- Inherit GWT logging -->
 	<inherits name="com.google.gwt.logging.Logging"/>
 

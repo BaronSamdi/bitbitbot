@@ -24,7 +24,7 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 	public UILoginInfo getLoginInfo() throws UIVerifyException,
 			NotLoggedInException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.checkLoggedIn(session);
+		final BLUser blUser = BLUser.getUserFromSession(session);
 		final UILoginInfo loginInfo = new UILoginInfo();
 
 		LOG.info("User login requested, for logged in user. User details: "
@@ -44,7 +44,7 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public String logout() throws NotLoggedInException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.checkLoggedIn(session);
+		final BLUser blUser = BLUser.getUserFromSession(session);
 		blUser.onLogout(session);
 
 		final String afterLogoutUrl = "/";

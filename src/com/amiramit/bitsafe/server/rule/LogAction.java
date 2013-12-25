@@ -27,7 +27,7 @@ public class LogAction extends Action {
 		myRule.save();
 
 		// Try to send rule trigger notification to user
-		final BLUser blUser = BLUser.getUser(myRule.getUserId());
+		final BLUser blUser = BLUser.getUserFromId(myRule.getUserId());
 		final String userChannelId = blUser.getChannelClientID();
 
 		if (userChannelId != null) {

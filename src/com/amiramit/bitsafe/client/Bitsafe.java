@@ -89,7 +89,7 @@ public class Bitsafe implements EntryPoint {
 		loginInfoService.getLoginInfo(new AsyncCallback<UILoginInfo>() {
 			@Override
 			public void onFailure(final Throwable error) {
-				handleError("loginService.login", error);
+				handleError("loginInfoService.getLoginInfo", error);
 			}
 
 			@Override

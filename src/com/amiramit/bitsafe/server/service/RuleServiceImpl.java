@@ -30,7 +30,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.checkLoggedIn(session);
+		final BLUser blUser = BLUser.getUserFromSession(session);
 		FieldVerifier.verifyNotNull(uiRule);
 		uiRule.verify();
 		final Rule srvRule = Rule.fromDTO(blUser.getUserId(), uiRule);
@@ -45,7 +45,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	public void removeRule(final Long id) throws NotLoggedInException,
 			UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.checkLoggedIn(session);
+		final BLUser blUser = BLUser.getUserFromSession(session);
 		FieldVerifier.verifyNotNull(id);
 		LOG.info("removeRule with id: " + id);
 		final Rule dbRule = ofy().load().type(Rule.class).id(id).safe();
@@ -64,14 +64,12 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public RuleDTO[] getRules() throws NotLoggedInException, UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.checkLoggedIn(session);
-		LOG.info("getRules called for user: " + blUser);
+		final BLUser blUser = BLUser.getUserFromSession(session);
 
 		// TODO: Make this limit known to user somehow!
 		final List<Rule> dbRules = ofy().load().type(Rule.class)
 				.filter("userId", blUser.getUserId()).limit(100).list();
-		LOG.info("getRules returning " + dbRules.size() + " rules");
-
+		
 		final RuleDTO[] ret = new RuleDTO[dbRules.size()];
 		final Iterator<Rule> it = dbRules.iterator();
 		int i = 0;
@@ -81,6 +79,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 			++i;
 		}
 
+		LOG.info("getRules returning " + ret.length + " rules");
 		return ret;
 	}
 }

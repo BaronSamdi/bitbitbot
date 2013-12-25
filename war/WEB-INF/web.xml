@@ -3,13 +3,14 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
-	
+
 	<!-- Default page to serve -->
 	<welcome-file-list>
-		<welcome-file>Bitsafe.html</welcome-file>
+		<welcome-file>HomePage.html</welcome-file>
 	</welcome-file-list>
-	
-	<!-- Security constraints. Limit cron and tasks servlets invocation to admins only -->
+
+	<!-- Security constraints. Limit cron and tasks servlets invocation to admins 
+		only -->
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>cron</web-resource-name>
@@ -30,6 +31,16 @@
 		</auth-constraint>
 	</security-constraint>
 
+	<!-- this filter ensures users are logged in before accessing servlets -->
+	<filter>
+		<filter-name>loginfilter</filter-name>
+		<filter-class>com.amiramit.bitsafe.server.login.LoginFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>loginfilter</filter-name>
+		<url-pattern>/bitrule/*</url-pattern>
+	</filter-mapping>
+
 	<!-- Objectify -->
 	<filter>
 		<filter-name>ObjectifyFilter</filter-name>
@@ -37,9 +48,9 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>ObjectifyFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/bitsafe/*</url-pattern>
 	</filter-mapping>
-	
+
 	<!-- XSRF protection support -->
 	<servlet>
 		<servlet-name>xsrf</servlet-name>
@@ -56,12 +67,12 @@
 
 	<!-- Servlets -->
 	<servlet>
-		<servlet-name>loginService</servlet-name>
+		<servlet-name>loginInfoService</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.service.LoginInfoServiceImpl</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>loginService</servlet-name>
-		<url-pattern>/bitsafe/login</url-pattern>
+		<servlet-name>loginInfoService</servlet-name>
+		<url-pattern>/bitsafe/logininfo</url-pattern>
 	</servlet-mapping>
 
 	<servlet>
@@ -72,7 +83,7 @@
 		<servlet-name>ruleService</servlet-name>
 		<url-pattern>/bitsafe/rule</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet>
 		<servlet-name>pushService</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.service.PushServiceImpl</servlet-class>
@@ -90,7 +101,7 @@
 		<servlet-name>tenMinTasksServlet</servlet-name>
 		<url-pattern>/cron/runEveryTenMinutesTasks</url-pattern>
 	</servlet-mapping>
-	
+
 	<servlet>
 		<servlet-name>loginCallbackServlet</servlet-name>
 		<servlet-class>com.amiramit.bitsafe.server.LoginCallbackServlet</servlet-class>
@@ -99,9 +110,9 @@
 		<servlet-name>loginCallbackServlet</servlet-name>
 		<url-pattern>/login</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>loginCallbackServlet</servlet-name>
-		<url-pattern>login/callback</url-pattern>
+		<url-pattern>/login/callback</url-pattern>
 	</servlet-mapping>
 
 </web-app>

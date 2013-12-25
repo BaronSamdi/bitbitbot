@@ -65,7 +65,7 @@ public class SocialUser {
 		BLUser ret;
 
 		try {
-			ret = BLUser.getUser(userSocialId);
+			ret = BLUser.getUserFromSocialId(userSocialId);
 		} catch (final NotFoundException e) {
 			ret = new BLUser(email, nickname);
 			ret.addSocialUserIds(userSocialId);

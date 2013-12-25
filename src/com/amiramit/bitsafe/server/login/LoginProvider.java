@@ -42,7 +42,7 @@ public abstract class LoginProvider {
 			final HttpSession session, final String afterLoginUrl)
 			throws IOException {
 		try {
-			final BLUser user = BLUser.checkLoggedIn(session);
+			final BLUser user = BLUser.getUserFromSession(session);
 			LOG.info("Got login request from user: " + user
 					+ " with logged in session");
 			LoginProvider.doLogin(response, session, user, afterLoginUrl);
