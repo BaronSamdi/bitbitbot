@@ -43,9 +43,11 @@ public final class Rule {
 	private Rule() {
 	}
 
-	public Rule(final long userId, final String description,
-			final boolean active, final Trigger trigger, final Action action) {
-		this.createDate = new Date();
+	public Rule(final Long key, final Date createDate, final long userId,
+			final String description, final boolean active,
+			final Trigger trigger, final Action action) {
+		this.key = key;
+		this.createDate = createDate;
 		this.userId = userId;
 		this.description = description;
 		this.active = active;
@@ -99,7 +101,7 @@ public final class Rule {
 	public void save() {
 		ofy().save().entity(this);
 	}
-	
+
 	public void saveNow() {
 		// We must save now() to make id avail.
 		ofy().save().entity(this).now();
@@ -110,8 +112,9 @@ public final class Rule {
 			throws UIVerifyException {
 		final Trigger retTrigger = Trigger.fromDTO(uiRule.getTrigger());
 		final Action retAction = Action.fromDTO(uiRule.getAction());
-		final Rule ret = new Rule(userID, uiRule.getDescription(),
-				uiRule.getActive(), retTrigger, retAction);
+		final Rule ret = new Rule(uiRule.getKey(), uiRule.getCreateDate(),
+				userID, uiRule.getDescription(), uiRule.getActive(),
+				retTrigger, retAction);
 		return ret;
 	}
 

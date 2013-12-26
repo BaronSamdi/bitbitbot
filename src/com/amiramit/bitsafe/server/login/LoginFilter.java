@@ -21,13 +21,14 @@ public final class LoginFilter implements Filter {
 	private static Logger LOG = Logger.getLogger(LoginFilter.class.getName());
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(final ServletRequest request,
+			final ServletResponse response, final FilterChain chain)
+			throws IOException, ServletException {
 
 		// TODO: do we really need it? all services points check for user logged
 		// in anyway ...
 
-		HttpServletRequest req = (HttpServletRequest) request;
+		final HttpServletRequest req = (HttpServletRequest) request;
 
 		try {
 			final HttpSession session = req.getSession(false);
@@ -39,7 +40,7 @@ public final class LoginFilter implements Filter {
 			LOG.warning("LoginFilter: request from unknown user");
 		}
 
-		HttpServletResponse resp = (HttpServletResponse) response;
+		final HttpServletResponse resp = (HttpServletResponse) response;
 		resp.sendRedirect("/");
 	}
 
@@ -50,7 +51,7 @@ public final class LoginFilter implements Filter {
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException {
+	public void init(final FilterConfig arg0) throws ServletException {
 		// Auto-generated method stub
 
 	}

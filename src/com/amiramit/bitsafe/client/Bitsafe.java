@@ -9,6 +9,7 @@ import com.amiramit.bitsafe.client.channel.ChannelListener;
 import com.amiramit.bitsafe.client.dto.LogActionDTO;
 import com.amiramit.bitsafe.client.dto.PriceTriggerDTO;
 import com.amiramit.bitsafe.client.dto.RuleDTO;
+import com.amiramit.bitsafe.client.dto.TriggerDTO;
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginInfoService;
 import com.amiramit.bitsafe.client.service.LoginInfoServiceAsync;
@@ -317,7 +318,18 @@ public class Bitsafe implements EntryPoint {
 		rulesList.add(rule);
 		final CheckBox ruleDisplayCheckBox = new CheckBox();
 		ruleDisplayCheckBox.setValue(rule.getActive());
-		ruleDisplayCheckBox.setEnabled(false);
+		ruleDisplayCheckBox.setEnabled(true);
+		ruleDisplayCheckBox.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(final ClickEvent event) {
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we relay on
+				// index we look for in the list and what happens if user add /
+				// remove another rule in between?
+				final int modifyIndex = rulesFlexTable.getCellForEvent(event)
+						.getRowIndex();
+				modifyRule(modifyIndex);
+			}
+		});
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getDescription());
 		rulesFlexTable.setText(row, 4, rule.getTrigger().getAtExchange()
@@ -389,7 +401,6 @@ public class Bitsafe implements EntryPoint {
 				0)).getValue();
 		final String description = ((TextBox) rulesFlexTable.getWidget(
 				addIndex, 1)).getText();
-
 		final ListBox lstboxRuleType = (ListBox) rulesFlexTable.getWidget(
 				addIndex, 2);
 		final String type = lstboxRuleType.getItemText(lstboxRuleType
@@ -399,45 +410,86 @@ public class Bitsafe implements EntryPoint {
 				addIndex, 4);
 		final ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
 				.getItemText(lstboxAtExchange.getSelectedIndex()));
-		if (type.equals(STOP_LOSS)) {
-			final String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex,
-					3)).getText();
-			BigDecimal price = null;
-			try {
-				price = new BigDecimal(sPrice);
-			} catch (final NumberFormatException error) {
-				handleError("BigDecimal.valueOf(sPrice)", error);
-				return;
-			}
 
-			final RuleDTO ruleToAdd = new RuleDTO(description, isActive,
-					new PriceTriggerDTO(exchangeName,
-							PriceTriggerDTO.TYPE.LOWER, price),
-					new LogActionDTO());
-			try {
-				ruleToAdd.verify();
-			} catch (final UIVerifyException e) {
-				handleError("ruleToAdd.verify()", e);
-				return;
-			}
-
-			ruleService.addRule(ruleToAdd, new AsyncCallback<Long>() {
-				@Override
-				public void onFailure(final Throwable error) {
-					handleError("ruleService.addRule", error);
-				}
-
-				@Override
-				public void onSuccess(final Long dbKey) {
-					// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
-					// relay on index we look for in the list and what happens
-					// if user add / remove another rule in between?
-					// TODO: This does not set the server set creationDate.
-					// Should we ?
-					ruleToAdd.setKey(dbKey);
-					displayRule(ruleToAdd);
-				}
-			});
+		final String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
+				.getText();
+		BigDecimal price = null;
+		try {
+			price = new BigDecimal(sPrice);
+		} catch (final NumberFormatException error) {
+			handleError("BigDecimal.valueOf(sPrice)", error);
+			return;
 		}
+
+		TriggerDTO uiTrigger = null;
+		if (type.equals(STOP_LOSS)) {
+			uiTrigger = new PriceTriggerDTO(exchangeName,
+					PriceTriggerDTO.TYPE.LOWER, price);
+		}
+
+		final RuleDTO ruleToAdd = new RuleDTO(description, isActive, uiTrigger,
+				new LogActionDTO());
+
+		try {
+			ruleToAdd.verify();
+		} catch (final UIVerifyException e) {
+			handleError("ruleToAdd.verify()", e);
+			return;
+		}
+
+		ruleService.addRule(ruleToAdd, new AsyncCallback<Long>() {
+			@Override
+			public void onFailure(final Throwable error) {
+				handleError("ruleService.addRule", error);
+			}
+
+			@Override
+			public void onSuccess(final Long dbKey) {
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
+				// relay on index we look for in the list and what happens
+				// if user add / remove another rule in between?
+				// TODO: This does not set the server set creationDate.
+				// Should we ?
+				ruleToAdd.setKey(dbKey);
+				displayRule(ruleToAdd);
+			}
+		});
 	}
+
+	protected void modifyRule(final int modifyIndex) {
+		final boolean isActive = ((CheckBox) rulesFlexTable.getWidget(
+				modifyIndex, 0)).getValue();
+
+		final RuleDTO ruleToModify = rulesList.get(modifyIndex - 2);
+		final RuleDTO modifiedRule = new RuleDTO(ruleToModify.getKey(),
+				ruleToModify.getCreateDate(), ruleToModify.getDescription(),
+				isActive, ruleToModify.getTrigger(), ruleToModify.getAction());
+
+		try {
+			ruleToModify.verify(false);
+		} catch (final UIVerifyException e) {
+			handleError("ruleToModify.verify()", e);
+			return;
+		}
+
+		undisplayRule(ruleToModify);
+
+		ruleService.updateRule(modifiedRule, new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(final Throwable error) {
+				handleError("ruleService.addRule", error);
+			}
+
+			@Override
+			public void onSuccess(final Void dbKey) {
+				// TODO: Guard here with mutex TABLE_CHANGE_MUTEX as we
+				// relay on index we look for in the list and what happens
+				// if user add / remove another rule in between?
+				// TODO: This does not set the server set creationDate.
+				// Should we ?
+				displayRule(modifiedRule);
+			}
+		});
+	}
+
 }

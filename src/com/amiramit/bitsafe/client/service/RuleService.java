@@ -13,4 +13,7 @@ public interface RuleService extends XsrfProtectedService {
 	void removeRule(Long id) throws NotLoggedInException, UIVerifyException;
 
 	RuleDTO[] getRules() throws NotLoggedInException, UIVerifyException;
+
+	void updateRule(RuleDTO uiRule) throws NotLoggedInException,
+			UIVerifyException;
 }

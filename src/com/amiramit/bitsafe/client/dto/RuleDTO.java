@@ -88,12 +88,20 @@ public final class RuleDTO implements BasicDTO, Serializable {
 
 	@Override
 	public void verify() throws UIVerifyException {
-		FieldVerifier.verifyIsNull(key);
-		FieldVerifier.verifyIsNull(createDate);
+		verify(true);
+	}
+
+	public void verify(final boolean isNew) throws UIVerifyException {
+		if (isNew) {
+			FieldVerifier.verifyIsNull(key);
+			FieldVerifier.verifyIsNull(createDate);
+		} else {
+			FieldVerifier.verifyNotNull(key);
+			FieldVerifier.verifyNotNull(createDate);
+		}
 		FieldVerifier.verifyNotNull(description);
 		// No need to verify active
 		trigger.verify();
 		action.verify();
 	}
-
 }

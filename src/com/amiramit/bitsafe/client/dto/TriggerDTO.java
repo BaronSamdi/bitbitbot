@@ -8,7 +8,7 @@ public abstract class TriggerDTO implements BasicDTO, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private ExchangeName atExchange;
-	
+
 	// For GWT serialization
 	protected TriggerDTO() {
 	}

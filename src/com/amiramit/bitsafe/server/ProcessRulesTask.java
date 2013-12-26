@@ -50,9 +50,11 @@ public class ProcessRulesTask implements DeferredTask {
 				final TaskOptions taskOptions = TaskOptions.Builder
 						.withPayload(task);
 				queue.add(taskOptions);
-				LOG.info("ProcessRulesServlet for rule: " + curRule + " triggered");
+				LOG.info("ProcessRulesServlet for rule: " + curRule
+						+ " triggered");
 			} else {
-				LOG.info("ProcessRulesServlet for rule: " + curRule + " not triggered");
+				LOG.info("ProcessRulesServlet for rule: " + curRule
+						+ " not triggered");
 			}
 
 			if (System.currentTimeMillis() - startTime > LIMIT_MILLIS) {

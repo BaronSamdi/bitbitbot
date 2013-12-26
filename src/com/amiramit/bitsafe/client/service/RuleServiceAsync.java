@@ -11,4 +11,6 @@ public interface RuleServiceAsync {
 
 	void removeRule(Long id, AsyncCallback<Void> callback);
 
+	void updateRule(RuleDTO uiRule, AsyncCallback<Void> callback);
+
 }
