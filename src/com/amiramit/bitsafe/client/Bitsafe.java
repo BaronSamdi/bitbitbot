@@ -215,12 +215,12 @@ public class Bitsafe implements EntryPoint {
 
 			@Override
 			public void onOpen() {
-				handleError("tickerChannel open");
+				LOG.info("tickerChannel open");
 			}
 
 			@Override
 			public void onMessage(final String tickerAsJson) {
-				handleError("incommingChannel onMessage: " + tickerAsJson);
+				LOG.info("incommingChannel onMessage: " + tickerAsJson);
 				final UITicker ticker = AutoBeanCodex.decode(uiBeanFactory,
 						UITicker.class, tickerAsJson).as();
 
@@ -240,7 +240,7 @@ public class Bitsafe implements EntryPoint {
 
 			@Override
 			public void onClose() {
-				handleError("incommingChannel onClose(), trying to open a new one ...");
+				LOG.info("incommingChannel onClose(), trying to open a new one ...");
 				pushService.getChannelKey(new AsyncCallback<String>() {
 
 					@Override
@@ -250,14 +250,14 @@ public class Bitsafe implements EntryPoint {
 
 					@Override
 					public void onSuccess(final String result) {
-						handleError("Success. joining ...");
+						LOG.info("Success. joining ...");
 						incommingChannel.join(result);
 					}
 				});
 			}
 		});
 
-		handleError("Tring to join channel: " + loginInfo.getChannelToken());
+		LOG.info("Tring to join channel: " + loginInfo.getChannelToken());
 		incommingChannel.join(loginInfo.getChannelToken());
 
 		loadRules();

@@ -50,13 +50,13 @@ public final class FieldVerifier {
 		}
 	}
 
-	public static void verifyAlphanumeric(final String str)
+	public static void verifyAlphanumericPlus(final String str)
 			throws UIVerifyException {
 		verifyNotNull(str);
 		final int sz = str.length();
 		for (int i = 0; i < sz; i++) {
 			final char charAt = str.charAt(i);
-			if (charAt != ' ' && !Character.isLetterOrDigit(charAt)) {
+			if (charAt != ' ' && !Character.isLetterOrDigit(charAt) && charAt != '@' && charAt != '.') {
 				throw new UIVerifyException("String: '" + truncateStr(str, 30)
 						+ "' is not alpha numeric; char: " + charAt);
 			}
@@ -64,7 +64,7 @@ public final class FieldVerifier {
 	}
 
 	public static void verifyString(final String str) throws UIVerifyException {
-		verifyAlphanumeric(str);
+		verifyAlphanumericPlus(str);
 		verifyNotEmpty(str);
 	}
 

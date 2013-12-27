@@ -49,19 +49,20 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 				// No need to retry now as this task is periodically ran anyway
 				continue;
 			}
-			
-			final BLLastTicker blLastTicker = new BLLastTicker(exchangeInfo, cp,
-					curTicker);
+
+			final BLLastTicker blLastTicker = new BLLastTicker(exchangeInfo,
+					cp, curTicker);
 
 			LOG.info("FetchPriceFromExchangeServlet got ticker: " + curTicker);
-			
-			// No need to call now() as it is called automatically in the end of the
+
+			// No need to call now() as it is called automatically in the end of
+			// the
 			// request
 			OfyService.ofy().save().entity(blLastTicker);
 		}
-		
+
 		// Create matching ProcessRulesServlet task
-		// TODO: have ProcessRulesTask process only specific exchange/currency 
+		// TODO: have ProcessRulesTask process only specific exchange/currency
 		// and create task for every ticker loaded
 		final ProcessRulesTask task = new ProcessRulesTask(exchangeInfo, null);
 		final Queue queue = QueueFactory.getQueue("ProcessRules");

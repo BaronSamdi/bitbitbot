@@ -53,10 +53,10 @@ abstract class SocialLogin extends LoginProvider {
 
 		Token requestToken = null;
 		// Twitter (and some others) requires request token first. obtain it ...
-		if (providerName.equals(LoginProviderName.TWITTER)) {
-			requestToken = service.getRequestToken();
-			session.setAttribute("LOGIN_TOKEN", requestToken);
-		}
+		// if (providerName.equals(LoginProviderName.TWITTER)) {
+		// requestToken = service.getRequestToken();
+		// session.setAttribute("LOGIN_TOKEN", requestToken);
+		// }
 
 		String authorizationUrl = service.getAuthorizationUrl(requestToken);
 
