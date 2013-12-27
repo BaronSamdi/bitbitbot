@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -28,7 +28,7 @@ public class TenMinTasksServlet extends HttpServlet {
 
 		// Create 10 min worth of FetchPriceFromExchangeTask
 		for (int i = 0; i < NUM_OF_FETCH_PRICE_TASKS; ++i) {
-			for (ExchangeName curExchange : ExchangeName.values()) {
+			for (Exchange curExchange : Exchange.values()) {
 				final FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
 						curExchange);
 				final Queue queue = QueueFactory

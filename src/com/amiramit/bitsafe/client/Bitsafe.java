@@ -21,7 +21,8 @@ import com.amiramit.bitsafe.client.service.RuleServiceAsync;
 import com.amiramit.bitsafe.client.service.UILoginInfo;
 import com.amiramit.bitsafe.client.uitypes.uibeans.UIBeanFactory;
 import com.amiramit.bitsafe.client.uitypes.uibeans.UITicker;
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.CurrencyPair;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -146,7 +147,7 @@ public class Bitsafe implements EntryPoint {
 		final ListBox ruleBox = new ListBox();
 		ruleBox.addItem(STOP_LOSS);
 		final ListBox exchangeBox = new ListBox();
-		for (final ExchangeName i : ExchangeName.values()) {
+		for (final Exchange i : Exchange.values()) {
 			exchangeBox.addItem(i.toString());
 		}
 		final TextBox priceBox = new TextBox();
@@ -333,8 +334,7 @@ public class Bitsafe implements EntryPoint {
 		});
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getDescription());
-		rulesFlexTable.setText(row, 4, rule.getTrigger().getAtExchange()
-				.toString());
+		rulesFlexTable.setText(row, 4, rule.getTrigger().getExchange().toString());
 		if (rule.getTrigger() instanceof PriceTriggerDTO) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
 			rulesFlexTable.setText(row, 3,
@@ -409,7 +409,7 @@ public class Bitsafe implements EntryPoint {
 
 		final ListBox lstboxAtExchange = (ListBox) rulesFlexTable.getWidget(
 				addIndex, 4);
-		final ExchangeName exchangeName = ExchangeName.valueOf(lstboxAtExchange
+		final Exchange exchangeName = Exchange.valueOf(lstboxAtExchange
 				.getItemText(lstboxAtExchange.getSelectedIndex()));
 
 		final String sPrice = ((TextBox) rulesFlexTable.getWidget(addIndex, 3))
@@ -424,7 +424,7 @@ public class Bitsafe implements EntryPoint {
 
 		TriggerDTO uiTrigger = null;
 		if (type.equals(STOP_LOSS)) {
-			uiTrigger = new PriceTriggerDTO(exchangeName,
+			uiTrigger = new PriceTriggerDTO(exchangeName, CurrencyPair.BTCUSD,
 					PriceTriggerDTO.TYPE.LOWER, price);
 		}
 
@@ -470,7 +470,8 @@ public class Bitsafe implements EntryPoint {
 		try {
 			ruleToModify.verify(false);
 		} catch (final UIVerifyException e) {
-			handleError("ruleToModify.verify() rule " + ruleToModify.toString(), e);
+			handleError(
+					"ruleToModify.verify() rule " + ruleToModify.toString(), e);
 			return;
 		}
 

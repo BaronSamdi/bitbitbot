@@ -2,7 +2,8 @@ package com.amiramit.bitsafe.client.dto;
 
 import java.math.BigDecimal;
 
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.CurrencyPair;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
 public class PriceTriggerDTO extends TriggerDTO {
@@ -21,9 +22,9 @@ public class PriceTriggerDTO extends TriggerDTO {
 		super();
 	}
 
-	public PriceTriggerDTO(final ExchangeName atExchange, final TYPE type,
-			final BigDecimal atPrice) {
-		super(atExchange);
+	public PriceTriggerDTO(final Exchange exchange,
+			CurrencyPair currencyPair, final TYPE type, final BigDecimal atPrice) {
+		super(exchange, currencyPair);
 		this.type = type;
 		this.atPrice = atPrice;
 	}
@@ -38,6 +39,8 @@ public class PriceTriggerDTO extends TriggerDTO {
 
 	@Override
 	public void verify() throws UIVerifyException {
+		super.verify();
+
 		FieldVerifier.verifyNotNull(type);
 
 		if (atPrice.compareTo(BigDecimal.ZERO) <= 0) {

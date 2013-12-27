@@ -3,7 +3,7 @@ package com.amiramit.bitsafe.client.uitypes.uibeans;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.Exchange;
 
 public interface UITicker {
 	String getTradableIdentifier();
@@ -22,7 +22,7 @@ public interface UITicker {
 
 	Date getTimestamp();
 
-	ExchangeName getAtExchange();
+	Exchange getAtExchange();
 
 	void setTradableIdentifier(String s);
 
@@ -40,5 +40,5 @@ public interface UITicker {
 
 	void setTimestamp(Date d);
 
-	void setAtExchange(ExchangeName e);
+	void setAtExchange(Exchange e);
 }

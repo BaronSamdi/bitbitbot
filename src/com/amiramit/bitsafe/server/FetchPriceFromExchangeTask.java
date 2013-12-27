@@ -3,17 +3,16 @@ package com.amiramit.bitsafe.server;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.CurrencyPair;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.google.appengine.api.taskqueue.DeferredTask;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
-import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeException;
 import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.NotAvailableFromExchangeException;
 import com.xeiam.xchange.NotYetImplementedForExchangeException;
-import com.xeiam.xchange.currency.Currencies;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.mtgox.v2.MtGoxExchange;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
@@ -24,53 +23,67 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 	private static final Logger LOG = Logger
 			.getLogger(FetchPriceFromExchangeTask.class.getName());
 
-	private ExchangeName blExchangeName;
+	private Exchange exchangeInfo;
 
-	public FetchPriceFromExchangeTask(final ExchangeName blExchangeName) {
+	public FetchPriceFromExchangeTask(final Exchange exchangeInfo) {
 		super();
-		this.blExchangeName = blExchangeName;
+		this.exchangeInfo = exchangeInfo;
 	}
 
 	@Override
 	public void run() {
+		final PollingMarketDataService marketDataService = getMarketDataService();
+
+		for (CurrencyPair cp : exchangeInfo.getSupportedCurrencyPairs()) {
+			Ticker curTicker;
+
+			try {
+				curTicker = marketDataService.getTicker(
+						cp.baseCurrency.toString(),
+						cp.counterCurrency.toString());
+			} catch (ExchangeException | NotAvailableFromExchangeException
+					| NotYetImplementedForExchangeException | IOException e) {
+				LOG.severe("Failed to get ticker for currency pair: " + cp
+						+ ": " + e);
+				e.printStackTrace();
+				// No need to retry now as this task is periodically ran anyway
+				continue;
+			}
+			
+			final BLLastTicker blLastTicker = new BLLastTicker(exchangeInfo, cp,
+					curTicker);
+
+			LOG.info("FetchPriceFromExchangeServlet got ticker: " + curTicker);
+			
+			// No need to call now() as it is called automatically in the end of the
+			// request
+			OfyService.ofy().save().entity(blLastTicker);
+		}
+		
+		// Create matching ProcessRulesServlet task
+		// TODO: have ProcessRulesTask process only specific exchange/currency 
+		// and create task for every ticker loaded
+		final ProcessRulesTask task = new ProcessRulesTask(exchangeInfo, null);
+		final Queue queue = QueueFactory.getQueue("ProcessRules");
+		final TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
+		queue.add(taskOptions);
+	}
+
+	private PollingMarketDataService getMarketDataService() {
 		final String exchangeName;
 		// For example: MtGoxExchange.class.getName());
-		switch (blExchangeName) {
+		switch (exchangeInfo) {
 		case MtGox:
 			exchangeName = MtGoxExchange.class.getName();
 			break;
 		default:
-			LOG.severe("exchange name: " + blExchangeName + " is not handled!");
-			return;
+			LOG.severe("exchange name: " + exchangeInfo + " is not handled!");
+			return null;
 		}
-		final Exchange exchange = ExchangeFactory.INSTANCE
+		final com.xeiam.xchange.Exchange xeiamExchange = ExchangeFactory.INSTANCE
 				.createExchange(exchangeName);
-		final PollingMarketDataService marketDataService = exchange
+		final PollingMarketDataService marketDataService = xeiamExchange
 				.getPollingMarketDataService();
-		Ticker lastTicker;
-		try {
-			lastTicker = marketDataService.getTicker(Currencies.BTC,
-					Currencies.USD);
-		} catch (ExchangeException | NotAvailableFromExchangeException
-				| NotYetImplementedForExchangeException | IOException e) {
-			LOG.severe("Failed to get last ticker: " + e);
-			e.printStackTrace();
-			// No need to retry now as this task is periodically ran anyway
-			return;
-		}
-		final BLLastTicker blLastTicker = new BLLastTicker(blExchangeName,
-				lastTicker);
-
-		LOG.info("FetchPriceFromExchangeServlet got ticker: " + lastTicker);
-
-		// No need to call now() as it is called automatically in the end of the
-		// request
-		OfyService.ofy().save().entity(blLastTicker);
-
-		// Create matching ProcessRulesServlet task
-		final ProcessRulesTask task = new ProcessRulesTask(blExchangeName);
-		final Queue queue = QueueFactory.getQueue("ProcessRules");
-		final TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);
-		queue.add(taskOptions);
+		return marketDataService;
 	}
 }

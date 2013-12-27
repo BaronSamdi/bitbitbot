@@ -3,6 +3,8 @@ package com.amiramit.bitsafe.client.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.amiramit.bitsafe.shared.Currency;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
 public final class RuleDTO implements BasicDTO, Serializable {
@@ -29,10 +31,8 @@ public final class RuleDTO implements BasicDTO, Serializable {
 	// Create rule DTO from UI context (i.e. new rule)
 	public RuleDTO(final String description, final boolean active,
 			final TriggerDTO trigger, final ActionDTO action) {
-		this.description = description;
-		this.active = active;
-		this.trigger = trigger;
-		this.action = action;
+		this(null, null, description, active, trigger,
+				action);
 	}
 
 	// Create rule DTO from server context (i.e. returned rule)
@@ -62,7 +62,7 @@ public final class RuleDTO implements BasicDTO, Serializable {
 	public Date getCreateDate() {
 		return this.createDate;
 	}
-	
+
 	public void setCreateDate(final Date createDate) {
 		this.createDate = createDate;
 	}

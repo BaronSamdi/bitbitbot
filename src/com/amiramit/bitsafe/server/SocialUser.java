@@ -27,8 +27,8 @@ public class SocialUser {
 				});
 
 		this.id = (String) userData.get("id");
-		this.nickname = (String) userData.get("name");
 		this.email = (String) userData.get("email");
+		this.nickname = (String) userData.get("name");		
 		this.providerName = providerName;
 		verify();
 	}
@@ -37,6 +37,7 @@ public class SocialUser {
 		// TODO: get as much information on the user as possible
 		this.id = user.getUserId();
 		this.email = user.getEmail();
+		this.nickname = user.getNickname();
 		this.providerName = LoginProviderName.GOOGLE;
 		verify();
 	}

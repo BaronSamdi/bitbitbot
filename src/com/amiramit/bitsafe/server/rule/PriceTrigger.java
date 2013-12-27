@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.server.BLLastTicker;
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.CurrencyPair;
+import com.amiramit.bitsafe.shared.Exchange;
 
 public class PriceTrigger extends Trigger {
 	private static final long serialVersionUID = 1L;
@@ -18,9 +19,9 @@ public class PriceTrigger extends Trigger {
 	private TYPE type;
 	private BigDecimal atPrice;
 
-	public PriceTrigger(final ExchangeName atExchange, final TYPE type,
-			final BigDecimal atPrice) {
-		super(atExchange);
+	public PriceTrigger(final Exchange exchange, CurrencyPair currencyPair,
+			final TYPE type, final BigDecimal atPrice) {
+		super(exchange, currencyPair);
 		this.type = type;
 		this.atPrice = atPrice;
 	}
@@ -28,7 +29,7 @@ public class PriceTrigger extends Trigger {
 	@Override
 	public boolean check() {
 		final BLLastTicker lastTicker = BLLastTicker
-				.getLastTicker(getAtExchange());
+				.getLastTicker(getExchange(), getCurrencyPair());
 
 		boolean res;
 		switch (type) {

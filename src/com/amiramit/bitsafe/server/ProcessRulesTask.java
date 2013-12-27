@@ -5,7 +5,8 @@ import static com.amiramit.bitsafe.server.OfyService.ofy;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.server.rule.Rule;
-import com.amiramit.bitsafe.shared.ExchangeName;
+import com.amiramit.bitsafe.shared.CurrencyPair;
+import com.amiramit.bitsafe.shared.Exchange;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.api.taskqueue.DeferredTask;
 import com.google.appengine.api.taskqueue.Queue;
@@ -22,11 +23,13 @@ public class ProcessRulesTask implements DeferredTask {
 	// since we want to process all of them every one minute!
 	public static final long LIMIT_MILLIS = 1000 * 25;
 
-	private ExchangeName blExchangeName;
+	private Exchange exchange;
+	private CurrencyPair currencyPair;
 
-	public ProcessRulesTask(final ExchangeName blExchangeName) {
+	public ProcessRulesTask(final Exchange exchange, CurrencyPair currencyPair) {
 		super();
-		this.blExchangeName = blExchangeName;
+		this.exchange = exchange;
+		this.currencyPair = currencyPair;
 	}
 
 	@Override
@@ -35,6 +38,7 @@ public class ProcessRulesTask implements DeferredTask {
 		long startTime = System.currentTimeMillis();
 
 		int numRules = 0;
+		// TODO: add filter for specific exchange and currency pair
 		final QueryResultIterator<Rule> dbRulesIt = ofy().load()
 				.type(Rule.class).filter("active", true).iterator();
 		while (dbRulesIt.hasNext()) {
