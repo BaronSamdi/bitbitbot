@@ -67,7 +67,7 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 		// request
 		OfyService.ofy().save().entity(blLastTicker);
 
-		// Create ProcessRulesServlet task
+		// Create matching ProcessRulesServlet task
 		final ProcessRulesTask task = new ProcessRulesTask(blExchangeName);
 		final Queue queue = QueueFactory.getQueue("ProcessRules");
 		final TaskOptions taskOptions = TaskOptions.Builder.withPayload(task);

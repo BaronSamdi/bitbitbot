@@ -62,6 +62,10 @@ public final class RuleDTO implements BasicDTO, Serializable {
 	public Date getCreateDate() {
 		return this.createDate;
 	}
+	
+	public void setCreateDate(final Date createDate) {
+		this.createDate = createDate;
+	}
 
 	public boolean getActive() {
 		return active;

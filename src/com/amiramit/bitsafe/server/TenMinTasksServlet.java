@@ -28,12 +28,16 @@ public class TenMinTasksServlet extends HttpServlet {
 
 		// Create 10 min worth of FetchPriceFromExchangeTask
 		for (int i = 0; i < NUM_OF_FETCH_PRICE_TASKS; ++i) {
-			final FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
-					ExchangeName.MtGox);
-			final Queue queue = QueueFactory.getQueue("FetchPriceFromExchange");
-			final TaskOptions taskOptions = TaskOptions.Builder.withPayload(
-					task).countdownMillis(i * DELAY_BETWEEN_FETCH_PRICE_TASKS);
-			queue.add(taskOptions);
+			for (ExchangeName curExchange : ExchangeName.values()) {
+				final FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
+						curExchange);
+				final Queue queue = QueueFactory
+						.getQueue("FetchPriceFromExchange");
+				final TaskOptions taskOptions = TaskOptions.Builder
+						.withPayload(task).countdownMillis(
+								i * DELAY_BETWEEN_FETCH_PRICE_TASKS);
+				queue.add(taskOptions);
+			}
 		}
 	}
 }

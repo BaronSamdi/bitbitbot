@@ -112,7 +112,11 @@ public final class Rule {
 			throws UIVerifyException {
 		final Trigger retTrigger = Trigger.fromDTO(uiRule.getTrigger());
 		final Action retAction = Action.fromDTO(uiRule.getAction());
-		final Rule ret = new Rule(uiRule.getKey(), uiRule.getCreateDate(),
+		Date ruledate = uiRule.getCreateDate();
+		if (ruledate == null)
+			ruledate = new Date();
+		
+		final Rule ret = new Rule(uiRule.getKey(), ruledate,
 				userID, uiRule.getDescription(), uiRule.getActive(),
 				retTrigger, retAction);
 		return ret;
@@ -124,6 +128,7 @@ public final class Rule {
 		final RuleDTO ret = new RuleDTO(curRule.getKey(),
 				curRule.getCreateDate(), curRule.getDescription(),
 				curRule.getActive(), retTrigger, retAction);
+		ret.verify(false);
 		return ret;
 	}
 }

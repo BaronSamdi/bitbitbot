@@ -36,7 +36,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 
 		// We must saveNow to make ID available
 		srvRule.saveNow();
-		LOG.info("addRule with rule: " + uiRule + " success; returning id: "
+		LOG.info("addRule with rule: " + srvRule + " success; returning id: "
 				+ srvRule.getKey());
 		return srvRule.getKey();
 	}

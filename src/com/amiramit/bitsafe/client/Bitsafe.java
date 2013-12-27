@@ -2,6 +2,7 @@ package com.amiramit.bitsafe.client;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.channel.Channel;
@@ -451,6 +452,7 @@ public class Bitsafe implements EntryPoint {
 				// TODO: This does not set the server set creationDate.
 				// Should we ?
 				ruleToAdd.setKey(dbKey);
+				ruleToAdd.setCreateDate(new Date());
 				displayRule(ruleToAdd);
 			}
 		});
@@ -468,7 +470,7 @@ public class Bitsafe implements EntryPoint {
 		try {
 			ruleToModify.verify(false);
 		} catch (final UIVerifyException e) {
-			handleError("ruleToModify.verify()", e);
+			handleError("ruleToModify.verify() rule " + ruleToModify.toString(), e);
 			return;
 		}
 
@@ -477,7 +479,7 @@ public class Bitsafe implements EntryPoint {
 		ruleService.updateRule(modifiedRule, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(final Throwable error) {
-				handleError("ruleService.addRule", error);
+				handleError("ruleService.updateRule", error);
 			}
 
 			@Override
