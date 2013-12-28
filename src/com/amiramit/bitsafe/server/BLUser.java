@@ -8,14 +8,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpSession;
-
-import com.amiramit.bitsafe.client.NotLoggedInException;
+import com.amiramit.bitsafe.server.login.PwdUtils;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.condition.IfNotNull;
 
 @Entity
 @Cache
@@ -24,22 +21,31 @@ public class BLUser {
 
 	@Id
 	private Long userId;
-	@Index(IfNotNull.class)
+	@Index
 	private List<String> socialUserIds;
+	private String hashed_passwd;
 
-	private Date creationDate;
 	private Date lastLogIn;
 	private Date lastChannelClientIdSet;
 	private String channelClientID;
 
+	private Date creationDate;
 	private String email;
 	private String nickname;
 
-	public BLUser(final String email, final String nickname) {
+	public BLUser(final String socialUserId, final String passwd,
+			final String email, final String nickname) {
 		super();
+		this.socialUserIds = new ArrayList<String>(1);
+		this.socialUserIds.add(socialUserId);
+		this.hashed_passwd = PwdUtils.hashPassword(passwd);
 		this.creationDate = new Date();
 		this.email = email;
 		this.nickname = nickname;
+	}
+
+	public boolean checkPassword(String candidate) {
+		return PwdUtils.checkPassword(candidate, hashed_passwd);
 	}
 
 	/**
@@ -81,19 +87,12 @@ public class BLUser {
 				.filter("socialUserIds", socialUserID).first().safe();
 	}
 
-	public static BLUser getUserFromSession(final HttpSession session)
-			throws NotLoggedInException {
-		final Long userId = (Long) session.getAttribute("userID");
-		if (userId == null) {
-			throw new NotLoggedInException("Not logged in.");
-		}
-
-		final BLUser ret = BLUser.getUserFromId(userId);
-		return ret;
-	}
-
 	public void save() {
 		ofy().save().entity(this);
+	}
+
+	public void saveNow() {
+		ofy().save().entity(this).now();
 	}
 
 	public String getChannelClientID() {
@@ -109,21 +108,10 @@ public class BLUser {
 		return lastChannelClientIdSet;
 	}
 
-	public void addSocialUserIds(final String socialUserId) {
-		if (socialUserIds == null) {
-			socialUserIds = new ArrayList<String>(1);
-		}
-		socialUserIds.add(socialUserId);
-	}
-
-	public void onLogin(final HttpSession session) {
-		checkNotNull(session);
-		session.setAttribute("userID", getUserId());
+	public void onLogin() {
 		lastLogIn = new Date();
 	}
 
-	public void onLogout(final HttpSession session) {
-		checkNotNull(session);
-		session.removeAttribute("userID");
+	public void onLogout() {
 	}
 }

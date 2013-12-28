@@ -16,12 +16,13 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
-import com.amiramit.bitsafe.server.SocialUser;
 import com.amiramit.bitsafe.server.Utils;
 
 abstract class SocialLogin extends LoginProvider {
 	private static final Logger LOG = Logger.getLogger(LoginProvider.class
 			.getName());
+	
+	protected static final String LOGIN_STATE = "LOGIN_STATE";
 
 	private final LoginProviderName providerName;
 	private final String userInfoUrl;
@@ -46,7 +47,7 @@ abstract class SocialLogin extends LoginProvider {
 	}
 
 	@Override
-	public void doLoginFirstStage(final HttpServletResponse response,
+	public void doLoginFirstStage(HttpServletRequest request,final HttpServletResponse response,
 			final HttpSession session, final String afterLoginUrl,
 			final String callbackUrl) throws UIVerifyException, IOException {
 		final OAuthService service = getOAuthService(callbackUrl);
@@ -64,15 +65,15 @@ abstract class SocialLogin extends LoginProvider {
 		// against CSFR. We'll use it
 		final String state = Utils.getRandomString();
 		authorizationUrl += "&state=" + state;
-		session.setAttribute("LOGIN_STATE", state);
+		session.setAttribute(LOGIN_STATE, state);
 
 		LOG.info("Got the Request Token: " + requestToken + " provide = "
 				+ providerName + " afterLoginUrl = " + afterLoginUrl
 				+ " callbackUrl = " + callbackUrl + " authorizationUrl = "
 				+ authorizationUrl);
 
-		session.setAttribute("LOGIN_PROVIDER", providerName);
-		session.setAttribute("AFTER_LOGIN_REDIRECT", afterLoginUrl);
+		session.setAttribute(LOGIN_PROVIDER, providerName);
+		session.setAttribute(AFTER_LOGIN_REDIRECT, afterLoginUrl);
 		response.sendRedirect(authorizationUrl);
 	}
 
@@ -85,7 +86,7 @@ abstract class SocialLogin extends LoginProvider {
 		// against CSFR. We'll use it
 		final String reqState = request.getParameter("state");
 		final String sessionState = (String) session
-				.getAttribute("LOGIN_STATE");
+				.getAttribute(LOGIN_STATE);
 		if (!reqState.equals(sessionState)) {
 			LOG.severe("State mismatch in session, expected: " + sessionState
 					+ " Passed: " + reqState);

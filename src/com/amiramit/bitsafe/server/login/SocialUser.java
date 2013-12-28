@@ -1,11 +1,11 @@
-package com.amiramit.bitsafe.server;
+package com.amiramit.bitsafe.server.login;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
-import com.amiramit.bitsafe.server.login.LoginProviderName;
+import com.amiramit.bitsafe.server.BLUser;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +41,14 @@ public class SocialUser {
 		this.providerName = LoginProviderName.GOOGLE;
 		verify();
 	}
+	
+	public SocialUser(final String userId, final String email) throws UIVerifyException {
+		// TODO: get as much information on the user as possible
+		this.id = userId;
+		this.email = email;
+		this.providerName = LoginProviderName.INT;
+		verify();
+	}
 
 	private void verify() throws UIVerifyException {
 		FieldVerifier.verifyNotNull(providerName);
@@ -53,25 +61,28 @@ public class SocialUser {
 		}
 	}
 
-	public LoginProviderName getProviderName() {
-		return providerName;
+	private String getId() {
+		return providerName.toString() + id;
 	}
-
-	public String getId() {
-		return id;
+	
+	public BLUser getExistingBLUser() {
+		final String userSocialId = getId();
+		try {
+			return BLUser.getUserFromSocialId(userSocialId);
+		} catch (final NotFoundException e) {
+			return null;
+		}
+	}
+	
+	public BLUser newBLUser(String passwd) {
+		return new BLUser(getId(), email, passwd, nickname);
 	}
 
 	public BLUser toBLUser() {
-		final String userSocialId = providerName.toString() + getId();
-		BLUser ret;
-
 		try {
-			ret = BLUser.getUserFromSocialId(userSocialId);
+			return BLUser.getUserFromSocialId(getId());
 		} catch (final NotFoundException e) {
-			ret = new BLUser(email, nickname);
-			ret.addSocialUserIds(userSocialId);
+			return newBLUser(null);
 		}
-
-		return ret;
 	}
 }

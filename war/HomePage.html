@@ -31,9 +31,20 @@
 	</noscript>
 
 	<h1>Bitsafe MtGox Ticker Page</h1>
-	<p>
-		<a href="login?p=FACEBOOK&u=/Bitsafe.html?gwt.codesvr=localhost:9997">FACEBOOK login</a>
-	<p>
-		<a href="login?p=GOOGLE&u=/Bitsafe.html?gwt.codesvr=localhost:9997">GOOGLE login</a>
+
+	<form name="input" action="login" method="post">
+		<input type="hidden" name="u" value="/Bitsafe.html?gwt.codesvr=localhost:9997">
+		<p><label><input type="checkbox" name="isNew" id="isNew">New Account</label></p>		
+		<p><input type="text" name="userId" value="" placeholder="Username or Email"></p>
+		<p><input type="text" name="email" value="" placeholder="Email"></p>
+		<p><input type="password" name="candidate" value="" placeholder="password"></p>
+		 
+		<select	name="p" id="p"">
+			<option value="GOOGLE">Google</option>
+			<option value="FACEBOOK">FaceBook</option>
+			<option value="INT">Internal</option>
+		</select> 
+		<input type="submit" value="Submit">
+	</form>
 </body>
 </html>

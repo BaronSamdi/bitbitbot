@@ -13,11 +13,15 @@ import org.scribe.builder.api.FacebookApi;
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
-import com.amiramit.bitsafe.server.SocialUser;
+import com.googlecode.objectify.NotFoundException;
 
 public abstract class LoginProvider {
 	private static final Logger LOG = Logger.getLogger(LoginProvider.class
 			.getName());
+
+	protected static final String AFTER_LOGIN_REDIRECT = "AFTER_LOGIN_REDIRECT";
+	protected static final String LOGIN_PROVIDER = "LOGIN_PROVIDER";
+	public static final String USER_ID = "USER_ID";
 
 	public abstract void doLoginCallback(HttpServletRequest request,
 			HttpServletResponse response, HttpSession session,
@@ -30,11 +34,18 @@ public abstract class LoginProvider {
 		doLogin(response, session, blUser, redirectUrl);
 	}
 
-	private static void doLogin(final HttpServletResponse response,
+	protected static void doLogin(final HttpServletResponse response,
 			final HttpSession session, final BLUser blUser,
 			final String redirectUrl) throws IOException {
-		blUser.onLogin(session);
-		blUser.save();
+		blUser.onLogin();
+		if (blUser.getUserId() == null) {
+			// We need to save now to generate id in case of new user
+			blUser.saveNow();
+		} else {
+			// We can do the save async
+			blUser.save();
+		}
+		session.setAttribute(USER_ID, blUser.getUserId());
 		response.sendRedirect(redirectUrl);
 	}
 
@@ -42,22 +53,33 @@ public abstract class LoginProvider {
 			final HttpSession session, final String afterLoginUrl)
 			throws IOException {
 		try {
-			final BLUser user = BLUser.getUserFromSession(session);
+			BLUser user = isLoggedIn(session);
 			LOG.info("Got login request from user: " + user
 					+ " with logged in session");
-			LoginProvider.doLogin(response, session, user, afterLoginUrl);
+			doLogin(response, session, user, afterLoginUrl);
 			return true;
-		} catch (final NotLoggedInException e) {
-			// Expected ...
+		} catch (NotLoggedInException e) {
 			LOG.info("Got login request from unknown user");
+			return false;
 		}
-
-		return false;
 	}
 
-	public abstract void doLoginFirstStage(HttpServletResponse response,
-			HttpSession session, String afterLoginUrl, String callbackUrl)
-			throws IOException, UIVerifyException;
+	public static BLUser isLoggedIn(final HttpSession session)
+			throws NotLoggedInException {
+		final Long userId = (Long) session.getAttribute("userID");
+		if (userId != null) {
+			try {
+				return BLUser.getUserFromId(userId);
+			} catch (NotFoundException e) {
+			}
+		}
+		throw new NotLoggedInException();
+	}
+
+	public abstract void doLoginFirstStage(HttpServletRequest request,
+			HttpServletResponse response, HttpSession session,
+			String afterLoginUrl, String callbackUrl) throws IOException,
+			UIVerifyException;
 
 	static final LoginProvider FACEBOOK_PROVIDER = new FacebookLogin(
 			"https://graph.facebook.com/me",
@@ -65,6 +87,8 @@ public abstract class LoginProvider {
 					.provider(FacebookApi.class).apiKey("266929410125455")
 					.apiSecret("b4c0f9a0cecd2e2986d9b9b2dbf87242"));
 	static final LoginProvider GOOGLE_PROVIDER = new GoogleLogin();
+
+	static final LoginProvider INT_PROVIDER = new IntLogin();
 
 	public static LoginProvider get(final LoginProviderName provider)
 			throws UIVerifyException {
@@ -74,6 +98,8 @@ public abstract class LoginProvider {
 			return FACEBOOK_PROVIDER;
 		case GOOGLE:
 			return GOOGLE_PROVIDER;
+		case INT:
+			return INT_PROVIDER;
 
 		default:
 			throw new UIVerifyException("Invalid provider: " + provider);

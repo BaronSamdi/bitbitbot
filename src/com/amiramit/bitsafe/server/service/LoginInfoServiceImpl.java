@@ -9,6 +9,7 @@ import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.LoginInfoService;
 import com.amiramit.bitsafe.client.service.UILoginInfo;
 import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.server.login.LoginProvider;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
@@ -24,7 +25,7 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 	public UILoginInfo getLoginInfo() throws UIVerifyException,
 			NotLoggedInException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
 		final UILoginInfo loginInfo = new UILoginInfo();
 
 		LOG.info("User login requested, for logged in user. User details: "
@@ -44,8 +45,9 @@ public class LoginInfoServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public String logout() throws NotLoggedInException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
-		blUser.onLogout(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
+		blUser.onLogout();
+		session.removeAttribute(LoginProvider.USER_ID);
 
 		final String afterLogoutUrl = "/";
 

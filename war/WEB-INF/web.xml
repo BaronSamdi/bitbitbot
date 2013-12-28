@@ -104,7 +104,7 @@
 
 	<servlet>
 		<servlet-name>loginCallbackServlet</servlet-name>
-		<servlet-class>com.amiramit.bitsafe.server.LoginCallbackServlet</servlet-class>
+		<servlet-class>com.amiramit.bitsafe.server.login.LoginCallbackServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>loginCallbackServlet</servlet-name>

@@ -13,6 +13,7 @@ import com.amiramit.bitsafe.client.dto.RuleDTO;
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.client.service.RuleService;
 import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.server.login.LoginProvider;
 import com.amiramit.bitsafe.server.rule.Rule;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
@@ -30,7 +31,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 		// TODO: Limit users to <Magic Number> rules in total!!!
 		// See also getRules
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
 		uiRule.verify();
 		final Rule srvRule = Rule.fromDTO(blUser.getUserId(), uiRule);
 
@@ -45,7 +46,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	public void updateRule(final RuleDTO uiRule) throws NotLoggedInException,
 			UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
 		uiRule.verify(false);
 
 		// First, load rule from db and validate it actually belongs to this
@@ -71,7 +72,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	public void removeRule(final Long id) throws NotLoggedInException,
 			UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
 		FieldVerifier.verifyNotNull(id);
 		final Rule dbRule = ofy().load().type(Rule.class).id(id).safe();
 		if (dbRule.getUserId() != blUser.getUserId()) {
@@ -90,7 +91,7 @@ public class RuleServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public RuleDTO[] getRules() throws NotLoggedInException, UIVerifyException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser blUser = BLUser.getUserFromSession(session);
+		final BLUser blUser = LoginProvider.isLoggedIn(session);
 
 		// TODO: Make this limit known to user somehow!
 		final List<Rule> dbRules = ofy().load().type(Rule.class)

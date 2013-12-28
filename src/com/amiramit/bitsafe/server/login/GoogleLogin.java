@@ -8,14 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
-import com.amiramit.bitsafe.server.SocialUser;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class GoogleLogin extends LoginProvider {
-	private static final String AFTER_LOGIN_REDIRECT = "AFTER_LOGIN_REDIRECT";
-	private static final String LOGIN_PROVIDER = "LOGIN_PROVIDER";
 	private static final Logger LOG = Logger.getLogger(GoogleLogin.class
 			.getName());
 
@@ -36,9 +33,10 @@ public class GoogleLogin extends LoginProvider {
 	}
 
 	@Override
-	public void doLoginFirstStage(final HttpServletResponse response,
-			final HttpSession session, final String afterLoginUrl,
-			final String callbackUrl) throws IOException, UIVerifyException {
+	public void doLoginFirstStage(HttpServletRequest request,
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl, final String callbackUrl)
+			throws IOException, UIVerifyException {
 		// if provider is google it's the simplest case - just use google
 		// user services ...
 		final UserService userService = UserServiceFactory.getUserService();

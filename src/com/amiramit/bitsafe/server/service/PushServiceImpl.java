@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import com.amiramit.bitsafe.client.NotLoggedInException;
 import com.amiramit.bitsafe.client.service.PushService;
 import com.amiramit.bitsafe.server.BLUser;
+import com.amiramit.bitsafe.server.login.LoginProvider;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
@@ -25,7 +26,7 @@ public class PushServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public String getChannelKey() throws NotLoggedInException {
 		final HttpSession session = getThreadLocalRequest().getSession();
-		final BLUser user = BLUser.getUserFromSession(session);
+		final BLUser user = LoginProvider.isLoggedIn(session);
 		return newChannelToken(user, session.getId());
 	}
 

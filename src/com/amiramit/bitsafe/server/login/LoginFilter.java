@@ -30,18 +30,17 @@ public final class LoginFilter implements Filter {
 
 		final HttpServletRequest req = (HttpServletRequest) request;
 
+		final HttpSession session = req.getSession(false);
 		try {
-			final HttpSession session = req.getSession(false);
-			final BLUser user = BLUser.getUserFromSession(session);
+			BLUser user = LoginProvider.isLoggedIn(session);
 			LOG.info("LoginFilter user: " + user + " logged in.");
 			chain.doFilter(request, response);
-		} catch (final NotLoggedInException e) {
+		} catch (NotLoggedInException e) {
 			// Expected?
-			LOG.warning("LoginFilter: request from unknown user");
+			LOG.severe("LoginFilter: request from unknown user");
+			final HttpServletResponse resp = (HttpServletResponse) response;
+			resp.sendRedirect("/");
 		}
-
-		final HttpServletResponse resp = (HttpServletResponse) response;
-		resp.sendRedirect("/");
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.amiramit.bitsafe.server;
+package com.amiramit.bitsafe.server.login;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -10,8 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
-import com.amiramit.bitsafe.server.login.LoginProvider;
-import com.amiramit.bitsafe.server.login.LoginProviderName;
+import com.amiramit.bitsafe.server.Utils;
 import com.amiramit.bitsafe.shared.FieldVerifier;
 
 @SuppressWarnings("serial")
@@ -22,6 +21,13 @@ public class LoginCallbackServlet extends HttpServlet {
 	@Override
 	public void doGet(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException {
+		// Get is not allowed for login requests
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+	}
+
+	@Override
+	public void doPost(final HttpServletRequest request,
+			final HttpServletResponse response) throws IOException {
 		try {
 			if (request.getRequestURI().equals("/login")) {
 				final HttpSession session = request.getSession(true);
@@ -30,9 +36,11 @@ public class LoginCallbackServlet extends HttpServlet {
 			} else if (request.getRequestURI().equals("/login/callback")) {
 				final HttpSession session = request.getSession(false);
 				final LoginProviderName providerName = (LoginProviderName) Utils
-						.getAndRemoveAttribute(session, "LOGIN_PROVIDER");
+						.getAndRemoveAttribute(session,
+								LoginProvider.LOGIN_PROVIDER);
 				final String afterLoginUrl = (String) Utils
-						.getAndRemoveAttribute(session, "AFTER_LOGIN_REDIRECT");
+						.getAndRemoveAttribute(session,
+								LoginProvider.AFTER_LOGIN_REDIRECT);
 				FieldVerifier.verifyUri(afterLoginUrl);
 
 				LoginProvider.get(providerName).doLoginCallback(request,
@@ -64,7 +72,7 @@ public class LoginCallbackServlet extends HttpServlet {
 		final String callbackUrl = request.getRequestURL().toString()
 				+ "/callback";
 
-		LoginProvider.get(providerName).doLoginFirstStage(response, session,
+		LoginProvider.get(providerName).doLoginFirstStage(request, response, session,
 				afterLoginUrl, callbackUrl);
 	}
 }
