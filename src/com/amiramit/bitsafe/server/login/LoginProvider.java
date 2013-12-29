@@ -66,7 +66,7 @@ public abstract class LoginProvider {
 
 	public static BLUser isLoggedIn(final HttpSession session)
 			throws NotLoggedInException {
-		final Long userId = (Long) session.getAttribute("userID");
+		final Long userId = (Long) session.getAttribute(USER_ID);
 		if (userId != null) {
 			try {
 				return BLUser.getUserFromId(userId);

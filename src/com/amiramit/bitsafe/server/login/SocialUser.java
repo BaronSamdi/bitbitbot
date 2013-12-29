@@ -3,6 +3,7 @@ package com.amiramit.bitsafe.server.login;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.amiramit.bitsafe.client.dto.UIVerifyException;
 import com.amiramit.bitsafe.server.BLUser;
@@ -13,6 +14,9 @@ import com.google.appengine.api.users.User;
 import com.googlecode.objectify.NotFoundException;
 
 public class SocialUser {
+	private static final Logger LOG = Logger
+			.getLogger(SocialUser.class.getName());
+	
 	private LoginProviderName providerName;
 	private String id;
 	private String email;
@@ -57,6 +61,7 @@ public class SocialUser {
 			FieldVerifier.verifyString(nickname);
 		}
 		if (email != null) {
+			LOG.info("email = " + email);
 			FieldVerifier.verifyEmail(email);
 		}
 	}
