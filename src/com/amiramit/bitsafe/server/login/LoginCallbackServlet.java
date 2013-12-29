@@ -21,17 +21,22 @@ public class LoginCallbackServlet extends HttpServlet {
 	@Override
 	public void doGet(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException {
-		// Get is not allowed for login requests
-		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		doGetOrPost(request, response, true);
 	}
 
 	@Override
 	public void doPost(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException {
+		doGetOrPost(request, response, false);
+	}
+
+	public void doGetOrPost(final HttpServletRequest request,
+			final HttpServletResponse response, boolean isGet)
+			throws IOException {
 		try {
 			if (request.getRequestURI().equals("/login")) {
 				final HttpSession session = request.getSession(true);
-				handleLoginRequest(request, response, session);
+				handleLoginRequest(request, response, session, isGet);
 				return;
 			} else if (request.getRequestURI().equals("/login/callback")) {
 				final HttpSession session = request.getSession(false);
@@ -55,8 +60,8 @@ public class LoginCallbackServlet extends HttpServlet {
 	}
 
 	private void handleLoginRequest(final HttpServletRequest request,
-			final HttpServletResponse response, final HttpSession session)
-			throws UIVerifyException, IOException {
+			final HttpServletResponse response, final HttpSession session,
+			boolean isGet) throws UIVerifyException, IOException {
 		final String afterLoginUrl = request.getParameter("u");
 		FieldVerifier.verifyUri(afterLoginUrl);
 
@@ -69,10 +74,16 @@ public class LoginCallbackServlet extends HttpServlet {
 		final LoginProviderName providerName = LoginProviderName
 				.valueOf(providerStr);
 
+		if (providerName.equals(LoginProviderName.INT) && isGet) {
+			LOG.severe("GET is not allowed for internal login");
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
 		final String callbackUrl = request.getRequestURL().toString()
 				+ "/callback";
 
-		LoginProvider.get(providerName).doLoginFirstStage(request, response, session,
-				afterLoginUrl, callbackUrl);
+		LoginProvider.get(providerName).doLoginFirstStage(request, response,
+				session, afterLoginUrl, callbackUrl);
 	}
 }

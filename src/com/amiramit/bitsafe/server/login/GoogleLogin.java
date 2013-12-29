@@ -44,7 +44,7 @@ public class GoogleLogin extends LoginProvider {
 		if (user == null) {
 			final String loginURL = userService.createLoginURL(callbackUrl);
 			LOG.info("Got login request with google provider. redirecting to "
-					+ loginURL);
+					+ loginURL + "; callbackUrl = " + callbackUrl);
 
 			session.setAttribute(LOGIN_PROVIDER, LoginProviderName.GOOGLE);
 			session.setAttribute(AFTER_LOGIN_REDIRECT, afterLoginUrl);

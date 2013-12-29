@@ -33,8 +33,8 @@ public class BLUser {
 	private String email;
 	private String nickname;
 
-	public BLUser(final String socialUserId, final String passwd,
-			final String email, final String nickname) {
+	public BLUser(final String socialUserId, final String email,
+			final String passwd, final String nickname) {
 		super();
 		this.socialUserIds = new ArrayList<String>(1);
 		this.socialUserIds.add(socialUserId);
@@ -47,10 +47,9 @@ public class BLUser {
 	public boolean checkPassword(String candidate) {
 		return PwdUtils.checkPassword(candidate, hashed_passwd);
 	}
-	
 
 	public void setPassword(String passwd) {
-		this.hashed_passwd = PwdUtils.hashPassword(passwd);		
+		this.hashed_passwd = PwdUtils.hashPassword(passwd);
 	}
 
 	/**
