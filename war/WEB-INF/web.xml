@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
-
+	
 	<!-- Default page to serve -->
 	<welcome-file-list>
-		<welcome-file>HomePage.html</welcome-file>
+		<welcome-file>homepage.html</welcome-file>
 	</welcome-file-list>
 
 	<!-- Security constraints. Limit cron and tasks servlets invocation to admins 

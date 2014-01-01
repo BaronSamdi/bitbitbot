@@ -5,6 +5,14 @@
 
 	<!-- Allows App Engine to send multiple requests to one instance in parallel: -->
 	<threadsafe>true</threadsafe>
+	
+	
+	<!-- The <public-root> is a directory in your application that contains 
+		the static files for your application. When a request for a static file is 
+		made, the <public-root> for your application is prepended to the request 
+		path. This gives the path of an application file containing the content that 
+		is being requested. 
+	<public-root>/static</public-root> -->
 
 	<!-- Configure serving/caching of GWT files -->
 	<static-files>
@@ -32,6 +40,9 @@
 	<!-- enable HTTP sessions -->
 	<sessions-enabled>true</sessions-enabled>
 	<async-session-persistence enabled="true" />
+
+	<!-- enable the incoming email service <inbound-services> <service>mail</service> 
+		</inbound-services> -->
 
 	<!-- be notified when a client connects to or disconnects from a channel 
 		When you enable channel_presence, your application receives POSTs to the 
