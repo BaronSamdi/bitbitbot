@@ -14,7 +14,7 @@ public abstract class Trigger implements Serializable {
 	private Exchange exchange;
 	private CurrencyPair currencyPair;
 
-	public Trigger(final Exchange exchange, CurrencyPair currencyPair) {
+	public Trigger(final Exchange exchange, final CurrencyPair currencyPair) {
 		super();
 		this.exchange = exchange;
 		this.currencyPair = currencyPair;

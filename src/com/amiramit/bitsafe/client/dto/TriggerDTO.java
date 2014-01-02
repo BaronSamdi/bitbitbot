@@ -16,7 +16,7 @@ public abstract class TriggerDTO implements BasicDTO, Serializable {
 	protected TriggerDTO() {
 	}
 
-	public TriggerDTO(final Exchange exchange, CurrencyPair currencyPair) {
+	public TriggerDTO(final Exchange exchange, final CurrencyPair currencyPair) {
 		super();
 		this.exchange = exchange;
 		this.currencyPair = currencyPair;
@@ -31,7 +31,7 @@ public abstract class TriggerDTO implements BasicDTO, Serializable {
 	}
 
 	@Override
-	public void verify() throws UIVerifyException {		
+	public void verify() throws UIVerifyException {
 		FieldVerifier.verifyNotNull(exchange);
 		if (!exchange.isSupportedCurrencyPair(currencyPair)) {
 			throw new UIVerifyException("Currency pair: " + currencyPair

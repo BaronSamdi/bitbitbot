@@ -33,7 +33,7 @@ public class GoogleLogin extends LoginProvider {
 	}
 
 	@Override
-	public void doLoginFirstStage(HttpServletRequest request,
+	public void doLoginFirstStage(final HttpServletRequest request,
 			final HttpServletResponse response, final HttpSession session,
 			final String afterLoginUrl, final String callbackUrl)
 			throws IOException, UIVerifyException {

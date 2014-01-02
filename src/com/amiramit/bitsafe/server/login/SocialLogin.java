@@ -21,7 +21,7 @@ import com.amiramit.bitsafe.server.Utils;
 abstract class SocialLogin extends LoginProvider {
 	private static final Logger LOG = Logger.getLogger(LoginProvider.class
 			.getName());
-	
+
 	protected static final String LOGIN_STATE = "LOGIN_STATE";
 
 	private final LoginProviderName providerName;
@@ -47,12 +47,13 @@ abstract class SocialLogin extends LoginProvider {
 	}
 
 	@Override
-	public void doLoginFirstStage(HttpServletRequest request,final HttpServletResponse response,
-			final HttpSession session, final String afterLoginUrl,
-			final String callbackUrl) throws UIVerifyException, IOException {
+	public void doLoginFirstStage(final HttpServletRequest request,
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl, final String callbackUrl)
+			throws UIVerifyException, IOException {
 		final OAuthService service = getOAuthService(callbackUrl);
 
-		Token requestToken = null;
+		final Token requestToken = null;
 		// Twitter (and some others) requires request token first. obtain it ...
 		// if (providerName.equals(LoginProviderName.TWITTER)) {
 		// requestToken = service.getRequestToken();
@@ -85,8 +86,7 @@ abstract class SocialLogin extends LoginProvider {
 		// Facebook (and some others) has optional state variable to protect
 		// against CSFR. We'll use it
 		final String reqState = request.getParameter("state");
-		final String sessionState = (String) session
-				.getAttribute(LOGIN_STATE);
+		final String sessionState = (String) session.getAttribute(LOGIN_STATE);
 		if (!reqState.equals(sessionState)) {
 			LOG.severe("State mismatch in session, expected: " + sessionState
 					+ " Passed: " + reqState);

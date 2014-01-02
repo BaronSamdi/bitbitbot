@@ -18,7 +18,7 @@ import com.amiramit.bitsafe.server.BLUser;
 
 public final class LoginFilter implements Filter {
 
-	private static Logger LOG = Logger.getLogger(LoginFilter.class.getName());
+	private static final Logger LOG = Logger.getLogger(LoginFilter.class.getName());
 
 	@Override
 	public void doFilter(final ServletRequest request,
@@ -32,10 +32,10 @@ public final class LoginFilter implements Filter {
 
 		final HttpSession session = req.getSession(false);
 		try {
-			BLUser user = LoginProvider.isLoggedIn(session);
+			final BLUser user = LoginProvider.isLoggedIn(session);
 			LOG.info("LoginFilter user: " + user + " logged in.");
 			chain.doFilter(request, response);
-		} catch (NotLoggedInException e) {
+		} catch (final NotLoggedInException e) {
 			// Expected?
 			LOG.severe("LoginFilter: request from unknown user");
 			final HttpServletResponse resp = (HttpServletResponse) response;

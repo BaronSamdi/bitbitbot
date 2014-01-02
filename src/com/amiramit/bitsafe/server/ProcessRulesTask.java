@@ -26,7 +26,8 @@ public class ProcessRulesTask implements DeferredTask {
 	private Exchange exchange;
 	private CurrencyPair currencyPair;
 
-	public ProcessRulesTask(final Exchange exchange, CurrencyPair currencyPair) {
+	public ProcessRulesTask(final Exchange exchange,
+			final CurrencyPair currencyPair) {
 		super();
 		this.exchange = exchange;
 		this.currencyPair = currencyPair;

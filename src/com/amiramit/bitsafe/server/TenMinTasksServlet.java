@@ -28,7 +28,7 @@ public class TenMinTasksServlet extends HttpServlet {
 
 		// Create 10 min worth of FetchPriceFromExchangeTask
 		for (int i = 0; i < NUM_OF_FETCH_PRICE_TASKS; ++i) {
-			for (Exchange curExchange : Exchange.values()) {
+			for (final Exchange curExchange : Exchange.values()) {
 				final FetchPriceFromExchangeTask task = new FetchPriceFromExchangeTask(
 						curExchange);
 				final Queue queue = QueueFactory

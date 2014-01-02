@@ -31,7 +31,7 @@ public class LoginCallbackServlet extends HttpServlet {
 	}
 
 	public void doGetOrPost(final HttpServletRequest request,
-			final HttpServletResponse response, boolean isGet)
+			final HttpServletResponse response, final boolean isGet)
 			throws IOException {
 		try {
 			if (request.getRequestURI().equals("/login")) {
@@ -61,7 +61,7 @@ public class LoginCallbackServlet extends HttpServlet {
 
 	private void handleLoginRequest(final HttpServletRequest request,
 			final HttpServletResponse response, final HttpSession session,
-			boolean isGet) throws UIVerifyException, IOException {
+			final boolean isGet) throws UIVerifyException, IOException {
 		final String afterLoginUrl = request.getParameter("u");
 		FieldVerifier.verifyUri(afterLoginUrl);
 

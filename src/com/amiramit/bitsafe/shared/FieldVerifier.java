@@ -56,7 +56,8 @@ public final class FieldVerifier {
 		final int sz = str.length();
 		for (int i = 0; i < sz; i++) {
 			final char charAt = str.charAt(i);
-			if (charAt != ' ' && !Character.isLetterOrDigit(charAt) && charAt != '@' && charAt != '.') {
+			if (charAt != ' ' && !Character.isLetterOrDigit(charAt)
+					&& charAt != '@' && charAt != '.') {
 				throw new UIVerifyException("String: '" + truncateStr(str, 30)
 						+ "' is not alpha numeric; char: " + charAt);
 			}

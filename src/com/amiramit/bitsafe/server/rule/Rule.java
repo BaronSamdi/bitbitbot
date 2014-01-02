@@ -113,12 +113,13 @@ public final class Rule {
 		final Trigger retTrigger = Trigger.fromDTO(uiRule.getTrigger());
 		final Action retAction = Action.fromDTO(uiRule.getAction());
 		Date ruledate = uiRule.getCreateDate();
-		if (ruledate == null)
+		if (ruledate == null) {
 			ruledate = new Date();
-		
-		final Rule ret = new Rule(uiRule.getKey(), ruledate,
-				userID, uiRule.getDescription(), uiRule.getActive(),
-				retTrigger, retAction);
+		}
+
+		final Rule ret = new Rule(uiRule.getKey(), ruledate, userID,
+				uiRule.getDescription(), uiRule.getActive(), retTrigger,
+				retAction);
 		return ret;
 	}
 

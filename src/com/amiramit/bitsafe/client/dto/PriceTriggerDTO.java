@@ -23,7 +23,8 @@ public class PriceTriggerDTO extends TriggerDTO {
 	}
 
 	public PriceTriggerDTO(final Exchange exchange,
-			CurrencyPair currencyPair, final TYPE type, final BigDecimal atPrice) {
+			final CurrencyPair currencyPair, final TYPE type,
+			final BigDecimal atPrice) {
 		super(exchange, currencyPair);
 		this.type = type;
 		this.atPrice = atPrice;

@@ -16,18 +16,18 @@ public class IntLogin extends LoginProvider {
 			.getLogger(IntLogin.class.getName());
 
 	@Override
-	public void doLoginCallback(HttpServletRequest request,
-			HttpServletResponse response, HttpSession session,
-			String afterLoginUrl) throws IOException, UIVerifyException {
+	public void doLoginCallback(final HttpServletRequest request,
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl) throws IOException, UIVerifyException {
 		// Login / registration are all done in first stage
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
 	@Override
-	public void doLoginFirstStage(HttpServletRequest request,
-			HttpServletResponse response, HttpSession session,
-			String afterLoginUrl, String callbackUrl) throws IOException,
-			UIVerifyException {
+	public void doLoginFirstStage(final HttpServletRequest request,
+			final HttpServletResponse response, final HttpSession session,
+			final String afterLoginUrl, final String callbackUrl)
+			throws IOException, UIVerifyException {
 		final boolean isNew = request.getParameter("isNew") != null;
 		String email = request.getParameter("email");
 		final String userId = request.getParameter("userId");
@@ -49,14 +49,14 @@ public class IntLogin extends LoginProvider {
 			LOG.info("Got login request from new user: " + user);
 		} else {
 			if (user == null || !user.checkPassword(candidate)) {
-				LOG.info("Got login request from user: " + user + "; invalid user name or password");
+				LOG.info("Got login request from user: " + user
+						+ "; invalid user name or password");
 				response.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
-			LOG.info("Got login request from internal user: "
-					+ user);
+			LOG.info("Got login request from internal user: " + user);
 		}
-		
+
 		doLogin(response, session, user, afterLoginUrl);
 	}
 }

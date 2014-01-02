@@ -34,13 +34,13 @@ public class FetchPriceFromExchangeTask implements DeferredTask {
 	public void run() {
 		final PollingMarketDataService marketDataService = getMarketDataService();
 
-		for (CurrencyPair cp : exchangeInfo.getSupportedCurrencyPairs()) {
+		for (final CurrencyPair cp : exchangeInfo.getSupportedCurrencyPairs()) {
 			Ticker curTicker;
 
 			try {
 				curTicker = marketDataService.getTicker(
-						cp.baseCurrency.toString(),
-						cp.counterCurrency.toString());
+						cp.getBaseCurrency().toString(),
+						cp.getCounterCurrency().toString());
 			} catch (ExchangeException | NotAvailableFromExchangeException
 					| NotYetImplementedForExchangeException | IOException e) {
 				LOG.severe("Failed to get ticker for currency pair: " + cp

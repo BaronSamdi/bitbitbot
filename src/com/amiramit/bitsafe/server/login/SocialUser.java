@@ -14,9 +14,9 @@ import com.google.appengine.api.users.User;
 import com.googlecode.objectify.NotFoundException;
 
 public class SocialUser {
-	private static final Logger LOG = Logger
-			.getLogger(SocialUser.class.getName());
-	
+	private static final Logger LOG = Logger.getLogger(SocialUser.class
+			.getName());
+
 	private LoginProviderName providerName;
 	private String id;
 	private String email;
@@ -32,7 +32,7 @@ public class SocialUser {
 
 		this.id = (String) userData.get("id");
 		this.email = (String) userData.get("email");
-		this.nickname = (String) userData.get("name");		
+		this.nickname = (String) userData.get("name");
 		this.providerName = providerName;
 		verify();
 	}
@@ -45,8 +45,9 @@ public class SocialUser {
 		this.providerName = LoginProviderName.GOOGLE;
 		verify();
 	}
-	
-	public SocialUser(final String userId, final String email) throws UIVerifyException {
+
+	public SocialUser(final String userId, final String email)
+			throws UIVerifyException {
 		// TODO: get as much information on the user as possible
 		this.id = userId;
 		this.email = email;
@@ -69,7 +70,7 @@ public class SocialUser {
 	private String getId() {
 		return providerName.toString() + id;
 	}
-	
+
 	public BLUser getExistingBLUser() {
 		final String userSocialId = getId();
 		try {
@@ -78,8 +79,8 @@ public class SocialUser {
 			return null;
 		}
 	}
-	
-	public BLUser newBLUser(String passwd) {
+
+	public BLUser newBLUser(final String passwd) {
 		return new BLUser(getId(), email, passwd, nickname);
 	}
 

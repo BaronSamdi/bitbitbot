@@ -46,18 +46,19 @@ public class BLLastTicker {
 	private BLLastTicker() {
 	}
 
-	public BLLastTicker(final Exchange exchange, CurrencyPair currencyPair,
-			final Ticker ticker) {
+	public BLLastTicker(final Exchange exchange,
+			final CurrencyPair currencyPair, final Ticker ticker) {
 		this.exchange = exchange;
 		this.currencyPair = currencyPair;
 		this.id = getId(exchange, currencyPair);
 
-		if (!ticker.getTradableIdentifier().equals(currencyPair.baseCurrency.toString())) {
+		if (!ticker.getTradableIdentifier().equals(
+				currencyPair.getBaseCurrency().toString())) {
 			throw new RuntimeException(
 					"Something went wrong - getTradableIdentifier: "
 							+ ticker.getTradableIdentifier()
 							+ " != currencyPair.baseCurrency.toString(): "
-							+ currencyPair.baseCurrency.toString());
+							+ currencyPair.getBaseCurrency().toString());
 		}
 		this.last = ticker.getLast().getAmount();
 		this.bid = ticker.getBid().getAmount();
@@ -69,7 +70,7 @@ public class BLLastTicker {
 	}
 
 	private static String getId(final Exchange exchange,
-			CurrencyPair currencyPair) {
+			final CurrencyPair currencyPair) {
 		return exchange.toString() + currencyPair.toString();
 	}
 
@@ -125,7 +126,7 @@ public class BLLastTicker {
 	}
 
 	public static BLLastTicker getLastTicker(final Exchange exchange,
-			CurrencyPair currencyPair) {
+			final CurrencyPair currencyPair) {
 		return ofy().load().type(BLLastTicker.class)
 				.id(getId(exchange, currencyPair)).now();
 	}

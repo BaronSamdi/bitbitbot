@@ -53,12 +53,12 @@ public abstract class LoginProvider {
 			final HttpSession session, final String afterLoginUrl)
 			throws IOException {
 		try {
-			BLUser user = isLoggedIn(session);
+			final BLUser user = isLoggedIn(session);
 			LOG.info("Got login request from user: " + user
 					+ " with logged in session");
 			doLogin(response, session, user, afterLoginUrl);
 			return true;
-		} catch (NotLoggedInException e) {
+		} catch (final NotLoggedInException e) {
 			LOG.info("Got login request from unknown user");
 			return false;
 		}
@@ -70,7 +70,8 @@ public abstract class LoginProvider {
 		if (userId != null) {
 			try {
 				return BLUser.getUserFromId(userId);
-			} catch (NotFoundException e) {
+			} catch (final NotFoundException e) {
+				LOG.severe("isLoggedIn for non exsisting userID: " + userId);
 			}
 		}
 		throw new NotLoggedInException();

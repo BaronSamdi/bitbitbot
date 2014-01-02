@@ -19,8 +19,9 @@ public class PriceTrigger extends Trigger {
 	private TYPE type;
 	private BigDecimal atPrice;
 
-	public PriceTrigger(final Exchange exchange, CurrencyPair currencyPair,
-			final TYPE type, final BigDecimal atPrice) {
+	public PriceTrigger(final Exchange exchange,
+			final CurrencyPair currencyPair, final TYPE type,
+			final BigDecimal atPrice) {
 		super(exchange, currencyPair);
 		this.type = type;
 		this.atPrice = atPrice;
@@ -28,8 +29,8 @@ public class PriceTrigger extends Trigger {
 
 	@Override
 	public boolean check() {
-		final BLLastTicker lastTicker = BLLastTicker
-				.getLastTicker(getExchange(), getCurrencyPair());
+		final BLLastTicker lastTicker = BLLastTicker.getLastTicker(
+				getExchange(), getCurrencyPair());
 
 		boolean res;
 		switch (type) {

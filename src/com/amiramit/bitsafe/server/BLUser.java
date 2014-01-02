@@ -23,7 +23,7 @@ public class BLUser {
 	private Long userId;
 	@Index
 	private List<String> socialUserIds;
-	private String hashed_passwd;
+	private String hashedPasswd;
 
 	private Date lastLogIn;
 	private Date lastChannelClientIdSet;
@@ -38,18 +38,18 @@ public class BLUser {
 		super();
 		this.socialUserIds = new ArrayList<String>(1);
 		this.socialUserIds.add(socialUserId);
-		this.hashed_passwd = PwdUtils.hashPassword(passwd);
+		this.hashedPasswd = PwdUtils.hashPassword(passwd);
 		this.creationDate = new Date();
 		this.email = email;
 		this.nickname = nickname;
 	}
 
-	public boolean checkPassword(String candidate) {
-		return PwdUtils.checkPassword(candidate, hashed_passwd);
+	public boolean checkPassword(final String candidate) {
+		return PwdUtils.checkPassword(candidate, hashedPasswd);
 	}
 
-	public void setPassword(String passwd) {
-		this.hashed_passwd = PwdUtils.hashPassword(passwd);
+	public void setPassword(final String passwd) {
+		this.hashedPasswd = PwdUtils.hashPassword(passwd);
 	}
 
 	/**

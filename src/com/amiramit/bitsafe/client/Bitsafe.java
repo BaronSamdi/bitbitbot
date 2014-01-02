@@ -334,7 +334,8 @@ public class Bitsafe implements EntryPoint {
 		});
 		rulesFlexTable.setWidget(row, 0, ruleDisplayCheckBox);
 		rulesFlexTable.setText(row, 1, rule.getDescription());
-		rulesFlexTable.setText(row, 4, rule.getTrigger().getExchange().toString());
+		rulesFlexTable.setText(row, 4, rule.getTrigger().getExchange()
+				.toString());
 		if (rule.getTrigger() instanceof PriceTriggerDTO) {
 			rulesFlexTable.setText(row, 2, STOP_LOSS);
 			rulesFlexTable.setText(row, 3,
