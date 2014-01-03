@@ -1,0 +1,32 @@
+@CHARSET "UTF-8";
+
+/*
+for full list of customizable options (and defaults),see 
+https://code.google.com/p/google-web-toolkit/source/browse/trunk/user/src/com/google/gwt/user/cellview/client/CellTable.css 
+*/
+.cellTableCell {
+	height: 46px;
+	padding: 2px 25px;
+}
+
+.cellTableHoveredRow {
+}
+
+.cellTableHoveredRowCell {
+}
+
+.cellTableEvenRow {
+  background: #ffffff;
+}
+
+.cellTableEvenRowCell {
+  border: selectionBorderWidth solid #ffffff;
+}
+
+.cellTableOddRow {
+  background: #ffffff;
+}
+
+.cellTableOddRowCell {
+  border: selectionBorderWidth solid #ffffff;
+}
